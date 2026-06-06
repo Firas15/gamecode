@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IP-адреса — Game Code</title>
+  <link rel="icon" href="../../img/ICON.PNG" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../css/style.css"/>
+  <link rel="stylesheet" href="../../css/pages.css"/>
+  <link rel="stylesheet" href="../../css/auth.css"/>
+  <link rel="stylesheet" href="theory-page.css"/>
+  <link rel="stylesheet" href="../../css/mobile.css"/>
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+<nav class="sidebar" id="sidebar">
+  <button class="sidebar-close" id="sidebarClose">х</button>
+  <div class="sidebar-logo"><span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span></div>
+  <ul class="sidebar-nav">
+    <li><a href="../../index.html"    class="sidebar-link">Все игры</a></li>
+    <li><a href="../leaderboard.html" class="sidebar-link">Лидеры</a></li>
+    <li><a href="../how-to-play.html" class="sidebar-link">Как играть</a></li>
+    <li><a href="../theory.html"      class="sidebar-link active">Теория</a></li>
+    <li><a href="../about.html"       class="sidebar-link">О нас</a></li>
+  </ul>
+  <div class="sidebar-footer"><span>V1.0 — GameCode</span></div>
+</nav>
+<header class="header">
+  <div class="header-left">
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <div class="site-title">
+      <a href="../../index.html" class="logo pixel-text" style="text-decoration:none">GAME<span class="accent">CODE</span></a>
+      <p class="tagline pixel-text">Изучай программирование в играх</p>
+    </div>
+  </div>
+  <div class="header-right"><div id="auth-widget"></div></div>
+</header>
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <p class="breadcrumb"><a href="../../index.html">ГЛАВНАЯ</a> / <a href="../theory.html">ТЕОРИЯ</a> / <a href="../theory.html">IP АДРЕСА И СЕТИ</a> / ОСНОВЫ</p>
+    <div class="theory-hero-emoji">₊⊹</div>
+    <h1 class="page-title" style="color:var(--yellow)">IP-АДРЕСА</h1>
+    <p class="page-subtitle pixel-text">Основы и виды IP-адресов</p>
+    <div class="theory-tags">
+      <span class="ttag ttag-yellow">IP / Сети</span>
+      <span class="ttag ttag-level">Новичок</span>
+    </div>
+  </div>
+</section>
+<main class="page-content theory-page-content">
+
+  <div class="content-block yellow-accent">
+    <h2 class="block-title yellow">[ ЧТО ТАКОЕ IP-АДРЕС ]</h2>
+    <p class="section-text">IP-адрес (Internet Protocol address) — это уникальный числовой идентификатор каждого устройства в сети. Как почтовый адрес дома, только для компьютера.</p>
+    <p class="section-text">Стандарт <strong>IPv4</strong> — четыре числа от 0 до 255, разделённые точкой:</p>
+    <div class="ip-visual">
+      <div class="ip-octet"><span class="ip-octet-num">192</span><span class="ip-octet-label">октет 1</span></div>
+      <div class="ip-dot">.</div>
+      <div class="ip-octet"><span class="ip-octet-num">168</span><span class="ip-octet-label">октет 2</span></div>
+      <div class="ip-dot">.</div>
+      <div class="ip-octet"><span class="ip-octet-num">1</span><span class="ip-octet-label">октет 3</span></div>
+      <div class="ip-dot">.</div>
+      <div class="ip-octet"><span class="ip-octet-num">10</span><span class="ip-octet-label">октет 4</span></div>
+    </div>
+    <div class="info-box yellow">
+      <span class="info-icon">₊⊹</span>
+      <div class="info-text">Каждый октет — это 8 бит. Значит весь IPv4-адрес = 32 бита. Всего существует <strong>~4.3 млрд</strong> уникальных IPv4-адресов.</div>
+    </div>
+  </div>
+  <div class="content-block yellow-accent">
+    <h2 class="block-title yellow">[ ВИДЫ IP-АДРЕСОВ ]</h2>
+    <div class="types-grid">
+  <div class="type-card"><div class="type-name pixel-text">Частные</div><div class="type-desc">Только внутри локальной сети</div><div class="type-example">192.168.x.x<br/>10.x.x.x<br/>172.16-31.x.x</div></div>
+  <div class="type-card"><div class="type-name pixel-text">Публичные</div><div class="type-desc">Видны из интернета</div><div class="type-example">8.8.8.8<br/>1.1.1.1</div></div>
+  <div class="type-card"><div class="type-name pixel-text">Loopback</div><div class="type-desc">Сам компьютер</div><div class="type-example">127.0.0.1<br/>(localhost)</div></div>
+  <div class="type-card"><div class="type-name pixel-text">Broadcast</div><div class="type-desc">Всем в подсети</div><div class="type-example">192.168.1.255</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="content-block yellow-accent">
+    <h2 class="block-title yellow">[ СТАТИЧЕСКИЙ И ДИНАМИЧЕСКИЙ ]</h2>
+    <div class="do-dont-grid">
+      <div class="do-block">
+        <div class="do-header pixel-text">СТАТИЧЕСКИЙ</div>
+<div class="code-block" style="margin:0"><pre><code style="font-size:13px; font-family: 'Press Start 2P', monospace;">Назначается вручную
+Не меняется
+Используется: серверы,
+  принтеры, роутеры</code></pre></div>
+      </div>
+      <div class="do-block">
+        <div class="do-header pixel-text" style="border-color:var(--cyan);color:var(--cyan);background:rgba(0,229,255,0.08)">ДИНАМИЧЕСКИЙ (DHCP)</div>
+       <div class="code-block" style="margin:0;border-color:var(--cyan)"><pre><code style="font-size:13px; font-family: 'Press Start 2P', monospace;">Назначается автоматически
+Может меняться
+Используется: ноутбуки,
+  телефоны, ПК</code></pre></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="theory-nav">
+    <a href="../theory.html" class="btn-theory-nav pixel-text">◄ К ТЕОРИИ</a>
+    <a href="net-subnet.html" class="btn-theory-nav btn-theory-next pixel-text">МАСКА ПОДСЕТИ ►</a>
+  </div>
+</main>
+<footer class="footer">
+  <p class="pixel-text">GAME<span class="accent">CODE</span> &copy; 2026</p>
+  <p class="footer-sub">Изучай программирование в играх</p>
+</footer>
+<script src="../../js/pixels-bg.js"></script>
+<script>window.AUTH_ROOT = "../..";</script>
+<script src="../../js/auth.js"></script>
+<script>
+  const s=document.getElementById('sidebar'),o=document.getElementById('overlay'),m=document.getElementById('menuBtn'),c=document.getElementById('sidebarClose');
+  const op=()=>{s.classList.add('open');o.classList.add('active');document.body.style.overflow='hidden';};
+  const cl=()=>{s.classList.remove('open');o.classList.remove('active');document.body.style.overflow='';};
+  m.addEventListener('click',op);c.addEventListener('click',cl);o.addEventListener('click',cl);
+  document.addEventListener('keydown',e=>e.key==='Escape'&&cl());
+</script>
+</body>
+</html>

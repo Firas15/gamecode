@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Переменные — Python — Game Code</title>
+  <link rel="icon" href="../../img/ICON.PNG" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../css/style.css"/>
+  <link rel="stylesheet" href="../../css/pages.css"/>
+  <link rel="stylesheet" href="../../css/auth.css"/>
+  <link rel="stylesheet" href="theory-page.css"/>
+  <link rel="stylesheet" href="../../css/mobile.css"/>
+</head>
+<body>
+
+<div class="overlay" id="overlay"></div>
+<nav class="sidebar" id="sidebar">
+  <button class="sidebar-close" id="sidebarClose">х</button>
+  <div class="sidebar-logo"><span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span></div>
+  <ul class="sidebar-nav">
+    <li><a href="../../index.html"   class="sidebar-link">Все игры</a></li>
+    <li><a href="../leaderboard.html" class="sidebar-link">Лидеры</a></li>
+    <li><a href="../how-to-play.html" class="sidebar-link">Как играть</a></li>
+    <li><a href="../theory.html"      class="sidebar-link active">Теория</a></li>
+    <li><a href="../about.html"       class="sidebar-link">О нас</a></li>
+  </ul>
+  <div class="sidebar-footer"><span>V1.0 — GameCode</span></div>
+</nav>
+
+<header class="header">
+  <div class="header-left">
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <div class="site-title">
+      <a href="../../index.html" class="logo pixel-text" style="text-decoration:none">GAME<span class="accent">CODE</span></a>
+      <p class="tagline pixel-text">Изучай программирование в играх</p>
+    </div>
+  </div>
+  <div class="header-right"><div id="auth-widget"></div></div>
+</header>
+
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <p class="breadcrumb">
+      <a href="../../index.html">ГЛАВНАЯ</a> /
+      <a href="../theory.html">ТЕОРИЯ</a> /
+      <a href="../theory.html">PYTHON</a> /
+      ПЕРЕМЕННЫЕ
+    </p>
+    <div class="theory-hero-emoji">₊⊹</div>
+    <h1 class="page-title green">ПЕРЕМЕННЫЕ</h1>
+    <p class="page-subtitle pixel-text">Как хранить данные в Python</p>
+    <div class="theory-tags">
+      <span class="ttag ttag-green">Python</span>
+      <span class="ttag ttag-level">Новичок</span>
+    </div>
+  </div>
+</section>
+
+<main class="page-content theory-page-content">
+
+  <!-- ЧТО ТАКОЕ ПЕРЕМЕННАЯ -->
+  <div class="content-block green-accent">
+    <h2 class="block-title green">[ ЧТО ТАКОЕ ПЕРЕМЕННАЯ ]</h2>
+    <p class="section-text">
+      Переменная — это <strong>именованная ячейка в памяти компьютера</strong>, в которой хранится какое-либо значение.
+      Представь коробку с наклейкой: наклейка — это имя переменной, а содержимое коробки — её значение.
+    </p>
+    <p class="section-text">
+      В Python переменная создаётся в момент присваивания — никаких специальных слов вроде <code>var</code> или <code>let</code> не нужно.
+    </p>
+    <div class="code-block">
+      <span class="code-header">PYTHON</span>
+      <pre><code><span class="code-var">имя</span> = <span class="code-num">значение</span>
+<span class="code-comment"># Примеры:</span>
+<span class="code-var">age</span>    = <span class="code-num">17</span>
+<span class="code-var">name</span>   = <span class="code-string">"Марк"</span>
+<span class="code-var">score</span>  = <span class="code-num">9.5</span>
+<span class="code-var">active</span> = <span class="code-bool">True</span></code></pre>
+    </div>
+    <div class="info-box yellow">
+      <span class="info-icon">₊⊹</span>
+      <div class="info-text">
+        <strong>Знак = — это присваивание, а не равенство!</strong><br/>
+        Он означает «запиши значение справа в переменную слева». Для проверки равенства используется <code>==</code>.
+      </div>
+    </div>
+  </div>
+
+  <!-- ПРАВИЛА ИМЕНОВАНИЯ -->
+  <div class="content-block green-accent">
+    <h2 class="block-title green">[ ПРАВИЛА ИМЕНОВАНИЯ ]</h2>
+    <p class="section-text">Имя переменной может содержать буквы, цифры и знак подчёркивания <code>_</code>, но не может начинаться с цифры.</p>
+    <div class="do-dont-grid">
+      <div class="do-block">
+        <div class="do-header pixel-text">✓ ПРАВИЛЬНО</div>
+        <div class="code-block" style="margin:0">
+          <pre><code><span class="code-var">user_name</span>  = <span class="code-string">"Боб"</span>
+<span class="code-var">score2</span>     = <span class="code-num">100</span>
+<span class="code-var">_hidden</span>    = <span class="code-bool">True</span>
+<span class="code-var">MAX_SPEED</span>  = <span class="code-num">300</span></code></pre>
+        </div>
+      </div>
+      <div class="dont-block">
+        <div class="dont-header pixel-text">✗ НЕПРАВИЛЬНО</div>
+        <div class="code-block" style="margin:0">
+          <pre><code><span style="color:var(--pink)">2score</span>   = <span class="code-num">100</span>   <span class="code-comment"># цифра в начале</span>
+<span style="color:var(--pink)">my-name</span>  = <span class="code-string">"А"</span>   <span class="code-comment"># дефис запрещён</span>
+<span style="color:var(--pink)">for</span>      = <span class="code-num">5</span>     <span class="code-comment"># зарезерв. слово</span></code></pre>
+        </div>
+      </div>
+    </div>
+    <div class="info-box yellow">
+      <span class="info-icon">₊⊹</span>
+      <div class="info-text">
+        <strong>Стиль Python (PEP 8):</strong> используй <code>snake_case</code> — слова через подчёркивание строчными буквами: <code>first_name</code>, <code>total_score</code>.
+      </div>
+    </div>
+  </div>
+
+  <!-- ТИПЫ ДАННЫХ -->
+  <div class="content-block green-accent">
+    <h2 class="block-title green">[ ТИПЫ ДАННЫХ ]</h2>
+    <p class="section-text">Python автоматически определяет тип переменной по значению, которое ты ей присваиваешь.</p>
+<div class="types-grid">
+  <div class="type-card">
+    <div class="type-name pixel-text">int</div>
+    <div class="type-desc">Целое число</div>
+    <div class="type-example">age = 17</div>
+  </div>
+  <div class="type-card">
+    <div class="type-name pixel-text">float</div>
+    <div class="type-desc">Число с точкой</div>
+    <div class="type-example">pi = 3.14</div>
+  </div>
+  <div class="type-card">
+    <div class="type-name pixel-text">str</div>
+    <div class="type-desc">Строка текста</div>
+    <div class="type-example">name = "Боб"</div>
+  </div>
+  <div class="type-card">
+    <div class="type-name pixel-text">bool</div>
+    <div class="type-desc">Истина / ложь</div>
+    <div class="type-example">ok = True</div>
+  </div>
+</div>
+    <div class="code-block" style="margin-top:20px">
+      <span class="code-header">PYTHON</span>
+      <pre><code><span class="code-comment"># Функция type() показывает тип переменной</span>
+<span class="code-var">x</span> = <span class="code-num">42</span>
+<span class="code-func">print</span>(<span class="code-func">type</span>(<span class="code-var">x</span>))   <span class="code-comment"># &lt;class 'int'&gt;</span>
+
+<span class="code-var">y</span> = <span class="code-string">"привет"</span>
+<span class="code-func">print</span>(<span class="code-func">type</span>(<span class="code-var">y</span>))   <span class="code-comment"># &lt;class 'str'&gt;</span></code></pre>
+    </div>
+  </div>
+
+  <!-- ИЗМЕНЕНИЕ И ПЕРЕПРИСВАИВАНИЕ -->
+  <div class="content-block green-accent">
+    <h2 class="block-title green">[ ИЗМЕНЕНИЕ ПЕРЕМЕННОЙ ]</h2>
+    <p class="section-text">Переменную можно изменить в любой момент — просто присвой ей новое значение. Можно даже сменить тип.</p>
+    <div class="code-block">
+      <span class="code-header">PYTHON</span>
+      <pre><code><span class="code-var">score</span> = <span class="code-num">0</span>
+<span class="code-func">print</span>(<span class="code-var">score</span>)    <span class="code-comment"># 0</span>
+
+<span class="code-var">score</span> = <span class="code-num">100</span>
+<span class="code-func">print</span>(<span class="code-var">score</span>)    <span class="code-comment"># 100</span>
+
+<span class="code-var">score</span> = <span class="code-var">score</span> + <span class="code-num">50</span>   <span class="code-comment"># прибавляем 50 к текущему значению</span>
+<span class="code-func">print</span>(<span class="code-var">score</span>)    <span class="code-comment"># 150</span>
+
+<span class="code-comment"># Сокращённая запись:</span>
+<span class="code-var">score</span> += <span class="code-num">10</span>    <span class="code-comment"># то же самое, что score = score + 10</span>
+<span class="code-func">print</span>(<span class="code-var">score</span>)    <span class="code-comment"># 160</span></code></pre>
+    </div>
+  </div>
+
+  <!-- ЗАДАНИЕ -->
+  <div class="content-block green-accent">
+    <h2 class="block-title green">[ ПОПРОБУЙ САМ ]</h2>
+    <div class="challenge-box">
+      <div class="challenge-header">
+        <span class="challenge-icon">₊⊹</span>
+        <span class="block-title green" style="margin:0">ЗАДАНИЕ</span>
+      </div>
+      <p class="challenge-text">
+        Создай переменные для персонажа игры:<br/>
+        — <code>hero_name</code> = твоё имя<br/>
+        — <code>hp</code> = 100 (очки здоровья)<br/>
+        — <code>level</code> = 1<br/>
+        — <code>alive</code> = True<br/><br/>
+        Потом выведи все переменные через <code>print()</code>.
+      </p>
+      <details class="challenge-hint">
+        <summary class="pixel-text">[ ПОКАЗАТЬ РЕШЕНИЕ ]</summary>
+        <div class="code-block" style="margin-top:12px">
+          <pre><code><span class="code-var">hero_name</span> = <span class="code-string">"Марк"</span>
+<span class="code-var">hp</span>        = <span class="code-num">100</span>
+<span class="code-var">level</span>     = <span class="code-num">1</span>
+<span class="code-var">alive</span>     = <span class="code-bool">True</span>
+
+<span class="code-func">print</span>(<span class="code-var">hero_name</span>)  <span class="code-comment"># Марк</span>
+<span class="code-func">print</span>(<span class="code-var">hp</span>)         <span class="code-comment"># 100</span>
+<span class="code-func">print</span>(<span class="code-var">level</span>)      <span class="code-comment"># 1</span>
+<span class="code-func">print</span>(<span class="code-var">alive</span>)      <span class="code-comment"># True</span></code></pre>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="theory-nav">
+    <a href="../theory.html" class="btn-theory-nav pixel-text">◄ К ТЕОРИИ</a>
+    <a href="py-print.html"  class="btn-theory-nav btn-theory-next pixel-text">ВЫВОД ДАННЫХ ►</a>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <p class="pixel-text">GAME<span class="accent">CODE</span> &copy; 2026</p>
+  <p class="footer-sub">Изучай программирование в играх</p>
+</footer>
+
+<script src="../../js/pixels-bg.js"></script>
+<script>window.AUTH_ROOT = "../..";</script>
+<script src="../../js/auth.js"></script>
+<script>
+  const sidebar=document.getElementById('sidebar'),overlay=document.getElementById('overlay'),menuBtn=document.getElementById('menuBtn'),sidebarClose=document.getElementById('sidebarClose');
+  const open=()=>{sidebar.classList.add('open');overlay.classList.add('active');document.body.style.overflow='hidden';};
+  const close=()=>{sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';};
+  menuBtn.addEventListener('click',open);sidebarClose.addEventListener('click',close);overlay.addEventListener('click',close);
+  document.addEventListener('keydown',e=>e.key==='Escape'&&close());
+</script>
+</body>
+</html>

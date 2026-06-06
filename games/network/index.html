@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ru" data-game-id="network">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Сетевой Маршрут — Game Code</title>
+  <script>
+    (function () {
+      const api = '../../api/version.php';
+      const url = new URL(window.location.href);
+      const current = url.searchParams.get('cv') || '0';
+      window.__assetVersion = current;
+      window.__assetUrl = function (path) {
+        return path + (path.indexOf('?') >= 0 ? '&' : '?') + 'v=' + encodeURIComponent(current);
+      };
+      fetch(api, { cache: 'no-store' })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (!data || !data.version || data.version === current) return;
+          url.searchParams.set('cv', data.version);
+          window.location.replace(url.toString());
+        })
+        .catch(() => {});
+    })();
+  </script>
+  <script>
+    document.write('<link rel="icon" href="' + window.__assetUrl('../../img/ICON.PNG') + '" type="image/png">');
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <script>
+    document.write('<link rel="stylesheet" href="' + window.__assetUrl('css/style.css') + '">');
+    document.write('<link rel="stylesheet" href="' + window.__assetUrl('css/mobile.css') + '">');
+    document.write('<link rel="stylesheet" href="' + window.__assetUrl('../../css/leaderboard.css') + '">');
+  </script>
+</head>
+<body>
+
+<canvas id="stars-canvas"></canvas>
+
+
+<div id="s-menu" class="screen active">
+
+  <a href="../../index.html" class="back-btn">◄ НА ГЛАВНУЮ</a>
+
+  <div class="menu-logo">
+    <div class="menu-logo-icon">
+      <div class="router-pixel"></div>
+    </div>
+    <h1 class="menu-title pixel-text">СЕТЕВОЙ<br/><span class="accent">МАРШРУТ</span></h1>
+    <p class="menu-subtitle pixel-text">IP-адреса и маски подсети</p>
+    <div class="menu-version">v1.0 — NETWORK GAME</div>
+  </div>
+
+  <div class="level-cards" id="level-cards"></div>
+
+  <div class="lb-widget" id="lb-network"></div>
+
+  <div class="menu-controls pixel-text">
+    <span>[ НАЖМИ НА УСТРОЙСТВО ] чтобы отправить пакет</span>
+    <div class="controls-row">
+      <span><kbd>CLICK</kbd> выбрать устройство</span>
+      <span><kbd>ESC</kbd> меню</span>
+    </div>
+  </div>
+
+</div>
+
+
+<div id="s-intro" class="screen">
+
+  <div class="intro-box">
+    <div class="intro-header pixel-text">
+      <span class="intro-tag">// ВХОДЯЩИЙ ПАКЕТ</span>
+      <span id="intro-lvl-name" class="intro-lvl"></span>
+    </div>
+
+    <div class="intro-network-info">
+      <div class="info-row">
+        <span class="info-label pixel-text">IP ОТПРАВИТЕЛЯ</span>
+        <span class="info-value accent pixel-text" id="intro-sender"></span>
+      </div>
+      <div class="info-row">
+        <span class="info-label pixel-text">МАСКА ПОДСЕТИ</span>
+        <span class="info-value cyan pixel-text" id="intro-mask"></span>
+      </div>
+      <div class="info-row">
+        <span class="info-label pixel-text">ПОДСЕТЬ</span>
+        <span class="info-value green pixel-text" id="intro-subnet"></span>
+      </div>
+    </div>
+
+    <div class="intro-task">
+      <div class="intro-task-label pixel-text">// ЗАДАНИЕ</div>
+      <p class="intro-task-text" id="intro-task"></p>
+    </div>
+
+    <div class="intro-hint pixel-text" id="intro-hint"></div>
+
+    <button class="btn-start pixel-text" id="btn-start-level">[ НАЧАТЬ МИССИЮ ]</button>
+  </div>
+
+</div>
+
+
+<div id="s-game" class="screen">
+
+  <div class="hud">
+    <div class="hud-col">
+      <div class="hud-item">
+        <span class="hud-lbl pixel-text">ОЧКИ</span>
+        <span class="hud-val pixel-text" id="h-score">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-lbl pixel-text">РАУНД</span>
+        <span class="hud-val pixel-text" id="h-round">1/5</span>
+      </div>
+    </div>
+
+    <div class="hud-mid">
+      <div class="hud-lvname pixel-text" id="h-lname">УРОВЕНЬ 1</div>
+      <div class="prog-wrap">
+        <div class="prog-fill" id="h-bar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="hud-col">
+      <div class="hud-item">
+        <span class="hud-lbl pixel-text">ЖИЗНИ</span>
+        <div class="hud-hearts" id="h-hearts"></div>
+      </div>
+      <button class="btn-esc pixel-text" id="btn-esc">[ В МЕНЮ ]</button>
+    </div>
+  </div>
+
+
+  <div class="task-panel">
+    <div class="task-panel-inner">
+      <div class="task-data-row">
+        <div class="task-data-item">
+          <span class="task-data-label pixel-text">ОТПРАВИТЕЛЬ</span>
+          <span class="task-data-val accent pixel-text" id="t-sender"></span>
+        </div>
+        <div class="task-data-item">
+          <span class="task-data-label pixel-text">МАСКА</span>
+          <span class="task-data-val cyan pixel-text" id="t-mask"></span>
+        </div>
+        <div class="task-data-item">
+          <span class="task-data-label pixel-text">ПОДСЕТЬ</span>
+          <span class="task-data-val green pixel-text" id="t-subnet"></span>
+        </div>
+      </div>
+      <div class="task-question pixel-text" id="t-question"></div>
+    </div>
+  </div>
+
+ 
+  <div class="game-field" id="game-field">
+
+   
+    <div class="sender-node" id="sender-node">
+      <div class="device-icon sender-icon">
+        <div class="device-body">
+          <div class="device-screen"></div>
+          <div class="device-base"></div>
+        </div>
+      </div>
+      <div class="device-label">
+        <div class="device-name pixel-text">ОТПРАВИТЕЛЬ</div>
+        <div class="device-ip pixel-text accent" id="sender-ip-label"></div>
+      </div>
+    </div>
+
+  
+    <svg class="network-lines" id="network-svg" xmlns="http://www.w3.org/2000/svg">
+
+    </svg>
+
+
+    <div class="packet" id="packet" aria-hidden="true">
+      <div class="packet-inner pixel-text"></div>
+    </div>
+
+    
+    <div class="devices-area" id="devices-area"></div>
+
+  </div>
+
+
+  <div id="toasts"></div>
+
+</div>
+
+
+<div id="s-result" class="screen">
+  <div class="result-box">
+    <h2 class="result-title pixel-text" id="r-title"></h2>
+    <div class="result-stats">
+      <div class="result-stat">
+        <div class="stat-num pixel-text" id="r-score">0</div>
+        <div class="stat-label pixel-text">SCORE</div>
+      </div>
+      <div class="result-stat">
+        <div class="stat-num pixel-text green" id="r-correct">0</div>
+        <div class="stat-label pixel-text">ВЕРНЫХ</div>
+      </div>
+      <div class="result-stat">
+        <div class="stat-num pixel-text pink" id="r-errors">0</div>
+        <div class="stat-label pixel-text">ОШИБОК</div>
+      </div>
+      <div class="result-stat">
+        <div class="stat-num pixel-text cyan" id="r-acc">0%</div>
+        <div class="stat-label pixel-text">ТОЧНОСТЬ</div>
+      </div>
+    </div>
+
+   
+    <div class="error-review" id="r-review" style="display:none">
+      <h3 class="pixel-text">// РАЗБОР ОШИБОК</h3>
+      <div id="r-error-list"></div>
+    </div>
+
+    <div class="result-btns">
+      <button class="btn-prim pixel-text" id="btn-retry">[ ПОВТОРИТЬ ]</button>
+      <button class="btn-sec pixel-text" id="btn-menu-res">[ МЕНЮ ]</button>
+    </div>
+  </div>
+</div>
+
+<script>document.write('<script src="' + window.__assetUrl('../../js/wip-guard.js') + '"><\/script>')</script>
+<script>document.write('<script src="' + window.__assetUrl('../../js/leaderboard.js') + '"><\/script>')</script>
+<script>document.write('<script src="' + window.__assetUrl('js/game.js') + '"><\/script>')</script>
+</body>
+</html>

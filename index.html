@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game Code — Изучай программирование в играх</title>
+  <script>
+    (function () {
+      const api = 'api/version.php';
+      const url = new URL(window.location.href);
+      const current = url.searchParams.get('cv') || '0';
+      window.__assetVersion = current;
+      window.__assetUrl = function (path) {
+        return path + (path.indexOf('?') >= 0 ? '&' : '?') + 'v=' + encodeURIComponent(current);
+      };
+      fetch(api, { cache: 'no-store' })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (!data || !data.version || data.version === current) return;
+          url.searchParams.set('cv', data.version);
+          window.location.replace(url.toString());
+        })
+        .catch(() => {});
+    })();
+  </script>
+  <script>
+    document.write('<link rel="icon" href="' + window.__assetUrl('img/ICON.PNG') + '" type="image/png">');
+    document.write('<link rel="stylesheet" href="' + window.__assetUrl('css/style.css') + '">');
+    document.write('<link rel="stylesheet" href="' + window.__assetUrl('css/auth.css') + '">');
+    document.write('<link rel="stylesheet" href="' + window.__assetUrl('css/mobile.css') + '">');
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <div class="overlay" id="overlay"></div>
+
+  <nav class="sidebar" id="sidebar">
+    <button class="sidebar-close" id="sidebarClose">х</button>
+    <div class="sidebar-logo">
+      <span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="index.html"                  class="sidebar-link" >Все игры</a></li>
+      <li><a href="pages/leaderboard.html"      class="sidebar-link" >Лидеры</a></li>
+      <li><a href="pages/how-to-play.html"      class="sidebar-link" >Как играть</a></li>
+      <li><a href="pages/theory.html"           class="sidebar-link" >Теория</a></li>
+      <li><a href="pages/about.html"            class="sidebar-link" >О нас</a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <span>V1.0 — GameCode</span>
+    </div>
+  </nav>
+
+  <header class="header">
+    <div class="header-left">
+      <button class="menu-btn" id="menuBtn" aria-label="Открыть меню">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="site-title">
+        <h1 class="logo pixel-text">GAME<span class="accent">CODE</span></h1>
+        <p class="tagline pixel-text">Изучай программирование в играх</p>
+      </div>
+    </div>
+    <div class="header-right"><div id="auth-widget"></div></div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="scanlines"></div>
+      <div class="grid-lines"></div>
+    </div>
+    <div class="hero-content">
+      <div class="glitch-wrapper">
+        <h2 class="hero-title glitch" data-text="GAMECODE">GAMECODE</h2>
+      </div>
+      <p class="hero-sub pixel-text accent">Программирование через игру — лучший способ учиться</p>
+    </div>
+    <div class="floating-pixels">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+  </section>
+
+  <!-- ═══════════
+       КАРТОЧКИ: СЧЁТЧИК ИГРОКОВ + ТОП-3
+  ═══════════ -->
+  <section class="hero-stats">
+    <div class="hero-stats-grid">
+
+      <!-- Карточка 1: Счётчик пользователей -->
+      <div class="hstat-card hstat-users">
+        <div class="hstat-corner hstat-corner-tl"></div>
+        <div class="hstat-corner hstat-corner-br"></div>
+        <div class="hstat-label pixel-text" style="margin-top:22px;">Нашим сайтом<br/>пользуются уже:</div>
+        <div class="hstat-value pixel-text cyan" id="hs-user-count" style="margin-top:8px;">...</div>
+        <div class="hstat-sublabel pixel-text" style="margin-top:8px;">человек!</div>
+      </div>
+
+      <!-- Карточка 2: Топ-3 игроков -->
+      <div class="hstat-card hstat-top">
+        <div class="hstat-corner hstat-corner-tl"></div>
+        <div class="hstat-corner hstat-corner-br"></div>
+        <div class="hstat-label pixel-text">Наши лучшие<br/>игроки</div>
+        <div class="hstat-podium" id="hs-top3">
+          <div class="hstat-loading pixel-text">загрузка...</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <main class="main" id="games">
+
+    <!-- КАРУСЕЛЬ ИГР -->
+    <section class="carousel-section">
+      <div class="carousel-header">
+        <h2 class="section-title pixel-text">
+          <span class="section-num accent">></span> ИГРЫ
+        </h2>
+        <p class="section-sub pixel-text">Выбирай игру и начинай прямо сейчас</p>
+      </div>
+
+      <div class="carousel-wrapper">
+        <button class="carousel-arrow carousel-prev" id="carouselPrev" aria-label="Предыдущая">&#x276E;</button>
+        <div class="carousel-track" id="carouselTrack"></div>
+        <button class="carousel-arrow carousel-next" id="carouselNext" aria-label="Следующая">&#x276F;</button> 
+      </div>
+
+      <div class="carousel-dots" id="carouselDots"></div>
+      <div class="carousel-progress"><div class="carousel-progress-bar" id="progressBar"></div></div>
+    </section>
+
+    <section class="news-carousel-section">
+      <div class="news-carousel-header">
+        <h2 class="section-title pixel-text">
+          <span class="section-num cyan">></span> НОВОСТИ GAMECODE
+        </h2>
+        <p class="section-sub pixel-text">Обновления платформы, анонсы и важные изменения</p>
+      </div>
+
+      <div class="news-carousel-wrapper">
+        <button class="news-carousel-arrow news-carousel-prev" id="newsCarouselPrev" aria-label="Предыдущая новость">&#x276E;</button>
+        <div class="news-carousel-track" id="newsCarouselTrack"></div>
+        <button class="news-carousel-arrow news-carousel-next" id="newsCarouselNext" aria-label="Следующая новость">&#x276F;</button>
+      </div>
+
+      <div class="news-carousel-dots" id="newsCarouselDots"></div>
+      <div class="news-carousel-progress"><div class="news-carousel-progress-bar" id="newsCarouselProgressBar"></div></div>
+    </section>
+
+    <!-- БЫСТРЫЕ ССЫЛКИ НА РАЗДЕЛЫ -->
+    <section class="game-section" style="margin-bottom:40px;">
+      <div class="section-header">
+        <h2 class="section-title pixel-text">
+          <span class="section-num cyan">~</span> РАЗДЕЛЫ САЙТА
+        </h2>
+        <p class="section-sub pixel-text">Всё, что есть на платформе</p>
+      </div>
+      <div class="games-grid" style="grid-template-columns: repeat(auto-fill, minmax(220px,1fr));">
+
+        <a href="pages/how-to-play.html" class="game-card" style="--corner-color:var(--cyan); text-decoration:none; display:block;">
+          <div class="card-preview" style="height:100px; display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg,#0d1a2e,#0a2240);">
+            <img src="img/pc.png" alt="" style="width:min(250px,80%); height:auto; max-height:180px; object-fit:contain;" />
+          </div>
+          <div class="card-body">
+            <div class="card-title">Как играть</div>
+            <p class="card-desc pixel-text">Управление, уровни сложности и советы для новичков.</p>
+            <div class="card-btn btn-play">[ ОТКРЫТЬ ]</div>
+          </div>
+        </a>
+
+        <a href="pages/theory.html" class="game-card" style="--corner-color:var(--green); text-decoration:none; display:block;">
+          <div class="card-preview" style="height:100px; font-size:48px; display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg,#0a1f10,#0d2e18);">
+            <img src="img/book.png" alt="" style="width:min(250px,80%); height:auto; max-height:150px; object-fit:contain;" />
+          </div>  
+          <div class="card-body">
+            <div class="card-title">Теория</div>
+            <p class="card-desc pixel-text">Основы айти, которые ты изучаешь в играх. Изучай и играй!</p>
+            <div class="card-btn btn-play" style="color:var(--green); border-color:var(--green);">[ ОТКРЫТЬ ]</div>
+          </div>
+        </a>
+
+        <a href="pages/about.html" class="game-card" style="--corner-color:var(--yellow); text-decoration:none; display:block;">
+          <div class="card-preview" style="height:100px; font-size:48px; display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg,#1a1500,#2a2000);">
+            <img src="img/star.png" alt="" style="width:min(250px,80%); height:auto; max-height:120px; object-fit:contain;" />
+          </div>
+          <div class="card-body">
+            <div class="card-title">О нас</div>
+            <p class="card-desc pixel-text">Кто создаёт Game Code и зачем мы это делаем.</p>
+            <div class="card-btn btn-play" style="color:var(--yellow); border-color:var(--yellow);">[ ОТКРЫТЬ ]</div>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p class="pixel-text">GAME<span class="accent">CODE</span> &copy; 2026</p>
+    <p class="footer-sub">Изучай программирование в играх</p>
+  </footer>
+
+  
+  <script>document.write('<script src="' + window.__assetUrl('js/pixels-bg.js') + '"><\/script>')</script>
+  <script>document.write('<script src="' + window.__assetUrl('js/data.js') + '"><\/script>')</script>
+  <script>document.write('<script src="' + window.__assetUrl('js/carousel.js') + '"><\/script>')</script>
+  <script>document.write('<script src="' + window.__assetUrl('js/news-carousel.js') + '"><\/script>')</script>
+  <script>window.AUTH_ROOT = "";</script>
+  <script>document.write('<script src="' + window.__assetUrl('js/app.js') + '"><\/script>')</script>
+  <script>document.write('<script src="' + window.__assetUrl('js/auth.js') + '"><\/script>')</script>
+  <script>document.write('<script src="' + window.__assetUrl('js/ai-chat.js') + '"><\/script>')</script>
+
+  <script>
+  /* ── Карточки hero-stats ── */
+  (function() {
+    const MEDAL_IMAGES = [
+      'img/medals/gold-1.png',
+      'img/medals/silver-2.png',
+      'img/medals/bronze-3.png'
+    ];
+    const COLORS = ['#ffd200', '#b8c0cf', '#d08a4a'];
+
+    // Счётчик пользователей
+    fetch('api/stats.php')
+      .then(r => r.json())
+      .then(data => {
+        const el = document.getElementById('hs-user-count');
+        if (el && data.ok) {
+          el.textContent = data.user_count;
+          el.classList.add('hstat-count-in');
+        }
+      })
+      .catch(() => {
+        const el = document.getElementById('hs-user-count');
+        if (el) el.textContent = '—';
+      });
+
+    // Топ-3 по "все игры"
+    fetch('api/leaderboard.php?game=all&limit=3')
+      .then(r => r.json())
+      .then(data => {
+        const el = document.getElementById('hs-top3');
+        if (!el) return;
+        if (!data.ok || !data.rows.length) {
+          el.innerHTML = '<div class="hstat-empty pixel-text">Пока нет данных</div>';
+          return;
+        }
+        el.innerHTML = data.rows.map((row, i) => `
+          <div class="hstat-row" style="--place-color:${COLORS[i]}">
+            <span class="hstat-medal"><img src="${MEDAL_IMAGES[i]}" alt="Место ${i + 1}" class="medal-img medal-img--home" style="width:40px;height:40px;object-fit:contain;display:block;"/></span>
+            <span class="hstat-avatar"><img src="img/avatars/${row.avatar_emoji || 'avatar1'}.png" alt="аватар" class="avatar-img avatar-img--sm"/></span>
+            <span class="hstat-nick pixel-text">${row.nickname}</span>
+            <span class="hstat-score pixel-text" style="color:${COLORS[i]}">${row.score}</span>
+          </div>
+        `).join('');
+      })
+      .catch(() => {
+        const el = document.getElementById('hs-top3');
+        if (el) el.innerHTML = '<div class="hstat-empty pixel-text">Ошибка загрузки</div>';
+      });
+  })();
+  </script>
+</body>
+</html>

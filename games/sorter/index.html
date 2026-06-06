@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru" data-game-id="sorter">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Сортировщик — Python</title>
+  <script>
+    (function () {
+      const api = '../../api/version.php';
+      const url = new URL(window.location.href);
+      const current = url.searchParams.get('cv') || '0';
+      window.__assetVersion = current;
+      window.__assetUrl = function (path) {
+        return path + (path.indexOf('?') >= 0 ? '&' : '?') + 'v=' + encodeURIComponent(current);
+      };
+      fetch(api, { cache: 'no-store' })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (!data || !data.version || data.version === current) return;
+          url.searchParams.set('cv', data.version);
+          window.location.replace(url.toString());
+        })
+        .catch(() => {});
+    })();
+  </script>
+  <script>
+    document.write('<link rel="icon" href="' + window.__assetUrl('../../img/ICON.PNG') + '" type="image/png">');
+    document.write('<link rel="stylesheet" href="' + window.__assetUrl('css/style.css') + '">');
+    document.write('<link rel="stylesheet" href="' + window.__assetUrl('css/mobile.css') + '">');
+    document.write('<link rel="stylesheet" href="' + window.__assetUrl('../../css/leaderboard.css') + '">');
+  </script>
+</head>
+<body>
+
+<canvas id="stars-canvas"></canvas>
+
+
+<div id="s-menu" class="screen">
+
+  <a href="../../index.html" class="back-btn">◄ НА ГЛАВНУЮ</a>
+
+  <div class="logo">
+    <h1>СОРТИРОВЩИК<br/><span style="font-size:.6em;color:var(--purple)">PYTHON</span></h1>
+    <div class="sub">v1.0 — classifier game</div>
+    <div class="badge">[ ВЫБЕРИТЕ УРОВЕНЬ СЛОЖНОСТИ ]</div>
+  </div>
+  <div class="lvl-cards" id="lvl-cards"></div>
+  <div class="lb-widget" id="lb-sorter"></div>
+
+  <div class="menu-tip">
+    перетащи блок в корзину до того, как он упадёт
+    <div class="tip-row">
+      <span><kbd>drag</kbd> бросить</span>
+      <span><kbd>P</kbd> пауза</span>
+      <span><kbd>ESC</kbd> меню</span>
+    </div>
+  </div>
+</div>
+
+
+<div id="s-game" class="screen out">
+  <div class="hud">
+
+    
+    <div class="hud-col">
+      <div class="hud-item">
+        <span class="hud-lbl">ОЧКИ</span>
+        <span class="hud-val" id="h-score">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-lbl">ПРОГРЕСС</span>
+        <span class="hud-val" id="h-prog">0/10</span>
+      </div>
+    </div>
+
+ 
+    <div class="hud-mid">
+      <div class="hud-lvname" id="h-lname">LVL 1</div>
+      <div class="prog-wrap">
+        <div class="prog-fill" id="h-bar" style="width:0"></div>
+      </div>
+    </div>
+
+
+    <div class="hud-col">
+      <div class="hud-item">
+        <span class="hud-lbl">ЖИЗНИ</span>
+        <div class="hud-hearts" id="h-hearts"></div>
+      </div>
+      <button class="btn-esc pixel-text" id="btn-esc">[ В МЕНЮ ]</button>
+      <button class="btn-pause" id="btn-pause">|| ПАУЗА</button>
+    </div>
+
+  </div>
+
+  <div class="field" id="field"></div>
+  <div class="baskets" id="baskets"></div>
+</div>
+
+
+<div id="s-result" class="screen out">
+  <h2 class="res-title" id="r-title"></h2>
+  <div class="res-stats">
+    <div class="res-stat"><div class="sn" id="r-score">0</div><div class="sl">Score</div></div>
+    <div class="res-stat"><div class="sn" id="r-ok">0</div><div class="sl">Correct</div></div>
+    <div class="res-stat"><div class="sn" id="r-err">0</div><div class="sl">Errors</div></div>
+    <div class="res-stat"><div class="sn" id="r-acc">0%</div><div class="sl">Accuracy</div></div>
+  </div>
+  <div class="err-sec" id="r-errsec" style="display:none">
+    <h3>// разбор ошибок</h3>
+    <div id="r-errlist"></div>
+  </div>
+  <div class="res-btns">
+    <button class="btn-prim" id="btn-retry">[ RETRY ]</button>
+    <button class="btn-sec"  id="btn-menu">[ MENU ]</button>
+  </div>
+</div>
+
+
+<div id="toasts"></div>
+
+<script>document.write('<script src="' + window.__assetUrl('../../js/wip-guard.js') + '"><\/script>')</script>
+<script>document.write('<script src="' + window.__assetUrl('../../js/leaderboard.js') + '"><\/script>')</script>
+<script>document.write('<script src="' + window.__assetUrl('js/game.js') + '"><\/script>')</script>
+</body>
+</html>

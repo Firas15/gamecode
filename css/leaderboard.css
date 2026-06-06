@@ -1,0 +1,485 @@
+
+.lb-widget {
+    width: 100%;
+    max-width: 460px;
+    margin: 24px auto 0;
+    font-family: 'Press Start 2P', monospace;
+}
+
+.lb-title {
+    font-size: 9px;
+    color: var(--cyan, #00e5ff);
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.lb-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.lb-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(0, 229, 255, 0.04);
+    border: 1px solid rgba(0, 229, 255, 0.12);
+    border-radius: 4px;
+    font-size: 9px;
+    transition: border-color 0.2s;
+}
+
+.lb-row.lb-top {
+    border-color: rgba(0, 229, 255, 0.3);
+    background: rgba(0, 229, 255, 0.07);
+}
+
+.lb-rank {
+    min-width: 28px;
+    text-align: center;
+    font-size: 13px;
+    line-height: 1;
+}
+
+.lb-avatar {
+    line-height: 1;
+    display: flex;
+    align-items: center;
+}
+.lb-avatar .avatar-img {
+    width: 28px;
+    height: 28px;
+}
+
+.lb-nick {
+    flex: 1;
+    color: #e0f7fa;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lb-score {
+    color: var(--cyan, #00e5ff);
+    white-space: nowrap;
+}
+
+.lb-loading,
+.lb-empty,
+.lb-error {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    text-align: center;
+    padding: 16px;
+    color: rgba(0, 229, 255, 0.5);
+    border: 1px dashed rgba(0, 229, 255, 0.2);
+    border-radius: 4px;
+}
+
+.lb-error {
+    color: rgba(255, 51, 102, 0.6);
+    border-color: rgba(255, 51, 102, 0.2);
+}
+
+
+/* ── Страница /pages/leaderboard.html ───────────────────── */
+
+.lb-page {
+    min-height: 100vh;
+    background: #080c14;
+    color: #e0f7fa;
+    font-family: 'Press Start 2P', monospace;
+    padding: 0 0 60px;
+}
+
+.lb-page-header {
+    padding: 32px 24px 0;
+    text-align: center;
+    position: relative;
+}
+
+.lb-page-title {
+    font-size: 18px;
+    color: rgb(209, 55, 209);
+    margin: 0 0 8px;
+    letter-spacing: 2px;
+}
+
+.lb-page-sub {
+    font-size: 8px;
+    color: rgba(0,229,255,0.5);
+    margin: 0;
+}
+
+.lb-back {
+    position: absolute;
+    top: 32px;
+    left: 24px;
+    font-size: 9px;
+    color: #00e5ff;
+    text-decoration: none;
+    border: 1px solid rgba(0,229,255,0.3);
+    padding: 6px 10px;
+    border-radius: 3px;
+    transition: border-color 0.2s, background 0.2s;
+}
+.lb-back:hover {
+    background: rgba(0,229,255,0.08);
+    border-color: #00e5ff;
+}
+
+/* Вкладки игр */
+.lb-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 28px 16px 0;
+}
+
+.lb-tab {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    padding: 8px 14px;
+    background: transparent;
+    border: 1px solid rgba(0,229,255,0.25);
+    color: rgba(0,229,255,0.6);
+    cursor: pointer;
+    border-radius: 3px;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+}
+
+.lb-tab:hover {
+    border-color: rgba(0,229,255,0.6);
+    color: #00e5ff;
+    background: rgba(0,229,255,0.06);
+}
+
+.lb-tab.active {
+    border-color: #00e5ff;
+    color: #00e5ff;
+    background: rgba(0,229,255,0.1);
+    box-shadow: 0 0 12px rgba(0,229,255,0.15);
+}
+
+/* Таблица */
+.lb-table-wrap {
+    max-width: 640px;
+    margin: 28px auto 0;
+    padding: 0 16px;
+}
+
+.lb-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Press Start 2P', monospace; 
+}
+
+#lb-content {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    scrollbar-gutter: stable;
+}
+
+.lb-table thead tr {
+    border-bottom: 1px solid rgba(0,229,255,0.2);
+}
+
+.lb-table thead th {
+    font-size: 15px;
+    color: rgba(0,229,255,0.5);
+    padding: 0 12px 10px;
+    text-align: left;
+    letter-spacing: 1px;
+    font-weight: 400;
+}
+
+.lb-table thead th:last-child {
+    text-align: right;
+}
+
+.lb-table tbody tr {
+    border-bottom: 1px solid rgba(0,229,255,0.07);
+    transition: background 0.15s;
+}
+
+.lb-table tbody tr:hover {
+    background: rgba(0,229,255,0.04);
+}
+
+.lb-table tbody tr.lb-gold   { background: rgba(255, 215, 0,   0.05); }
+.lb-table tbody tr.lb-silver { background: rgba(192, 192, 192, 0.04); }
+.lb-table tbody tr.lb-bronze { background: rgba(205, 127, 50,  0.04); }
+
+.lb-table td {
+    padding: 12px 12px;
+    font-size: 15px;
+    vertical-align: middle;
+}
+
+.lb-table .td-rank {
+    font-size: 15px;
+    width: 48px;
+    text-align: center;
+}
+
+.lb-table .td-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.lb-table .td-avatar {
+    line-height: 1;
+}
+.lb-table .td-avatar .avatar-img {
+    width: 32px;
+    height: 32px;
+}
+
+.lb-table .td-nick {
+    color: #e0f7fa;
+}
+
+.lb-table .td-score {
+    text-align: right;
+    color: #00e5ff;
+    font-size: 15px;
+}
+
+.lb-table .td-games {
+    color: rgba(0,229,255,0.5);
+    font-size: 15px;
+    text-align: center;
+}
+
+.lb-spinner {
+    text-align: center;
+    padding: 48px;
+    font-size: 15px;
+    color: rgba(0,229,255,0.4);
+}
+
+.lb-no-data {
+    text-align: center;
+    padding: 48px;
+    font-size: 15px;
+    color: rgba(0,229,255,0.4);
+    border: 1px dashed rgba(0,229,255,0.15);
+    border-radius: 4px;
+}
+
+
+/* Анимация строк при загрузке */
+@keyframes lb-row-in {
+    from { opacity: 0; transform: translateX(-8px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.lb-table tbody tr {
+    animation: lb-row-in 0.25s ease both;
+}
+
+.lb-table tbody tr:nth-child(1) { animation-delay: 0.00s; }
+.lb-table tbody tr:nth-child(2) { animation-delay: 0.04s; }
+.lb-table tbody tr:nth-child(3) { animation-delay: 0.08s; }
+.lb-table tbody tr:nth-child(4) { animation-delay: 0.12s; }
+.lb-table tbody tr:nth-child(5) { animation-delay: 0.16s; }
+.lb-table tbody tr:nth-child(6) { animation-delay: 0.20s; }
+.lb-table tbody tr:nth-child(7) { animation-delay: 0.24s; }
+.lb-table tbody tr:nth-child(8) { animation-delay: 0.28s; }
+.lb-table tbody tr:nth-child(9) { animation-delay: 0.32s; }
+.lb-table tbody tr:nth-child(10) { animation-delay: 0.36s; }
+
+/* Строка текущего пользователя */
+.lb-table tbody tr.lb-me td {
+    color: #ffd930;
+}
+.lb-table tbody tr.lb-me .td-score {
+    color: #ffd930;
+}
+.lb-table tbody tr.lb-me .td-nick {
+    color: #ffd930;
+}
+.footer {
+    margin-top: 60px;
+}
+
+@media (max-width: 700px) {
+    .lb-tabs {
+        justify-content: flex-start;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding: 18px 8px 0;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .lb-tabs::-webkit-scrollbar { display: none; }
+    .lb-tab {
+        flex: 0 0 auto;
+        min-height: 44px;
+        font-size: 7px;
+        padding: 8px 10px;
+        /* Длинный текст переносится внутри кнопки */
+        white-space: normal;
+        text-align: center;
+        max-width: 100px;
+        line-height: 1.8;
+    }
+    .lb-table {
+        min-width: 480px;
+    }
+    .lb-table thead th,
+    .lb-table td,
+    .lb-table .td-rank,
+    .lb-table .td-score,
+    .lb-table .td-games {
+        font-size: 10px;
+    }
+    .lb-table .td-avatar .avatar-img {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+/* Карточки вместо широкой таблицы — портретный телефон */
+@media (max-width: 520px) {
+    #lb-content {
+        overflow-x: visible;
+        padding: 0;
+    }
+    .lb-table {
+        min-width: 0 !important;
+        width: 100%;
+        display: block;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+    }
+    .lb-table thead {
+        display: none;
+    }
+    .lb-table tbody {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .lb-table tbody tr {
+        display: grid;
+        grid-template-columns: 40px 1fr auto;
+        align-items: center;
+        gap: 0 10px;
+        padding: 10px 12px;
+        background: rgba(0, 229, 255, 0.05);
+        border: 1px solid rgba(0, 229, 255, 0.15);
+        border-radius: 4px;
+        animation: none;
+        border-bottom: 1px solid rgba(0, 229, 255, 0.15);
+    }
+    /* Золото / серебро / бронза — сохраняем фон */
+    .lb-table tbody tr.lb-gold   { background: rgba(255, 215, 0, 0.08); border-color: rgba(255, 215, 0, 0.25); }
+    .lb-table tbody tr.lb-silver { background: rgba(192, 192, 192, 0.07); border-color: rgba(192, 192, 192, 0.2); }
+    .lb-table tbody tr.lb-bronze { background: rgba(205, 127, 50, 0.07); border-color: rgba(205, 127, 50, 0.2); }
+    .lb-table tbody tr.lb-me     { border-color: rgba(255, 217, 48, 0.4); }
+
+    .lb-table tbody td {
+        display: block;
+        padding: 0;
+        font-size: 8px;
+        border: none;
+    }
+    /* Скрытый пустой td (3-й столбец из шаблона) */
+    .lb-table tbody td:nth-child(3) {
+        display: none;
+    }
+    .lb-table tbody td:nth-child(1) {
+        grid-column: 1;
+        grid-row: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .lb-table tbody td:nth-child(2) {
+        grid-column: 2;
+        grid-row: 1;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+    }
+    .lb-table tbody td:nth-child(4) {
+        grid-column: 3;
+        grid-row: 1;
+        text-align: right;
+        align-self: center;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+    .lb-table .td-rank {
+        width: auto;
+        font-size: 14px;
+        text-align: center;
+    }
+    .lb-table .td-user {
+        min-width: 0;
+        gap: 8px;
+    }
+    .lb-table .td-nick {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: block;
+        max-width: 100%;
+        font-size: 8px;
+    }
+    .lb-table .td-score {
+        font-size: 9px;
+        white-space: nowrap;
+    }
+    .lb-table .td-avatar .avatar-img {
+        width: 28px;
+        height: 28px;
+    }
+
+    /* Заголовок страницы */
+    .lb-page-header {
+        padding: 16px 12px 0;
+        text-align: left;
+    }
+    .lb-back {
+        position: static;
+        display: inline-flex;
+        align-items: center;
+        margin-bottom: 10px;
+        min-height: 40px;
+        font-size: 8px;
+    }
+    .lb-page-title {
+        font-size: clamp(13px, 4vw, 18px);
+    }
+
+    /* Вкладки на телефоне */
+    .lb-tabs {
+        padding: 10px 8px 0;
+        gap: 5px;
+    }
+    .lb-tab {
+        font-size: 6px;
+        padding: 7px 8px;
+        max-width: 80px;
+        min-height: 48px;
+        line-height: 1.9;
+    }
+
+    /* Спиннер и заглушка */
+    .lb-spinner,
+    .lb-no-data {
+        padding: 28px 16px;
+        font-size: 8px;
+        line-height: 1.9;
+    }
+}

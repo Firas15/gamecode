@@ -1,0 +1,261 @@
+/* ============================================
+   SORTER GAME — MOBILE.CSS
+   GameCode — Mobile & Tablet adaptations
+   ============================================ */
+
+/* ── TABLET (max-width: 1024px) ── */
+@media (max-width: 1024px) {
+  .baskets { gap: 12px; padding: 10px 12px; }
+  .basket { min-height: 90px; }
+  .hud { padding: 0 14px; }
+}
+
+/* ── PHABLET (max-width: 900px) ── */
+@media (max-width: 900px) {
+  .hud {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(120px, 160px) auto;
+    align-items: center;
+    min-height: 0;
+    padding: 10px 12px 8px;
+    gap: 10px;
+  }
+  .hud-col {
+    gap: 12px;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    min-width: 0;
+  }
+  .hud-col:first-child {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, auto));
+    gap: 10px 12px;
+  }
+  .hud-col:last-child {
+    justify-self: end;
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-areas:
+      "lives lives"
+      "menu pause";
+    gap: 8px;
+  }
+  .hud-col:last-child .hud-item {
+    grid-area: lives;
+    justify-self: end;
+  }
+  .hud-mid {
+    order: 0;
+    width: auto;
+    flex-basis: auto;
+    min-width: 0;
+  }
+  .prog-wrap {
+    width: min(100%, 160px);
+    margin: 0 auto;
+  }
+  .hud-item {
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .hud-lbl {
+    font-size: 7px;
+  }
+  .hud-val {
+    font-size: clamp(12px, 2vw, 16px);
+  }
+  .hud-lvname {
+    font-size: 9px;
+    margin-bottom: 5px;
+    white-space: nowrap;
+  }
+  .hud-hearts {
+    gap: 4px;
+  }
+  .btn-esc,
+  .btn-pause {
+    min-height: 30px;
+    padding: 8px 10px;
+    font-size: 7px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .btn-esc { grid-area: menu; }
+  .btn-pause { grid-area: pause; }
+
+  /* Item falls more gently */
+  .falling-item { font-size: clamp(18px, 5vw, 28px); }
+
+  /* Baskets */
+  .baskets {
+    padding: 8px 8px;
+    gap: 8px;
+    flex-wrap: nowrap;
+    justify-content: center;
+  }
+  .basket {
+    flex: 1 1 calc(50% - 10px);
+    min-width: 0;
+    max-width: none;
+    min-height: 80px;
+  }
+  .basket-label { font-size: clamp(8px, 2vw, 10px); }
+
+  /* Back button */
+  .back-btn { top: 10px; left: 10px; font-size: 8px; padding: 8px 12px; min-height: 36px; }
+
+  /* Menu */
+  #s-menu {
+    padding: 12px;
+    gap: 18px;
+    overflow-y: auto;
+    justify-content: flex-start;
+    padding-top: 56px;
+  }
+  .lvl-cards { flex-direction: column; align-items: stretch; }
+  .lvl-card { width: 100%; max-width: 300px; margin: 0 auto; }
+  .menu-title { font-size: clamp(11px, 3.2vw, 17px); }
+}
+
+/* ── MOBILE (max-width: 640px) ── already in style.css, extend ── */
+@media (max-width: 640px) {
+  .hud {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "stats"
+      "center"
+      "actions";
+    padding: 8px;
+    gap: 8px 10px;
+  }
+  .hud-col:first-child {
+    grid-area: stats;
+    display: flex;
+    gap: 8px 10px;
+    justify-content: space-between;
+  }
+  .hud-mid {
+    grid-area: center;
+  }
+  .hud-col:last-child {
+    grid-area: actions;
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "lives lives"
+      "menu pause";
+    justify-self: stretch;
+  }
+  .hud-col:last-child .hud-item {
+    justify-self: center;
+    align-items: center;
+  }
+  .hud-val { font-size: clamp(10px, 3vw, 14px); }
+  .hud-lvname {
+    font-size: 8px;
+    line-height: 1.5;
+    white-space: normal;
+  }
+  .prog-wrap {
+    width: min(100%, 220px);
+  }
+  .btn-esc,
+  .btn-pause {
+    width: 100%;
+    text-align: center;
+  }
+
+  .baskets {
+    gap: 6px;
+    padding: 6px 6px;
+    justify-content: center;
+  }
+  .basket {
+    flex: 1 1 calc(50% - 8px);
+    min-height: 72px;
+  }
+  .basket-label {
+    font-size: clamp(7px, 2.2vw, 9px);
+    letter-spacing: 0.5px;
+    line-height: 1.5;
+  }
+  .basket-emoji { font-size: 20px; }
+
+  .falling-item {
+    font-size: clamp(16px, 5.5vw, 26px);
+  }
+
+  /* Toast notifications */
+  #toasts {
+    min-width: 0;
+    width: calc(100vw - 16px);
+    left: 8px;
+    transform: none;
+    top: 154px;
+  }
+  .toast {
+    padding: 12px 14px;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  .toast .hint {
+    font-size: 9px;
+    line-height: 1.5;
+  }
+
+  /* Level cards */
+  .lvl-card { max-width: 260px; }
+
+  /* Result screen */
+  .result-actions {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+  .result-actions button,
+  .result-actions a {
+    width: 100%;
+    min-height: 44px;
+    text-align: center;
+  }
+}
+
+/* ── SMALL PHONE (max-width: 480px) ── */
+@media (max-width: 480px) {
+  #toasts {
+    top: 162px;
+  }
+  .btn-esc,
+  .btn-pause {
+    padding: 8px 6px;
+    font-size: 6px;
+  }
+
+  .baskets {
+    padding: 4px 4px;
+    gap: 4px;
+  }
+  .basket { min-height: 60px; }
+  .basket-label { font-size: 7px; }
+  .basket-emoji { font-size: 18px; }
+
+  .falling-item { font-size: clamp(14px, 6vw, 22px); }
+
+  .back-btn { top: 6px; left: 6px; font-size: 7px; padding: 6px 8px; }
+
+  #s-menu { gap: 14px; padding: 10px; padding-top: 52px; }
+}
+
+/* ── TOUCH TARGETS ── */
+@media (hover: none) and (pointer: coarse) {
+  .basket { min-height: 70px; cursor: pointer; }
+  .lvl-card { min-height: 80px; }
+  .back-btn { min-height: 40px; }
+}
+
+/* ── LANDSCAPE PHONE ── */
+@media (max-height: 500px) and (max-width: 900px) {
+  .hud { padding: 4px 8px; }
+  .baskets { padding: 4px; }
+  .basket { min-height: 50px; }
+}

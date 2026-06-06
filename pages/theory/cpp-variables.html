@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Переменные и типы — Game Code</title>
+  <link rel="icon" href="../../img/ICON.PNG" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../css/style.css"/>
+  <link rel="stylesheet" href="../../css/pages.css"/>
+  <link rel="stylesheet" href="../../css/auth.css"/>
+  <link rel="stylesheet" href="theory-page.css"/>
+  <link rel="stylesheet" href="../../css/mobile.css"/>
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+<nav class="sidebar" id="sidebar">
+  <button class="sidebar-close" id="sidebarClose">х</button>
+  <div class="sidebar-logo"><span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span></div>
+  <ul class="sidebar-nav">
+    <li><a href="../../index.html"    class="sidebar-link">Все игры</a></li>
+    <li><a href="../leaderboard.html" class="sidebar-link">Лидеры</a></li>
+    <li><a href="../how-to-play.html" class="sidebar-link">Как играть</a></li>
+    <li><a href="../theory.html"      class="sidebar-link active">Теория</a></li>
+    <li><a href="../about.html"       class="sidebar-link">О нас</a></li>
+  </ul>
+  <div class="sidebar-footer"><span>V1.0 — GameCode</span></div>
+</nav>
+<header class="header">
+  <div class="header-left">
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <div class="site-title">
+      <a href="../../index.html" class="logo pixel-text" style="text-decoration:none">GAME<span class="accent">CODE</span></a>
+      <p class="tagline pixel-text">Изучай программирование в играх</p>
+    </div>
+  </div>
+  <div class="header-right"><div id="auth-widget"></div></div>
+</header>
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <p class="breadcrumb"><a href="../../index.html">ГЛАВНАЯ</a> / <a href="../theory.html">ТЕОРИЯ</a> / <a href="../theory.html">C++</a> / ПЕРЕМЕННЫЕ</p>
+    <div class="theory-hero-emoji">₊⊹</div>
+    <h1 class="page-title" style="color:var(--cyan)">ПЕРЕМЕННЫЕ И ТИПЫ</h1>
+    <p class="page-subtitle pixel-text">Объявление переменных в C++</p>
+    <div class="theory-tags">
+      <span class="ttag ttag-cyan">C++</span>
+      <span class="ttag ttag-level">Новичок</span>
+    </div>
+  </div>
+</section>
+<main class="page-content theory-page-content">
+
+  <div class="content-block cyan-accent">
+    <h2 class="block-title cyan">[ ОБЪЯВЛЕНИЕ ПЕРЕМЕННЫХ В C++ ]</h2>
+    <p class="section-text">В отличие от Python, в C++ нужно явно указать тип переменной при объявлении. Тип нельзя изменить после объявления.</p>
+    <div class="code-block"><span class="code-header">C++</span><pre><code><span class="code-comment">// тип имя = значение;</span>
+<span class="code-var">int</span>    score  = <span class="code-num">100</span>;
+<span class="code-var">double</span> pi     = <span class="code-num">3.14159</span>;
+<span class="code-var">char</span>   grade  = <span class="code-string">'A'</span>;
+<span class="code-var">bool</span>   active = <span class="code-bool">true</span>;
+<span class="code-var">string</span> name   = <span class="code-string">"Mark"</span>;  <span class="code-comment">// нужен #include &lt;string&gt;</span></code></pre></div>
+    <div class="info-box yellow"><span class="info-icon">₊⊹</span><div class="info-text"><strong>Точка с запятой!</strong> Каждая инструкция в C++ заканчивается <code>;</code>. Забытая точка с запятой — одна из самых частых ошибок новичков.</div></div>
+  </div>
+  <div class="content-block cyan-accent">
+    <h2 class="block-title cyan">[ ОСНОВНЫЕ ТИПЫ ДАННЫХ ]</h2>
+    <div class="types-grid">
+  <div class="type-card"><div class="type-name pixel-text">int</div><div class="type-desc">Целое число</div><div class="type-example">-2 млрд .. +2 млрд</div></div>
+  <div class="type-card"><div class="type-name pixel-text">double</div><div class="type-desc">64-битное вещественное</div><div class="type-example">3.14, -0.001</div></div>
+  <div class="type-card"><div class="type-name pixel-text">char</div><div class="type-desc">Один символ</div><div class="type-example">'A', 'z', '5'</div></div>
+  <div class="type-card"><div class="type-name pixel-text">bool</div><div class="type-desc">Истина / ложь</div><div class="type-example">true, false</div></div>
+  <div class="type-card"><div class="type-name pixel-text">string</div><div class="type-desc">Строка текста</div><div class="type-example">"Hello"</div></div>
+  <div class="type-card"><div class="type-name pixel-text">float</div><div class="type-desc">32-битное вещественное</div><div class="type-example">3.14f</div></div>
+      </div>
+  </div>
+  <div class="content-block cyan-accent">
+    <h2 class="block-title cyan">[ КОНСТАНТЫ ]</h2>
+    <p class="section-text">Если значение не должно меняться, используй ключевое слово <code>const</code>. Попытка изменить константу вызовет ошибку компиляции.</p>
+    <div class="code-block"><span class="code-header">C++</span><pre><code><span class="code-func">const</span> <span class="code-var">int</span>    MAX_HP   = <span class="code-num">100</span>;
+<span class="code-func">const</span> <span class="code-var">double</span> PI       = <span class="code-num">3.14159265</span>;
+<span class="code-func">const</span> <span class="code-var">string</span> GAME_VER = <span class="code-string">"1.0"</span>;</code></pre></div>
+  </div>
+  <div class="content-block cyan-accent">
+    <h2 class="block-title cyan">[ ПОПРОБУЙ САМ ]</h2>
+    <div class="challenge-box">
+      <div class="challenge-header"><span class="challenge-icon">₊⊹</span><span class="block-title cyan" style="margin:0">ЗАДАНИЕ</span></div>
+      <p class="challenge-text">Объяви переменные для персонажа: имя (string), уровень (int), очки (double), живой ли (bool). Выведи все через <code>cout</code>.</p>
+      <details class="challenge-hint"><summary class="pixel-text">[ ПОКАЗАТЬ РЕШЕНИЕ ]</summary>
+        <div class="code-block" style="margin-top:12px"><pre><code><span class="code-comment">#include &lt;iostream&gt;</span>
+<span class="code-comment">#include &lt;string&gt;</span>
+<span class="code-func">using namespace</span> std;
+
+<span class="code-var">int</span> <span class="code-func">main</span>() {{
+    <span class="code-var">string</span> hero  = <span class="code-string">"Mark"</span>;
+    <span class="code-var">int</span>    level = <span class="code-num">5</span>;
+    <span class="code-var">double</span> score = <span class="code-num">97.5</span>;
+    <span class="code-var">bool</span>   alive = <span class="code-bool">true</span>;
+
+    cout &lt;&lt; hero  &lt;&lt; <span class="code-string">" level "</span> &lt;&lt; level &lt;&lt; endl;
+    cout &lt;&lt; <span class="code-string">"Score: "</span>  &lt;&lt; score &lt;&lt; endl;
+    cout &lt;&lt; <span class="code-string">"Alive: "</span>  &lt;&lt; alive &lt;&lt; endl;
+    <span class="code-func">return</span> <span class="code-num">0</span>;
+}}</code></pre></div>
+      </details>
+    </div>
+  </div>
+
+  <div class="theory-nav">
+    <a href="../theory.html" class="btn-theory-nav pixel-text">◄ К ТЕОРИИ</a>
+    <a href="cpp-io.html" class="btn-theory-nav btn-theory-next pixel-text">ВВОД И ВЫВОД ►</a>
+  </div>
+</main>
+<footer class="footer">
+  <p class="pixel-text">GAME<span class="accent">CODE</span> &copy; 2026</p>
+  <p class="footer-sub">Изучай программирование в играх</p>
+</footer>
+<script src="../../js/pixels-bg.js"></script>
+<script>window.AUTH_ROOT = "../..";</script>
+<script src="../../js/auth.js"></script>
+<script>
+  const s=document.getElementById('sidebar'),o=document.getElementById('overlay'),m=document.getElementById('menuBtn'),c=document.getElementById('sidebarClose');
+  const op=()=>{s.classList.add('open');o.classList.add('active');document.body.style.overflow='hidden';};
+  const cl=()=>{s.classList.remove('open');o.classList.remove('active');document.body.style.overflow='';};
+  m.addEventListener('click',op);c.addEventListener('click',cl);o.addEventListener('click',cl);
+  document.addEventListener('keydown',e=>e.key==='Escape'&&cl());
+</script>
+</body>
+</html>

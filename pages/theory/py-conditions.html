@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Условия — Game Code</title>
+  <link rel="icon" href="../../img/ICON.PNG" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../css/style.css"/>
+  <link rel="stylesheet" href="../../css/pages.css"/>
+  <link rel="stylesheet" href="../../css/auth.css"/>
+  <link rel="stylesheet" href="theory-page.css"/>
+  <link rel="stylesheet" href="../../css/mobile.css"/>
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+<nav class="sidebar" id="sidebar">
+  <button class="sidebar-close" id="sidebarClose">х</button>
+  <div class="sidebar-logo"><span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span></div>
+  <ul class="sidebar-nav">
+    <li><a href="../../index.html"    class="sidebar-link">Все игры</a></li>
+    <li><a href="../leaderboard.html" class="sidebar-link">Лидеры</a></li>
+    <li><a href="../how-to-play.html" class="sidebar-link">Как играть</a></li>
+    <li><a href="../theory.html"      class="sidebar-link active">Теория</a></li>
+    <li><a href="../about.html"       class="sidebar-link">О нас</a></li>
+  </ul>
+  <div class="sidebar-footer"><span>V1.0 — GameCode</span></div>
+</nav>
+<header class="header">
+  <div class="header-left">
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <div class="site-title">
+      <a href="../../index.html" class="logo pixel-text" style="text-decoration:none">GAME<span class="accent">CODE</span></a>
+      <p class="tagline pixel-text">Изучай программирование в играх</p>
+    </div>
+  </div>
+  <div class="header-right"><div id="auth-widget"></div></div>
+</header>
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <p class="breadcrumb"><a href="../../index.html">ГЛАВНАЯ</a> / <a href="../theory.html">ТЕОРИЯ</a> / <a href="../theory.html">PYTHON</a> / УСЛОВИЯ</p>
+    <div class="theory-hero-emoji">₊⊹</div>
+    <h1 class="page-title" style="color:var(--green)">УСЛОВИЯ</h1>
+    <p class="page-subtitle pixel-text">if, elif, else, логика</p>
+    <div class="theory-tags"><span class="ttag ttag-green">Python</span><span class="ttag ttag-level">Новичок</span></div>
+  </div>
+</section>
+<main class="page-content theory-page-content">
+
+  <div class="content-block green-accent">
+    <h2 class="block-title green">[ IF / ELIF / ELSE ]</h2>
+    <p class="section-text">Условные конструкции позволяют выполнять разный код в зависимости от условия.</p>
+    <div class="code-block"><span class="code-header">PYTHON</span><pre><code><span class="code-var">score</span> = <span class="code-num">75</span>
+
+<span class="code-func">if</span> <span class="code-var">score</span> >= <span class="code-num">90</span>:
+    <span class="code-func">print</span>(<span class="code-string">"Отлично!"</span>)
+<span class="code-func">elif</span> <span class="code-var">score</span> >= <span class="code-num">60</span>:
+    <span class="code-func">print</span>(<span class="code-string">"Хорошо"</span>)    <span class="code-comment"># ← выполнится это</span>
+<span class="code-func">elif</span> <span class="code-var">score</span> >= <span class="code-num">40</span>:
+    <span class="code-func">print</span>(<span class="code-string">"Удовлетворительно"</span>)
+<span class="code-func">else</span>:
+    <span class="code-func">print</span>(<span class="code-string">"Нужно повторить"</span>)</code></pre></div>
+  </div>
+  <div class="content-block green-accent">
+    <h2 class="block-title green">[ ЛОГИЧЕСКИЕ ОПЕРАТОРЫ ]</h2>
+    <div class="ops-grid">
+      <div class="op-card"><div class="op-sym">and</div><div class="op-name">И (оба)</div><div class="op-example">x>0 and x&lt;10</div></div>
+      <div class="op-card"><div class="op-sym">or</div><div class="op-name">ИЛИ (хотя бы)</div><div class="op-example">x==0 or x==1</div></div>
+      <div class="op-card"><div class="op-sym">not</div><div class="op-name">НЕ (инверсия)</div><div class="op-example">not active</div></div>
+      <div class="op-card"><div class="op-sym">in</div><div class="op-name">Входит в</div><div class="op-example">"a" in "abc"</div></div>
+    </div>
+    <div class="code-block"><span class="code-header">PYTHON</span><pre><code><span class="code-var">hp</span>     = <span class="code-num">30</span>
+<span class="code-var">shield</span> = <span class="code-bool">False</span>
+
+<span class="code-func">if</span> <span class="code-var">hp</span> < <span class="code-num">50</span> <span class="code-func">and</span> <span class="code-func">not</span> <span class="code-var">shield</span>:
+    <span class="code-func">print</span>(<span class="code-string">"Внимание: низкое HP без щита!"</span>)
+
+<span class="code-var">items</span> = [<span class="code-string">"меч"</span>, <span class="code-string">"щит"</span>, <span class="code-string">"зелье"</span>]
+<span class="code-func">if</span> <span class="code-string">"зелье"</span> <span class="code-func">in</span> <span class="code-var">items</span>:
+    <span class="code-func">print</span>(<span class="code-string">"Можно восстановить HP"</span>)</code></pre></div>
+  </div>
+  <div class="content-block green-accent">
+    <h2 class="block-title green">[ ТЕРНАРНЫЙ ОПЕРАТОР ]</h2>
+    <p class="section-text">Короткая запись if/else в одну строку — удобна для простых проверок.</p>
+    <div class="code-block"><span class="code-header">PYTHON</span><pre><code><span class="code-var">score</span> = <span class="code-num">80</span>
+<span class="code-var">result</span> = <span class="code-string">"победа"</span> <span class="code-func">if</span> <span class="code-var">score</span> >= <span class="code-num">60</span> <span class="code-func">else</span> <span class="code-string">"поражение"</span>
+<span class="code-func">print</span>(<span class="code-var">result</span>)   <span class="code-comment"># победа</span></code></pre></div>
+  </div>
+  <div class="content-block green-accent">
+    <h2 class="block-title green">[ ПОПРОБУЙ САМ ]</h2>
+    <div class="challenge-box">
+      <div class="challenge-header"><span class="challenge-icon">₊⊹</span><span class="block-title green" style="margin:0">ЗАДАНИЕ</span></div>
+      <p class="challenge-text">Напиши функцию <code>grade(score)</code>, которая возвращает оценку: 90+ → "A", 75+ → "B", 60+ → "C", иначе → "F".</p>
+      <details class="challenge-hint"><summary class="pixel-text">[ ПОКАЗАТЬ РЕШЕНИЕ ]</summary>
+        <div class="code-block" style="margin-top:12px"><pre><code><span class="code-func">def</span> <span class="code-var">grade</span>(<span class="code-var">score</span>):
+    <span class="code-func">if</span>   <span class="code-var">score</span> >= <span class="code-num">90</span>: <span class="code-func">return</span> <span class="code-string">"A"</span>
+    <span class="code-func">elif</span> <span class="code-var">score</span> >= <span class="code-num">75</span>: <span class="code-func">return</span> <span class="code-string">"B"</span>
+    <span class="code-func">elif</span> <span class="code-var">score</span> >= <span class="code-num">60</span>: <span class="code-func">return</span> <span class="code-string">"C"</span>
+    <span class="code-func">else</span>:              <span class="code-func">return</span> <span class="code-string">"F"</span></code></pre></div>
+      </details>
+    </div>
+  </div>
+
+  <div class="theory-nav">
+    <a href="py-loops.html" class="btn-theory-nav pixel-text">◄ ЦИКЛЫ</a>
+    <a href="py-operators.html" class="btn-theory-nav btn-theory-next pixel-text">ОПЕРАТОРЫ ►</a>
+  </div>
+</main>
+<footer class="footer">
+  <p class="pixel-text">GAME<span class="accent">CODE</span> &copy; 2026</p>
+  <p class="footer-sub">Изучай программирование в играх</p>
+</footer>
+<script src="../../js/pixels-bg.js"></script>
+<script>window.AUTH_ROOT = "../..";</script>
+<script src="../../js/auth.js"></script>
+<script>
+  const s=document.getElementById('sidebar'),o=document.getElementById('overlay'),m=document.getElementById('menuBtn'),c=document.getElementById('sidebarClose');
+  const op=()=>{s.classList.add('open');o.classList.add('active');document.body.style.overflow='hidden';};
+  const cl=()=>{s.classList.remove('open');o.classList.remove('active');document.body.style.overflow='';};
+  m.addEventListener('click',op);c.addEventListener('click',cl);o.addEventListener('click',cl);
+  document.addEventListener('keydown',e=>e.key==='Escape'&&cl());
+</script>
+</body>
+</html>

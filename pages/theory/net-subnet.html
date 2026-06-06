@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Маска подсети — Game Code</title>
+  <link rel="icon" href="../../img/ICON.PNG" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../css/style.css"/>
+  <link rel="stylesheet" href="../../css/pages.css"/>
+  <link rel="stylesheet" href="../../css/auth.css"/>
+  <link rel="stylesheet" href="theory-page.css"/>
+  <link rel="stylesheet" href="../../css/mobile.css"/>
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+<nav class="sidebar" id="sidebar">
+  <button class="sidebar-close" id="sidebarClose">х</button>
+  <div class="sidebar-logo"><span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span></div>
+  <ul class="sidebar-nav">
+    <li><a href="../../index.html"    class="sidebar-link">Все игры</a></li>
+    <li><a href="../leaderboard.html" class="sidebar-link">Лидеры</a></li>
+    <li><a href="../how-to-play.html" class="sidebar-link">Как играть</a></li>
+    <li><a href="../theory.html"      class="sidebar-link active">Теория</a></li>
+    <li><a href="../about.html"       class="sidebar-link">О нас</a></li>
+  </ul>
+  <div class="sidebar-footer"><span>V1.0 — GameCode</span></div>
+</nav>
+<header class="header">
+  <div class="header-left">
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <div class="site-title">
+      <a href="../../index.html" class="logo pixel-text" style="text-decoration:none">GAME<span class="accent">CODE</span></a>
+      <p class="tagline pixel-text">Изучай программирование в играх</p>
+    </div>
+  </div>
+  <div class="header-right"><div id="auth-widget"></div></div>
+</header>
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <p class="breadcrumb"><a href="../../index.html">ГЛАВНАЯ</a> / <a href="../theory.html">ТЕОРИЯ</a> / <a href="../theory.html">IP АДРЕСА И СЕТИ</a> / МАСКА</p>
+    <div class="theory-hero-emoji">₊⊹</div>
+    <h1 class="page-title" style="color:var(--yellow)">МАСКА ПОДСЕТИ</h1>
+    <p class="page-subtitle pixel-text">Структура сети и подсети</p>
+    <div class="theory-tags">
+      <span class="ttag ttag-yellow">IP / Сети</span>
+      <span class="ttag ttag-level">Практик</span>
+    </div>
+  </div>
+</section>
+<main class="page-content theory-page-content">
+
+  <div class="content-block yellow-accent">
+    <h2 class="block-title yellow">[ ЧТО ТАКОЕ МАСКА ПОДСЕТИ ]</h2>
+    <p class="section-text">Маска подсети — это число, которое разделяет IP-адрес на две части: <strong>адрес сети</strong> и <strong>адрес хоста</strong> (конкретного устройства). Записывается так же, как IP: четыре октета.</p>
+    <div class="ip-visual">
+      <div class="ip-octet" style="border-color:var(--green)"><span class="ip-octet-num" style="color:var(--green)">255</span><span class="ip-octet-label">сеть</span></div>
+      <div class="ip-dot">.</div>
+      <div class="ip-octet" style="border-color:var(--green)"><span class="ip-octet-num" style="color:var(--green)">255</span><span class="ip-octet-label">сеть</span></div>
+      <div class="ip-dot">.</div>
+      <div class="ip-octet" style="border-color:var(--green)"><span class="ip-octet-num" style="color:var(--green)">255</span><span class="ip-octet-label">сеть</span></div>
+      <div class="ip-dot">.</div>
+      <div class="ip-octet" style="border-color:var(--text-dim)"><span class="ip-octet-num" style="color:var(--text-dim)">0</span><span class="ip-octet-label">хосты</span></div>
+    </div>
+    <p class="section-text" style="text-align:center;margin-top:8px">Маска <code>255.255.255.0</code> = <code>/24</code> — первые 24 бита это сеть, последние 8 — хосты (256 адресов)</p>
+  </div>
+  <div class="content-block yellow-accent">
+    <h2 class="block-title yellow">[ ПОПУЛЯРНЫЕ МАСКИ ]</h2>
+    <table class="compare-table">
+      <thead><tr><th>Маска</th><th>Префикс</th><th>Хостов</th><th>Пример сети</th></tr></thead>
+      <tbody>
+<tr><td><code>255.0.0.0</code></td><td><code>/8</code></td><td class="pixel-text">~16 млн</td><td class="pixel-text">10.0.0.0</td></tr>
+<tr><td><code>255.255.0.0</code></td><td><code>/16</code></td><td class="pixel-text">~65 тыс</td><td class="pixel-text">172.16.0.0</td></tr>
+<tr><td><code>255.255.255.0</code></td><td><code>/24</code></td><td class="pixel-text">254</td><td class="pixel-text">192.168.1.0</td></tr>
+<tr><td><code>255.255.255.128</code></td><td><code>/25</code></td><td class="pixel-text">126</td><td class="pixel-text">192.168.1.0</td></tr>
+<tr><td><code>255.255.255.192</code></td><td><code>/26</code></td><td class="pixel-text">62</td><td class="pixel-text">192.168.1.0</td></tr>
+<tr><td><code>255.255.255.240</code></td><td><code>/28</code></td><td class="pixel-text">14</td><td class="pixel-text">192.168.1.0</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="content-block yellow-accent">
+    <h2 class="block-title yellow">[ КАК НАЙТИ АДРЕС ПОДСЕТИ ]</h2>
+    <p class="section-text">Применяем побитовое AND между IP и маской. Единицы маски «оставляют» биты IP, нули — «обнуляют» их.</p>
+    <div class="code-block"><span class="code-header">ПРИМЕР</span><pre><code>IP адрес:  192.168.1.100
+           11000000.10101000.00000001.01100100
+
+Маска /24: 255.255.255.0
+           11111111.11111111.11111111.00000000
+
+AND:       11000000.10101000.00000001.00000000
+                                              ↓
+Адрес сети: 192.168.1.0</code></pre></div>
+    <div class="info-box yellow">
+      <span class="info-icon">₊⊹</span>
+      <div class="info-text">Именно эту операцию выполняет игра «<strong>Сетевой маршрут</strong>» — она проверяет, попадает ли IP устройства в ту же подсеть, что и отправитель.</div>
+    </div>
+  </div>
+
+  <div class="theory-nav">
+    <a href="net-ip-basics.html" class="btn-theory-nav pixel-text">◄ IP-АДРЕСА</a>
+    <a href="net-routing.html" class="btn-theory-nav btn-theory-next pixel-text">ПЕРЕДАЧА ДАННЫХ ►</a>
+  </div>
+</main>
+<footer class="footer">
+  <p class="pixel-text">GAME<span class="accent">CODE</span> &copy; 2026</p>
+  <p class="footer-sub">Изучай программирование в играх</p>
+</footer>
+<script src="../../js/pixels-bg.js"></script>
+<script>window.AUTH_ROOT = "../..";</script>
+<script src="../../js/auth.js"></script>
+<script>
+  const s=document.getElementById('sidebar'),o=document.getElementById('overlay'),m=document.getElementById('menuBtn'),c=document.getElementById('sidebarClose');
+  const op=()=>{s.classList.add('open');o.classList.add('active');document.body.style.overflow='hidden';};
+  const cl=()=>{s.classList.remove('open');o.classList.remove('active');document.body.style.overflow='';};
+  m.addEventListener('click',op);c.addEventListener('click',cl);o.addEventListener('click',cl);
+  document.addEventListener('keydown',e=>e.key==='Escape'&&cl());
+</script>
+</body>
+</html>

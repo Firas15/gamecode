@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <link rel="stylesheet" href="../css/leaderboard.css"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Таблица лидеров — Game Code</title>
+  <link rel="icon" href="../img/ICON.PNG" type="image/png">
+  <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="stylesheet" href="../css/pages.css"/>
+  <link rel="stylesheet" href="../css/auth.css">
+  <link rel="stylesheet" href="../css/mobile.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <div class="overlay" id="overlay"></div>
+
+  <nav class="sidebar" id="sidebar">
+    <button class="sidebar-close" id="sidebarClose">×</button>
+    <div class="sidebar-logo">
+      <span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="../index.html" class="sidebar-link">Все игры</a></li>
+      <li><a href="leaderboard.html" class="sidebar-link active">Лидеры</a></li>
+      <li><a href="how-to-play.html" class="sidebar-link">Как играть</a></li>
+      <li><a href="theory.html" class="sidebar-link">Теория</a></li>
+      <li><a href="about.html" class="sidebar-link">О нас</a></li>
+    </ul>
+    <div class="sidebar-footer"><span>V1.0 — GameCode</span></div>
+  </nav>
+
+  <header class="header">
+    <div class="header-left">
+      <button class="menu-btn" id="menuBtn" aria-label="Открыть меню">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="site-title">
+        <a href="../index.html" class="logo pixel-text" style="text-decoration:none;">GAME<span class="accent">CODE</span></a>
+        <p class="tagline pixel-text">Изучай программирование в играх</p>
+      </div>
+    </div>
+    <div class="header-right"><div id="auth-widget"></div></div>
+  </header>
+
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <p class="breadcrumb"><a href="../index.html">ГЛАВНАЯ</a> / ТАБЛИЦА ЛИДЕРОВ</p>
+      <h1 class="page-title yellow">ТАБЛИЦА ЛИДЕРОВ</h1>
+      <p class="page-subtitle pixel-text">Лучшие игроки платформы</p>
+    </div>
+  </section>
+
+  <main class="page-content">
+    <div class="lb-tabs">
+      <button class="lb-tab active" data-game="all">ВСЕ ИГРЫ</button>
+      <button class="lb-tab" data-game="sorter">СОРТИРОВЩИК</button>
+      <button class="lb-tab" data-game="network">СЕТЕВОЙ МАРШРУТ</button>
+      <button class="lb-tab" data-game="millionaire">КТО ХОЧЕТ СТАТЬ ПРОГРАММИСТОМ</button>
+    </div>
+
+    <div class="content-block yellow-accent">
+      <h2 class="block-title yellow" id="lb-block-title">[ ВСЕ ИГРЫ ]</h2>
+      <div id="lb-content">
+        <div class="lb-spinner">// загрузка...</div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin-top:40px;">
+      <a href="../index.html" class="btn-start pixel-text" style="font-size:10px; display:inline-block;">[ НА ГЛАВНУЮ ]</a>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p class="pixel-text">GAME<span class="accent">CODE</span> &copy; 2026</p>
+    <p class="footer-sub">Изучай программирование в играх</p>
+  </footer>
+
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebarClose = document.getElementById('sidebarClose');
+    const openSidebar = () => {
+      sidebar.classList.add('open');
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    };
+    const closeSidebar = () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    };
+
+    menuBtn.addEventListener('click', openSidebar);
+    sidebarClose.addEventListener('click', closeSidebar);
+    overlay.addEventListener('click', closeSidebar);
+    document.addEventListener('keydown', e => e.key === 'Escape' && closeSidebar());
+
+    document.getElementById('searchBtn')?.addEventListener('click', () => {
+      const input = document.getElementById('searchInput');
+      const q = input ? input.value.trim() : '';
+      if (q) window.location.href = '../index.html?q=' + encodeURIComponent(q);
+    });
+    document.getElementById('searchInput')?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const q = e.target && typeof e.target.value === 'string' ? e.target.value.trim() : '';
+        if (q) window.location.href = '../index.html?q=' + encodeURIComponent(q);
+      }
+    });
+  </script>
+
+  <script>window.AUTH_ROOT = '..';</script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/pixels-bg.js"></script>
+  <script src="../js/ai-chat.js"></script>
+
+  <script>
+    const GAME_NAMES = {
+      all: 'все игры',
+      sorter: 'Сортировщик',
+      network: 'Сетевой маршрут',
+      millionaire: 'Кто хочет стать программистом'
+    };
+
+    const GAME_TITLES = {
+      all: '[ ВСЕ ИГРЫ ]',
+      sorter: '[ СОРТИРОВЩИК ]',
+      network: '[ СЕТЕВОЙ МАРШРУТ ]',
+      millionaire: '[ КТО ХОЧЕТ СТАТЬ ПРОГРАММИСТОМ ]'
+    };
+
+    const LB_API_URL = new URL('../api/leaderboard.php', window.location.href).href;
+
+    let currentGame = 'all';
+    let currentNick = null;
+
+    console.info('[Leaderboard] page script loaded:', window.location.href);
+    window.addEventListener('error', event => {
+      console.error('[Leaderboard] uncaught error:', event.error || event.message);
+    });
+    window.addEventListener('unhandledrejection', event => {
+      console.error('[Leaderboard] unhandled rejection:', event.reason);
+    });
+
+    fetch('../api/check-auth.php', { credentials: 'same-origin', cache: 'no-store' })
+      .then(r => r.json())
+      .then(d => {
+        if (d.loggedIn) currentNick = d.nickname;
+      })
+      .catch(() => {});
+
+    async function loadTable(game) {
+      const wrap = document.getElementById('lb-content');
+      wrap.innerHTML = '<div class="lb-spinner">// загрузка...</div>';
+      console.info('[Leaderboard] fetching:', `${LB_API_URL}?game=${game}&limit=20`);
+
+      let data;
+      try {
+        const res = await fetch(`${LB_API_URL}?game=${game}&limit=20`, { cache: 'no-store' });
+        data = await res.json();
+      } catch (err) {
+        console.error('[Leaderboard] load failed:', err);
+        wrap.innerHTML = '<div class="lb-no-data">// нет соединения с сервером</div>';
+        return;
+      }
+
+      if (!data || !data.ok || !Array.isArray(data.rows) || !data.rows.length) {
+        wrap.innerHTML = `<div class="lb-no-data">// в «${GAME_NAMES[game]}» ещё никто не играл — стань первым!</div>`;
+        return;
+      }
+
+      const colScore = game === 'all' ? 'СУММА ОЧКОВ' : 'РЕКОРД';
+      const header = `<tr><th>#</th><th colspan="2">ИГРОК</th><th style="text-align:right">${colScore}</th></tr>`;
+      const medals = {
+        1: '<img src="../img/medals/gold-1.png" alt="Место 1" class="medal-img medal-img--leaderboard"/>',
+        2: '<img src="../img/medals/silver-2.png" alt="Место 2" class="medal-img medal-img--leaderboard"/>',
+        3: '<img src="../img/medals/bronze-3.png" alt="Место 3" class="medal-img medal-img--leaderboard"/>'
+      };
+      const rowClass = { 1: 'lb-gold', 2: 'lb-silver', 3: 'lb-bronze' };
+
+      const rows = data.rows.map(r => {
+        const isMe = currentNick && r.nickname === currentNick;
+        const cls = [rowClass[r.rank] || '', isMe ? 'lb-me' : ''].filter(Boolean).join(' ');
+
+        return `<tr class="${cls}">
+          <td class="td-rank">${medals[r.rank] || '#' + r.rank}</td>
+          <td><div class="td-user"><span class="td-avatar"><img src="../img/avatars/${r.avatar_emoji || 'avatar1'}.png" alt="аватар" class="avatar-img avatar-img--sm"/></span><span class="td-nick">${escHtml(r.nickname)}${isMe ? ' ◀' : ''}</span></div></td>
+          <td></td>
+          <td class="td-score">${Number(r.score).toLocaleString('ru-RU')}</td>
+        </tr>`;
+      }).join('');
+
+      wrap.innerHTML = `<table class="lb-table"><thead>${header}</thead><tbody>${rows}</tbody></table>`;
+    }
+
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    document.querySelectorAll('.lb-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.lb-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentGame = btn.dataset.game;
+        document.getElementById('lb-block-title').textContent = GAME_TITLES[currentGame];
+        loadTable(currentGame);
+      });
+    });
+
+    loadTable('all').catch(err => {
+      console.error('[Leaderboard] initial load failed:', err);
+    });
+  </script>
+</body>
+</html>

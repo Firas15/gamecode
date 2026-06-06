@@ -1,0 +1,244 @@
+/* ============================================
+   NETWORK GAME — MOBILE.CSS
+   GameCode — Mobile & Tablet adaptations
+   ============================================ */
+
+/* ── TABLET (max-width: 1024px) ── */
+@media (max-width: 1024px) {
+  .hud { padding: 0 14px; }
+  .task-panel-inner { gap: 12px; }
+  .sender-node { left: 30px; }
+  .receiver-node { right: 30px; }
+}
+
+/* ── PHABLET (max-width: 900px) ── */
+@media (max-width: 900px) {
+  .hud {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(120px, 150px) auto;
+    align-items: center;
+    min-height: 0;
+    height: auto;
+    padding: 10px 12px 8px;
+    gap: 10px;
+  }
+  .hud-col {
+    gap: 12px;
+    flex-wrap: nowrap;
+    min-width: 0;
+  }
+  .hud-col:first-child {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, auto));
+    gap: 10px 12px;
+  }
+  .hud-col:last-child {
+    justify-self: end;
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-areas:
+      "lives"
+      "menu";
+    gap: 8px;
+  }
+  .hud-col:last-child .hud-item {
+    grid-area: lives;
+    justify-self: end;
+  }
+  .hud-item {
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .hud-lbl {
+    font-size: 7px;
+  }
+  .hud-lvname {
+    font-size: 9px;
+    margin-bottom: 5px;
+  }
+  .hud-mid {
+    justify-self: center;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .prog-wrap { width: min(100%, 150px); }
+  .btn-esc {
+    grid-area: menu;
+    min-height: 30px;
+    padding: 8px 10px;
+    font-size: 7px;
+    line-height: 1;
+  }
+
+  /* Task panel stacks */
+  .task-panel {
+    top: 96px;
+    padding: 8px 12px;
+  }
+  .task-panel-inner {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 12px;
+    align-items: stretch;
+  }
+  .task-data-row {
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+  .task-question {
+    width: 100%;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  /* Game field shift */
+  .game-field { top: 188px; }
+
+  /* Intro/level select */
+  .intro-box { width: min(96%, 500px); padding: 22px 18px; }
+  .level-cards { flex-direction: column; align-items: center; }
+  .level-card { width: 100%; max-width: 320px; }
+
+  /* Back button */
+  .back-btn { top: 10px; left: 10px; font-size: 8px; padding: 8px 12px; min-height: 36px; }
+
+  /* Menu screen */
+  #s-menu { padding: 14px; gap: 20px; overflow-y: auto; padding-top: 56px; }
+  .menu-title { font-size: clamp(11px, 3.2vw, 17px); }
+}
+
+/* ── MOBILE (max-width: 700px) ── already partially in style.css ── */
+@media (max-width: 700px) {
+  .hud {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "stats"
+      "center"
+      "actions";
+    padding: 8px;
+    gap: 8px 10px;
+    align-items: center;
+  }
+  .hud-col:first-child {
+    grid-area: stats;
+    display: flex;
+    gap: 8px 10px;
+    justify-content: space-between;
+  }
+  .hud-mid {
+    grid-area: center;
+  }
+  .hud-col:last-child {
+    grid-area: actions;
+    width: 100%;
+    justify-self: stretch;
+    grid-template-columns: 1fr;
+  }
+  .hud-col:last-child .hud-item {
+    justify-self: center;
+    align-items: center;
+  }
+  .hud-item { gap: 4px; }
+  .hud-val {
+    font-size: clamp(10px, 3vw, 14px);
+  }
+  .hud-lvname { font-size: 8px; letter-spacing: 0.5px; }
+  .prog-wrap { width: min(100%, 210px); }
+
+  /* Task panel */
+  .task-panel {
+    top: 132px;
+    height: auto;
+    padding: 25px 10px;
+  }
+  .task-panel-inner {
+    flex-direction: column;
+    gap: 6px;
+    padding: 0;
+  }
+  .task-data-row {
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  .task-question {
+    font-size: 11px;
+    line-height: 1.5;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  /* Game field */
+  .game-field { top: 232px; }
+  .sender-node { left: 14px; }
+  .receiver-node { right: 14px; }
+
+  /* Packet label */
+  .packet-label { font-size: 7px; padding: 2px 5px; }
+
+  /* Routers — make them slightly more tappable */
+  .router { width: 48px; height: 48px; }
+  .router-icon { font-size: 20px; }
+
+  /* Result screen */
+  .result-actions {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+  .result-actions button,
+  .result-actions a {
+    width: 100%;
+    min-height: 44px;
+    text-align: center;
+  }
+}
+
+/* ── SMALL PHONE (max-width: 520px) ── */
+@media (max-width: 520px) {
+  .hud-col { gap: 8px; }
+  .hud-val { font-size: clamp(9px, 3.2vw, 12px); }
+  .task-panel {
+    top: 132px;
+  }
+  .task-data-item {
+    align-items: center;
+    text-align: center;
+    min-width: 84px;
+  }
+  .task-data-val,
+  .task-question {
+    font-size: 10px;
+  }
+  .menu-title { font-size: clamp(10px, 4vw, 16px); padding: 0 8px; }
+
+  .level-card { min-width: 0; width: 100%; max-width: 280px; }
+
+  .game-field { top: 244px; }
+  .router { width: 44px; height: 44px; }
+
+  .back-btn { top: 6px; left: 6px; font-size: 7px; padding: 7px 10px; }
+}
+
+/* ── TOUCH TARGETS ── */
+@media (hover: none) and (pointer: coarse) {
+  .router {
+    width: 52px;
+    height: 52px;
+    cursor: pointer;
+  }
+  .level-card { min-height: 80px; }
+  .back-btn { min-height: 40px; }
+}
+
+/* ── LANDSCAPE PHONE ── */
+@media (max-height: 500px) and (max-width: 900px) {
+  .hud { padding: 4px 8px; }
+  .game-field { top: 130px; }
+  .task-panel { height: auto; }
+}

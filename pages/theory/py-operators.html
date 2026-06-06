@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Операторы — Game Code</title>
+  <link rel="icon" href="../../img/ICON.PNG" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../css/style.css"/>
+  <link rel="stylesheet" href="../../css/pages.css"/>
+  <link rel="stylesheet" href="../../css/auth.css"/>
+  <link rel="stylesheet" href="theory-page.css"/>
+  <link rel="stylesheet" href="../../css/mobile.css"/>
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+<nav class="sidebar" id="sidebar">
+  <button class="sidebar-close" id="sidebarClose">х</button>
+  <div class="sidebar-logo"><span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span></div>
+  <ul class="sidebar-nav">
+    <li><a href="../../index.html"    class="sidebar-link">Все игры</a></li>
+    <li><a href="../leaderboard.html" class="sidebar-link">Лидеры</a></li>
+    <li><a href="../how-to-play.html" class="sidebar-link">Как играть</a></li>
+    <li><a href="../theory.html"      class="sidebar-link active">Теория</a></li>
+    <li><a href="../about.html"       class="sidebar-link">О нас</a></li>
+  </ul>
+  <div class="sidebar-footer"><span>V1.0 — GameCode</span></div>
+</nav>
+<header class="header">
+  <div class="header-left">
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <div class="site-title">
+      <a href="../../index.html" class="logo pixel-text" style="text-decoration:none">GAME<span class="accent">CODE</span></a>
+      <p class="tagline pixel-text">Изучай программирование в играх</p>
+    </div>
+  </div>
+  <div class="header-right"><div id="auth-widget"></div></div>
+</header>
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <p class="breadcrumb"><a href="../../index.html">ГЛАВНАЯ</a> / <a href="../theory.html">ТЕОРИЯ</a> / <a href="../theory.html">PYTHON</a> / ОПЕРАТОРЫ</p>
+    <div class="theory-hero-emoji">₊⊹</div>
+    <h1 class="page-title" style="color:var(--green)">ОПЕРАТОРЫ</h1>
+    <p class="page-subtitle pixel-text">Арифметика, сравнение, присваивание</p>
+    <div class="theory-tags"><span class="ttag ttag-green">Python</span><span class="ttag ttag-level">Новичок</span></div>
+  </div>
+</section>
+<main class="page-content theory-page-content">
+
+  <div class="content-block green-accent">
+    <h2 class="block-title green">[ АРИФМЕТИЧЕСКИЕ ОПЕРАТОРЫ ]</h2>
+    <div class="ops-grid">
+      <div class="op-card"><div class="op-sym">+</div><div class="op-name">Сложение</div><div class="op-example">5 + 3 = 8</div></div>
+      <div class="op-card"><div class="op-sym">-</div><div class="op-name">Вычитание</div><div class="op-example">10 - 4 = 6</div></div>
+      <div class="op-card"><div class="op-sym">*</div><div class="op-name">Умножение</div><div class="op-example">3 * 4 = 12</div></div>
+      <div class="op-card"><div class="op-sym">/</div><div class="op-name">Деление</div><div class="op-example">7 / 2 = 3.5</div></div>
+      <div class="op-card"><div class="op-sym">//</div><div class="op-name">Целое деление</div><div class="op-example">7 // 2 = 3</div></div>
+      <div class="op-card"><div class="op-sym">%</div><div class="op-name">Остаток</div><div class="op-example">7 % 2 = 1</div></div>
+      <div class="op-card"><div class="op-sym">**</div><div class="op-name">Степень</div><div class="op-example">2 ** 8 = 256</div></div>
+    </div>
+  </div>
+  <div class="content-block green-accent">
+    <h2 class="block-title green">[ ОПЕРАТОРЫ СРАВНЕНИЯ ]</h2>
+    <div class="code-block"><span class="code-header">PYTHON</span><pre><code><span class="code-func">print</span>(<span class="code-num">5</span> == <span class="code-num">5</span>)   <span class="code-comment"># True  — равно</span>
+<span class="code-func">print</span>(<span class="code-num">5</span> != <span class="code-num">3</span>)   <span class="code-comment"># True  — не равно</span>
+<span class="code-func">print</span>(<span class="code-num">5</span> >  <span class="code-num">3</span>)   <span class="code-comment"># True  — больше</span>
+<span class="code-func">print</span>(<span class="code-num">5</span> <  <span class="code-num">3</span>)   <span class="code-comment"># False — меньше</span>
+<span class="code-func">print</span>(<span class="code-num">5</span> >= <span class="code-num">5</span>)   <span class="code-comment"># True  — больше или равно</span>
+<span class="code-func">print</span>(<span class="code-num">5</span> <= <span class="code-num">4</span>)   <span class="code-comment"># False — меньше или равно</span></code></pre></div>
+  </div>
+  <div class="content-block green-accent">
+    <h2 class="block-title green">[ ОПЕРАТОРЫ ПРИСВАИВАНИЯ ]</h2>
+    <div class="code-block"><span class="code-header">PYTHON</span><pre><code><span class="code-var">x</span> = <span class="code-num">10</span>
+<span class="code-var">x</span> += <span class="code-num">5</span>    <span class="code-comment"># x = x + 5  → 15</span>
+<span class="code-var">x</span> -= <span class="code-num">3</span>    <span class="code-comment"># x = x - 3  → 12</span>
+<span class="code-var">x</span> *= <span class="code-num">2</span>    <span class="code-comment"># x = x * 2  → 24</span>
+<span class="code-var">x</span> //= <span class="code-num">4</span>   <span class="code-comment"># x = x // 4 → 6</span>
+<span class="code-var">x</span> **= <span class="code-num">2</span>   <span class="code-comment"># x = x ** 2 → 36</span>
+<span class="code-var">x</span> %= <span class="code-num">7</span>    <span class="code-comment"># x = x % 7  → 1</span></code></pre></div>
+  </div>
+  <div class="content-block green-accent">
+    <h2 class="block-title green">[ ПОПРОБУЙ САМ ]</h2>
+    <div class="challenge-box">
+      <div class="challenge-header"><span class="challenge-icon">₊⊹</span><span class="block-title green" style="margin:0">ЗАДАНИЕ</span></div>
+      <p class="challenge-text">Напиши выражение, которое проверяет, является ли число чётным (остаток от деления на 2 равен 0). Проверь для чисел 4, 7, 100, 13.</p>
+      <details class="challenge-hint"><summary class="pixel-text">[ ПОКАЗАТЬ РЕШЕНИЕ ]</summary>
+        <div class="code-block" style="margin-top:12px"><pre><code><span class="code-func">def</span> <span class="code-var">is_even</span>(<span class="code-var">n</span>):
+    <span class="code-func">return</span> <span class="code-var">n</span> % <span class="code-num">2</span> == <span class="code-num">0</span>
+
+<span class="code-func">for</span> <span class="code-var">n</span> <span class="code-func">in</span> [<span class="code-num">4</span>, <span class="code-num">7</span>, <span class="code-num">100</span>, <span class="code-num">13</span>]:
+    <span class="code-func">print</span>(<span class="code-interp">f"{<span class="code-var">n</span>}: {<span class="code-var">is_even</span>(<span class="code-var">n</span>)}"</span>)
+<span class="code-comment"># 4: True  7: False  100: True  13: False</span></code></pre></div>
+      </details>
+    </div>
+  </div>
+
+  <div class="theory-nav">
+    <a href="py-conditions.html" class="btn-theory-nav pixel-text">◄ УСЛОВИЯ</a>
+    <a href="../theory.html" class="btn-theory-nav btn-theory-next pixel-text">К ТЕОРИИ ►</a>
+  </div>
+</main>
+<footer class="footer">
+  <p class="pixel-text">GAME<span class="accent">CODE</span> &copy; 2026</p>
+  <p class="footer-sub">Изучай программирование в играх</p>
+</footer>
+<script src="../../js/pixels-bg.js"></script>
+<script>window.AUTH_ROOT = "../..";</script>
+<script src="../../js/auth.js"></script>
+<script>
+  const s=document.getElementById('sidebar'),o=document.getElementById('overlay'),m=document.getElementById('menuBtn'),c=document.getElementById('sidebarClose');
+  const op=()=>{s.classList.add('open');o.classList.add('active');document.body.style.overflow='hidden';};
+  const cl=()=>{s.classList.remove('open');o.classList.remove('active');document.body.style.overflow='';};
+  m.addEventListener('click',op);c.addEventListener('click',cl);o.addEventListener('click',cl);
+  document.addEventListener('keydown',e=>e.key==='Escape'&&cl());
+</script>
+</body>
+</html>

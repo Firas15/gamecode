@@ -1,0 +1,733 @@
+/* 
+   GAME CODE — MOBILE.CSS
+   Breakpoints:
+     tablet  : 768px – 1024px
+     phablet : 480px – 768px
+     phone   : 360px – 480px
+     tiny    : < 360px
+    */
+
+/* 
+   TABLET  (max-width: 1024px)
+    */
+@media (max-width: 1024px) {
+  /* Make the carousel a bit tighter */
+  .carousel-section {
+    padding: 40px 24px 32px;
+  }
+
+  /* Slide layout — keep 2-col but reduce padding */
+  .cs-info {
+    padding: 36px 36px;
+    gap: 20px;
+  }
+
+  /* Game cards grid — fewer columns */
+  .games-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 18px;
+  }
+
+  /* Hero stats grid stays 2-col, but tighter */
+  .hero-stats-grid {
+    max-width: 760px;
+    gap: 18px;
+  }
+
+  /* Sidebar nav links readable on tablet */
+  .sidebar-link {
+    font-size: 12px;
+    padding: 12px 14px;
+  }
+}
+
+/* 
+   PHABLET  (max-width: 900px)
+    */
+@media (max-width: 900px) {
+  /* Header: tighter auth widget */
+  .aw-guest {
+    flex-direction: row;
+    gap: 6px;
+  }
+  .aw-btn-login,
+  .aw-btn-register {
+    padding: 8px 10px;
+    font-size: 7px;
+    min-height: 36px;
+  }
+
+  /* Sidebar */
+  .sidebar-link {
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    padding: 11px 12px;
+  }
+
+  /* Carousel goes single-column */
+  .carousel-slide {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+  .cs-visual {
+    min-height: 200px;
+  }
+  .cs-info {
+    padding: 28px 28px;
+    border-left: none;
+    border-top: 1px solid var(--border-blue);
+    gap: 18px;
+  }
+
+  /* Hero sub text */
+  .hero-sub {
+    letter-spacing: 3px;
+    line-height: 1.7;
+  }
+
+  /* Stats cards to 2-col */
+  .hero-stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+}
+
+/*   MOBILE-LARGE  (max-width: 768px) */
+@media (max-width: 768px) {
+
+  /* ── Header ── */
+  :root { --header-h: 60px; }
+
+  .header {
+    padding: 0 12px;
+    height: var(--header-h);
+  }
+
+  .header-left { gap: 10px; }
+
+  .site-title .logo {
+    font-size: clamp(9px, 3.2vw, 14px);
+    letter-spacing: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 44vw;
+  }
+
+  .site-title .tagline { display: none; }
+
+  /* Auth widget in header */
+  .header-right {
+    flex-shrink: 0;
+    min-width: 0;
+  }
+
+  .aw-guest {
+    flex-direction: row;
+    gap: 4px;
+  }
+  .aw-btn-login,
+  .aw-btn-register {
+    padding: 7px 9px;
+    font-size: 6px;
+    min-height: 34px;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .aw-nick { max-width: 60px; }
+
+  /* Hamburger */
+  .menu-btn {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    min-height: 280px;
+    padding: 48px 16px 32px;
+  }
+
+  .hero-title {
+    font-size: clamp(18px, 6vw, 36px);
+    letter-spacing: 2px;
+  }
+
+  .hero-sub {
+    font-size: clamp(9px, 2.5vw, 14px);
+    letter-spacing: 2px;
+    line-height: 1.7;
+    text-align: center;
+    padding: 0 8px;
+  }
+
+  /* ── Hero stats ── */
+  .hero-stats { padding: 0 12px 28px; }
+  .hero-stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .hstat-card { padding: 18px 12px; gap: 10px; }
+  .hstat-label { font-size: clamp(8px, 2.5vw, 11px); line-height: 1.6; }
+  .hstat-value { font-size: clamp(26px, 8vw, 40px); }
+  .hstat-sublabel { font-size: clamp(8px, 2vw, 11px); }
+
+  /* ── Carousel ── */
+  .carousel-section {
+    padding: 28px 12px 20px;
+  }
+  .carousel-header { margin-bottom: 20px; }
+  .carousel-header .section-title { font-size: clamp(10px, 2.5vw, 14px); }
+  .carousel-header .section-sub { font-size: clamp(13px, 3vw, 16px); }
+
+  .carousel-slide {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    clip-path: none;
+  }
+  .cs-visual { min-height: 180px; }
+  .cs-emoji img { max-width: 180px; }
+
+  .cs-info {
+    padding: 20px 18px;
+    border-left: none;
+    border-top: 1px solid var(--border-blue);
+    gap: 14px;
+  }
+
+  .cs-title { font-size: clamp(11px, 3vw, 15px); line-height: 1.6; }
+  .cs-desc  { font-size: clamp(10px, 2.5vw, 13px); line-height: 1.7; }
+
+  .cs-btn {
+    width: 100%;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    clip-path: none;
+    padding: 12px 20px;
+  }
+
+  .carousel-arrow {
+    width: 38px;
+    height: 38px;
+    font-size: 15px;
+    clip-path: none;
+  }
+
+  .news-carousel-section { padding: 10px 12px 24px; }
+  .news-carousel-header { margin-bottom: 18px; }
+  .news-carousel-header .section-title { font-size: clamp(10px, 2.5vw, 14px); }
+  .news-carousel-header .section-sub { font-size: clamp(11px, 3vw, 15px); }
+  .news-carousel-slide,
+  .news-carousel-slide.layout-right {
+    grid-template-columns: minmax(112px, 0.78fr) minmax(0, 1.22fr);
+    height: auto;
+    min-height: 210px;
+  }
+  .news-carousel-slide.layout-right {
+    grid-template-columns: minmax(0, 1.22fr) minmax(112px, 0.78fr);
+  }
+  .news-carousel-track { height: auto; }
+  .news-carousel-media,
+  .news-carousel-slide.layout-right .news-carousel-media {
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 1 / 1;
+  }
+  .news-carousel-image { object-fit: contain; padding: 8px; }
+  .news-carousel-body { padding: 16px 12px; gap: 8px; }
+  .news-carousel-kicker { font-size: 7px; }
+  .news-carousel-title { font-size: clamp(9px, 2.8vw, 12px); line-height: 1.6; }
+  .news-carousel-desc { font-size: clamp(7px, 2.15vw, 9px); line-height: 1.75; }
+
+  /* ── Section grid ── */
+  .main { padding: 28px 14px 60px; }
+
+  .games-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 14px;
+  }
+
+  .section-title { font-size: clamp(10px, 3vw, 14px); }
+  .section-sub   { font-size: clamp(13px, 3.5vw, 17px); }
+
+  /* ── Game cards ── */
+  .card-title  { font-size: 12px; line-height: 1.6; }
+  .card-desc   { font-size: 10px; line-height: 1.8; min-height: 70px; }
+  .card-btn {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+  }
+  .card-preview { height: 130px; }
+
+  /* ── Sidebar ── */
+  .sidebar { width: 270px; }
+  .sidebar-link {
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    padding: 12px 14px;
+  }
+  .sidebar-link::before {
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+  }
+  .sidebar-logo { font-size: 16px; padding: 12px 18px 24px; }
+
+  /* ── Footer ── */
+  .footer { padding: 20px 12px; font-size: 8px; }
+  .footer-sub { font-size: 11px; }
+}
+
+/* 
+   MOBILE-SMALL  (max-width: 540px)
+    */
+@media (max-width: 540px) {
+  /* Hero stats — single column */
+  .hero-stats-grid { grid-template-columns: 1fr; }
+
+  /* Cards: 2-col grid */
+  .games-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* Card preview height */
+  .card-preview { height: 100px; }
+
+  /* Hide some card image overflow to keep clean */
+  .card-body { padding: 12px; }
+  .card-title { font-size: 10px; }
+  .card-desc  { font-size: 9px; min-height: 60px; }
+  .card-btn   { font-size: 7px; min-height: 40px; padding: 8px; }
+
+  /* Section text */
+  .section-header { margin-bottom: 18px; }
+
+  /* Carousel */
+  .carousel-arrow { display: none; }
+  .cs-info { padding: 16px 14px; }
+  .news-carousel-arrow { display: none; }
+  .news-carousel-body { padding: 18px 14px; }
+  .news-carousel-track { height: auto; }
+  .news-carousel-slide,
+  .news-carousel-slide.layout-right {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 0;
+  }
+  .news-carousel-slide.layout-right {
+    grid-template-columns: 1fr;
+  }
+  .news-carousel-media,
+  .news-carousel-slide.layout-right .news-carousel-media {
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 16 / 10;
+    order: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+  }
+  .news-carousel-image { padding: 12px; }
+  .news-carousel-title { font-size: clamp(10px, 3vw, 13px); line-height: 1.65; }
+  .news-carousel-desc { font-size: clamp(8px, 2.5vw, 10px); line-height: 1.8; }
+
+  /* WIP badge full width */
+  .cs-wip-badge {
+    width: 100%;
+    justify-content: center;
+    font-size: 7px;
+    padding: 8px;
+  }
+
+  /* Auth widget */
+  .aw-btn-login, .aw-btn-register {
+    font-size: 6px;
+    padding: 6px 7px;
+    min-height: 32px;
+    letter-spacing: 0;
+  }
+  .aw-username { padding: 7px 10px; }
+  .aw-nick { max-width: 50px; }
+  .aw-dropdown { max-width: min(240px, 90vw); }
+  .aw-dd-item { min-height: 44px; font-size: 7px; }
+}
+
+/*
+   PHONE  (max-width: 480px)
+ */
+@media (max-width: 480px) {
+  :root { --header-h: 56px; }
+
+  .hero { min-height: 240px; padding: 44px 14px 28px; }
+  .hero-title { font-size: clamp(16px, 7vw, 28px); letter-spacing: 1px; }
+  .hero-sub { font-size: clamp(8px, 2.5vw, 11px); letter-spacing: 1px; }
+
+  .main { padding: 20px 10px 50px; }
+
+
+
+
+  .games-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  .card-preview { height: 80px; }
+  .card-body { padding: 10px; }
+  .card-title { font-size: 9px; }
+  .card-desc  { font-size: 8px; min-height: 52px; }
+
+  .sidebar { width: 260px; }
+  .sidebar-link { font-size: 9px; padding: 10px 12px; }
+
+  .section-title { font-size: 10px; }
+  .section-sub   { font-size: 12px; }
+  .section-header { padding-bottom: 12px; }
+  .news-carousel-progress { height: 6px; }
+
+  .footer { font-size: 8px; }
+
+  /* Auth forms */
+  .auth-form { padding: 16px; gap: 16px; }
+  .auth-submit { min-height: 44px; font-size: 9px; }
+  .auth-card-header { padding: 14px 16px 12px; font-size: 9px; }
+}
+
+/* 
+   TINY PHONE  (max-width: 360px)
+ */
+@media (max-width: 360px) {
+  .games-grid { grid-template-columns: 1fr; }
+  .sidebar { width: min(88vw, 280px); }
+
+  .hero-title { font-size: clamp(14px, 8vw, 24px); }
+  .hero-sub   { font-size: 8px; letter-spacing: 0.5px; }
+
+  .site-title .logo { max-width: 36vw; font-size: 9px; }
+
+  .aw-btn-full { display: none !important; }
+  .aw-btn-compact { display: inline-flex !important; }
+}
+
+/* 
+   TOUCH-FRIENDLY TARGETS  (all mobile)
+    */
+@media (hover: none) and (pointer: coarse) {
+  /* Ensure all tappable elements meet 44px min */
+  .card-btn,
+  .cs-btn,
+  .carousel-arrow,
+  .carousel-dot,
+  .lb-tab,
+  .auth-submit,
+  .aw-btn-login,
+  .aw-btn-register,
+  .menu-btn,
+  .sidebar-close,
+  .aw-username {
+    min-height: 10px;
+  }
+
+
+  .game-card:hover { transform: none; }
+  .topic-card:hover { transform: none; }
+  .team-card:hover { transform: none; }
+
+
+  .game-card:active {
+    transform: translateY(-2px);
+    border-color: var(--corner-color, var(--cyan));
+  }
+}
+
+/* 
+   LEADERBOARD PAGE — mobile
+    */
+@media (max-width: 768px) {
+  .lb-page-header { padding: 24px 16px 0; }
+  .lb-page-title { font-size: clamp(14px, 4vw, 18px); }
+  .lb-tabs {
+    justify-content: flex-start;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding: 18px 8px 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .lb-tabs::-webkit-scrollbar { display: none; }
+  .lb-tab {
+    flex: 0 0 auto;
+    min-height: 44px;
+    font-size: 7px;
+    padding: 8px 5px;
+
+    white-space: normal;
+    text-align: center;
+    max-width: 110px;
+    line-height: 1.8;
+  }
+  .lb-table-wrap { padding: 0 10px; }
+  .lb-back {
+    font-size: 8px;
+    padding: 8px 10px;
+    min-height: 36px;
+  }
+}
+
+/* 
+   PAGES (theory, about, how-to-play) — mobile
+    */
+@media (max-width: 768px) {
+  .page-hero { padding: 50px 16px 30px; }
+  .page-title { font-size: clamp(14px, 4vw, 24px); letter-spacing: 2px; }
+  .page-subtitle { font-size: 13px; }
+  .page-content { padding: 28px 14px 60px; }
+  .content-block { padding: 20px 16px; }
+  .block-title { font-size: clamp(9px, 2.5vw, 12px); }
+  .block-text  { font-size: clamp(12px, 3vw, 15px); line-height: 2; }
+
+  .controls-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .topics-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+  }
+
+  .team-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  .step-item { gap: 12px; }
+  .step-num  { font-size: 14px; min-width: 28px; }
+  .step-title { font-size: 12px; }
+  .step-desc  { font-size: 12px; }
+
+  .theory-modal-content { width: 94%; }
+  .theory-modal-body { padding: 22px 18px; }
+  .theory-modal-header { padding: 32px 20px 20px; }
+  .theory-modal-close { width: 44px; height: 44px; }
+  .btn-theory-close { min-height: 44px; width: 100%; font-size: 10px; }
+}
+
+@media (max-width: 480px) {
+  .controls-grid { grid-template-columns: 1fr; }
+  .topics-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .team-grid { grid-template-columns: 1fr; }
+  .team-card { padding: 20px 14px; }
+  .team-card:nth-child(3):last-child {
+    grid-column: auto;
+    max-width: 100%;
+  }
+  .team-card img {
+    width: min(100%, 180px) !important;
+    height: auto !important;
+  }
+  .stats-row { flex-direction: column; }
+  .stat-box { min-width: 0; }
+
+  /* Хлебные крошки теории не переполняют экран */
+  .breadcrumb {
+    font-size: 6px;
+    line-height: 2;
+    letter-spacing: 0.5px;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+  /* Блоки контента уже на телефоне */
+  .content-block {
+    padding: 16px 12px;
+    margin-bottom: 16px;
+  }
+  /* Секция-text меньше */
+  .section-text {
+    font-size: clamp(11px, 3vw, 14px);
+    line-height: 1.85;
+  }
+  /* Инлайн-код */
+  .section-text code {
+    font-size: clamp(9px, 2.5vw, 12px);
+  }
+}
+
+/* 
+   PROFILE PAGE — mobile
+   */
+@media (max-width: 768px) {
+  .profile-stats {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+  }
+  .avatar-picker { gap: 6px; }
+  .avatar-opt { width: 52px; height: 52px; }
+  .profile-actions { gap: 10px; }
+  .auth-danger-btn { min-height: 44px; font-size: 8px; }
+}
+
+@media (max-width: 480px) {
+  .profile-form-row { grid-template-columns: 1fr; }
+  .profile-stats { grid-template-columns: 1fr 1fr; }
+}
+
+/* 
+   FIX: Prevent horizontal scroll
+    */
+@media (max-width: 768px) {
+  body { overflow-x: hidden; }
+  .hero, .hero-bg, .hero-content { max-width: 100vw; }
+  img, video, canvas { max-width: 100%; }
+}
+
+
+@media (max-height: 500px) and (max-width: 900px) {
+  .hero { min-height: 200px; padding: 36px 16px 24px; }
+  .carousel-track { min-height: auto; }
+  .cs-visual { min-height: 140px; }
+}
+
+/* 
+   AUTH PAGE LAYOUT (login, register, reset)
+    */
+@media (max-width: 600px) {
+  /* page-content with inline max-width:520px still respects viewport */
+  .page-content[style*="max-width:520px"],
+  .page-content[style*="max-width: 520px"] {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .auth-card-header {
+    padding: 14px 16px 12px;
+    font-size: 8px;
+    gap: 10px;
+  }
+  .auth-card-icon { font-size: 18px; }
+
+  .auth-form { padding: 16px 14px; gap: 18px; }
+  .auth-field { gap: 6px; }
+  .auth-label { font-size: 6px; }
+
+  .auth-input-wrap { /* ensure full width */ }
+  .auth-input { font-size: 14px; padding: 11px 6px 11px 4px; }
+
+  .auth-submit {
+    min-height: 48px;
+    font-size: 9px;
+    letter-spacing: 1px;
+  }
+
+  .auth-alt { font-size: 7px; line-height: 1.8; }
+  .auth-hint { font-size: 6px; }
+
+  .auth-match-indicator { font-size: 6px; }
+
+  /* Reset password page */
+  .auth-error { margin: 0 14px 0; font-size: 7px; }
+  .auth-success { font-size: 7px; }
+}
+
+/* 
+   PROFILE PAGE  — extended
+    */
+@media (max-width: 600px) {
+  .profile-hero-avatar { margin-bottom: 8px; }
+  .avatar-img--hero { width: 64px; height: 64px; }
+
+  .pstat-val { font-size: clamp(10px, 3vw, 13px); }
+  .pstat-label { font-size: 6px; }
+
+  .profile-tag { font-size: 7px; padding: 4px 10px; }
+
+  .avatar-opt { width: 48px; height: 48px; }
+  .avatar-img--opt { width: 38px; height: 38px; }
+}
+
+@media (max-width: 600px) {
+  
+  .game-section .games-grid {
+    grid-template-columns: 1fr !important;
+  }
+  /* But for larger phones keep 2-col where possible */
+}
+
+@media (min-width: 420px) and (max-width: 600px) {
+  .game-section .games-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
+  }
+}
+
+/* 
+   THEORY PAGE — topic cards mobile
+    */
+@media (max-width: 480px) {
+  .topic-card { padding: 16px 14px; }
+  .topic-emoji { font-size: 22px; margin-bottom: 8px; }
+  .topic-name { font-size: 13px; letter-spacing: 0.5px; }
+  .topic-desc { font-size: 12px; }
+  .topic-badge { font-size: 6px; }
+  .topic-arrow { font-size: 14px; }
+}
+
+/* На маленьких экранах — 2 колонки для карточек тем */
+@media (max-width: 520px) {
+  .topics-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  .topic-card {
+    padding: 14px 12px;
+  }
+  .topic-desc {
+    font-size: 10px;
+    line-height: 1.4;
+  }
+  .topic-name {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  /* Кнопка "На главную" внизу — полная ширина */
+  .page-content > div[style*="text-align:center"] .btn-start,
+  .page-content > div[style*="text-align: center"] .btn-start {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+  }
+}
+
+/* 
+   LEADERBOARD — back link on small screens
+    */
+@media (max-width: 480px) {
+  .lb-back {
+    position: static;
+    display: inline-block;
+    margin-bottom: 14px;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .lb-page-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 12px 0;
+  }
+  .lb-page-title { font-size: clamp(13px, 4vw, 18px); }
+  .lb-table-wrap { padding: 0 6px; }
+}
+
+
+@media (max-width: 768px) {
+  .carousel-wrapper { overflow: hidden; }
+  .carousel-track   { overflow: hidden; }
+}

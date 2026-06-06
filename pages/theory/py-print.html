@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Вывод данных — Python — Game Code</title>
+  <link rel="icon" href="../../img/ICON.PNG" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../css/style.css"/>
+  <link rel="stylesheet" href="../../css/pages.css"/>
+  <link rel="stylesheet" href="../../css/auth.css"/>
+  <link rel="stylesheet" href="theory-page.css"/>
+  <link rel="stylesheet" href="../../css/mobile.css"/>
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+<nav class="sidebar" id="sidebar">
+  <button class="sidebar-close" id="sidebarClose">х</button>
+  <div class="sidebar-logo"><span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span></div>
+  <ul class="sidebar-nav">
+    <li><a href="../../index.html"    class="sidebar-link">Все игры</a></li>
+    <li><a href="../leaderboard.html" class="sidebar-link">Лидеры</a></li>
+    <li><a href="../how-to-play.html" class="sidebar-link">Как играть</a></li>
+    <li><a href="../theory.html"      class="sidebar-link active">Теория</a></li>
+    <li><a href="../about.html"       class="sidebar-link">О нас</a></li>
+  </ul>
+  <div class="sidebar-footer"><span>V1.0 — GameCode</span></div>
+</nav>
+<header class="header">
+  <div class="header-left">
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <div class="site-title">
+      <a href="../../index.html" class="logo pixel-text" style="text-decoration:none">GAME<span class="accent">CODE</span></a>
+      <p class="tagline pixel-text">Изучай программирование в играх</p>
+    </div>
+  </div>
+  <div class="header-right"><div id="auth-widget"></div></div>
+</header>
+
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <p class="breadcrumb"><a href="../../index.html">ГЛАВНАЯ</a> / <a href="../theory.html">ТЕОРИЯ</a> / <a href="../theory.html">PYTHON</a> / ВЫВОД ДАННЫХ</p>
+    <div class="theory-hero-emoji">₊⊹</div>
+    <h1 class="page-title green">ВЫВОД ДАННЫХ</h1>
+    <p class="page-subtitle pixel-text">print() и f-строки в Python</p>
+    <div class="theory-tags">
+      <span class="ttag ttag-green">Python</span>
+      <span class="ttag ttag-level">Новичок</span>
+    </div>
+  </div>
+</section>
+
+<main class="page-content theory-page-content">
+
+  <div class="content-block green-accent">
+    <h2 class="block-title green">[ ФУНКЦИЯ PRINT() ]</h2>
+    <p class="section-text">
+      <code>print()</code> — встроенная функция Python, которая выводит информацию на экран (в консоль).
+      Это первое, что ты пишешь в любой программе, чтобы увидеть результат своей работы.
+    </p>
+    <div class="code-block">
+      <span class="code-header">PYTHON</span>
+      <pre><code><span class="code-func">print</span>(<span class="code-string">"Привет, мир!"</span>)         <span class="code-comment"># Привет, мир!</span>
+<span class="code-func">print</span>(<span class="code-num">42</span>)                     <span class="code-comment"># 42</span>
+<span class="code-func">print</span>(<span class="code-num">3.14</span>)                   <span class="code-comment"># 3.14</span>
+<span class="code-func">print</span>(<span class="code-bool">True</span>)                   <span class="code-comment"># True</span>
+<span class="code-func">print</span>(<span class="code-string">"Счёт:"</span>, <span class="code-num">100</span>)           <span class="code-comment"># Счёт: 100</span>
+<span class="code-func">print</span>(<span class="code-string">"A"</span>, <span class="code-string">"B"</span>, <span class="code-string">"C"</span>, sep=<span class="code-string">"-"</span>) <span class="code-comment"># A-B-C</span></code></pre>
+    </div>
+    <div class="info-box yellow">
+      <span class="info-icon">₊⊹</span>
+      <div class="info-text">
+        <strong>sep</strong> — разделитель между несколькими аргументами (по умолчанию пробел).<br/>
+        <strong>end</strong> — что добавить в конце (по умолчанию перенос строки <code>\n</code>).
+      </div>
+    </div>
+  </div>
+
+  <div class="content-block green-accent">
+    <h2 class="block-title green">[ ВЫВОД ПЕРЕМЕННЫХ ]</h2>
+    <p class="section-text">Чтобы вывести значение переменной, передай её имя в <code>print()</code> без кавычек. Можно объединять текст и переменные.</p>
+    <div class="code-block">
+      <span class="code-header">PYTHON</span>
+      <pre><code><span class="code-var">name</span>  = <span class="code-string">"Марк"</span>
+<span class="code-var">score</span> = <span class="code-num">150</span>
+
+<span class="code-comment"># Способ 1 — через запятую</span>
+<span class="code-func">print</span>(<span class="code-string">"Игрок:"</span>, <span class="code-var">name</span>, <span class="code-string">"Очки:"</span>, <span class="code-var">score</span>)
+<span class="code-comment"># Игрок: Марк Очки: 150</span>
+
+<span class="code-comment"># Способ 2 — конкатенация (склейка строк)</span>
+<span class="code-func">print</span>(<span class="code-string">"Игрок: "</span> + <span class="code-var">name</span>)
+<span class="code-comment"># Игрок: Марк</span></code></pre>
+    </div>
+  </div>
+
+  <div class="content-block green-accent">
+    <h2 class="block-title green">[ F-СТРОКИ ]</h2>
+    <p class="section-text">
+      F-строки (форматированные строки) — самый удобный способ вставить переменную прямо в текст.
+      Поставь букву <code>f</code> перед кавычками и оберни переменную в фигурные скобки <code>{}</code>.
+    </p>
+    <div class="code-block">
+      <span class="code-header">PYTHON</span>
+      <pre><code><span class="code-var">name</span>  = <span class="code-string">"Марк"</span>
+<span class="code-var">level</span> = <span class="code-num">5</span>
+<span class="code-var">hp</span>    = <span class="code-num">87.5</span>
+
+<span class="code-func">print</span>(<span class="code-interp">f"Игрок {<span class="code-var">name</span>} на уровне {<span class="code-var">level</span>}"</span>)
+<span class="code-comment"># Игрок Марк на уровне 5</span>
+
+<span class="code-func">print</span>(<span class="code-interp">f"HP: {<span class="code-var">hp</span>:.1f}%"</span>)   <span class="code-comment"># форматирование — 1 знак после точки</span>
+<span class="code-comment"># HP: 87.5%</span>
+
+<span class="code-func">print</span>(<span class="code-interp">f"2 + 2 = {<span class="code-num">2</span> + <span class="code-num">2</span>}"</span>)  <span class="code-comment"># внутри {} можно писать выражения</span>
+<span class="code-comment"># 2 + 2 = 4</span></code></pre>
+    </div>
+    <div class="do-dont-grid">
+      <div class="do-block">
+        <div class="do-header pixel-text">✓ F-СТРОКА</div>
+        <div class="code-block" style="margin:0">
+          <pre><code><span class="code-func">print</span>(<span class="code-interp">f"Привет, {<span class="code-var">name</span>}!"</span>)</code></pre>
+        </div>
+      </div>
+      <div class="dont-block">
+        <div class="dont-header pixel-text">✗ СТАРЫЙ СПОСОБ</div>
+        <div class="code-block" style="margin:0">
+          <pre><code><span class="code-func">print</span>(<span class="code-string">"Привет, "</span> + <span class="code-var">name</span> + <span class="code-string">"!"</span>)</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-block green-accent">
+    <h2 class="block-title green">[ ПОПРОБУЙ САМ ]</h2>
+    <div class="challenge-box">
+      <div class="challenge-header">
+        <span class="challenge-icon">₊⊹</span>
+        <span class="block-title green" style="margin:0">ЗАДАНИЕ</span>
+      </div>
+      <p class="challenge-text">
+        Создай переменные <code>hero</code>, <code>hits</code>, <code>accuracy</code> и выведи строку:<br/>
+        <code>Герой Марк: 12 попаданий, точность 87.3%</code><br/><br/>
+        Используй f-строку и форматирование числа с плавающей точкой.
+      </p>
+      <details class="challenge-hint">
+        <summary class="pixel-text">[ ПОКАЗАТЬ РЕШЕНИЕ ]</summary>
+        <div class="code-block" style="margin-top:12px">
+          <pre><code><span class="code-var">hero</span>     = <span class="code-string">"Марк"</span>
+<span class="code-var">hits</span>    = <span class="code-num">12</span>
+<span class="code-var">accuracy</span> = <span class="code-num">87.3</span>
+
+<span class="code-func">print</span>(<span class="code-interp">f"Герой {<span class="code-var">hero</span>}: {<span class="code-var">kills</span>} убийств, точность {<span class="code-var">accuracy</span>:.1f}%"</span>)
+<span class="code-comment"># Герой Марк: 12 попаданий, точность 87.3%</span></code></pre>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="theory-nav">
+    <a href="py-variables.html" class="btn-theory-nav pixel-text">◄ ПЕРЕМЕННЫЕ</a>
+    <a href="py-functions.html" class="btn-theory-nav btn-theory-next pixel-text">ФУНКЦИИ ►</a>
+  </div>
+</main>
+
+<footer class="footer">
+  <p class="pixel-text">GAME<span class="accent">CODE</span> &copy; 2026</p>
+  <p class="footer-sub">Изучай программирование в играх</p>
+</footer>
+<script src="../../js/pixels-bg.js"></script>
+<script>window.AUTH_ROOT = "../..";</script>
+<script src="../../js/auth.js"></script>
+<script>
+  const s=document.getElementById('sidebar'),o=document.getElementById('overlay'),m=document.getElementById('menuBtn'),c=document.getElementById('sidebarClose');
+  const op=()=>{s.classList.add('open');o.classList.add('active');document.body.style.overflow='hidden';};
+  const cl=()=>{s.classList.remove('open');o.classList.remove('active');document.body.style.overflow='';};
+  m.addEventListener('click',op);c.addEventListener('click',cl);o.addEventListener('click',cl);
+  document.addEventListener('keydown',e=>e.key==='Escape'&&cl());
+</script>
+</body>
+</html>

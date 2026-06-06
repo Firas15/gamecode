@@ -1,0 +1,28 @@
+<IfModule mod_expires.c>
+  ExpiresActive Off
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header unset ETag
+</IfModule>
+FileETag None
+
+# HTML/PHP must always be revalidated so users receive fresh markup
+# that points to the newest visual assets after deployment.
+<FilesMatch "\.(html?|php)$">
+  <IfModule mod_headers.c>
+    Header always set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    Header always set Pragma "no-cache"
+    Header always set Expires "0"
+  </IfModule>
+</FilesMatch>
+
+# Static assets are also revalidated automatically.
+# This is intentionally strict to avoid stale mobile-browser visuals.
+<FilesMatch "\.(css|js|mjs|json|png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|ttf|otf)$">
+  <IfModule mod_headers.c>
+    Header always set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    Header always set Pragma "no-cache"
+    Header always set Expires "0"
+  </IfModule>
+</FilesMatch>

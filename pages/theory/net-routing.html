@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Передача данных — Game Code</title>
+  <link rel="icon" href="../../img/ICON.PNG" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../css/style.css"/>
+  <link rel="stylesheet" href="../../css/pages.css"/>
+  <link rel="stylesheet" href="../../css/auth.css"/>
+  <link rel="stylesheet" href="theory-page.css"/>
+  <link rel="stylesheet" href="../../css/mobile.css"/>
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+<nav class="sidebar" id="sidebar">
+  <button class="sidebar-close" id="sidebarClose">х</button>
+  <div class="sidebar-logo"><span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span></div>
+  <ul class="sidebar-nav">
+    <li><a href="../../index.html"    class="sidebar-link">Все игры</a></li>
+    <li><a href="../leaderboard.html" class="sidebar-link">Лидеры</a></li>
+    <li><a href="../how-to-play.html" class="sidebar-link">Как играть</a></li>
+    <li><a href="../theory.html"      class="sidebar-link active">Теория</a></li>
+    <li><a href="../about.html"       class="sidebar-link">О нас</a></li>
+  </ul>
+  <div class="sidebar-footer"><span>V1.0 — GameCode</span></div>
+</nav>
+<header class="header">
+  <div class="header-left">
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <div class="site-title">
+      <a href="../../index.html" class="logo pixel-text" style="text-decoration:none">GAME<span class="accent">CODE</span></a>
+      <p class="tagline pixel-text">Изучай программирование в играх</p>
+    </div>
+  </div>
+  <div class="header-right"><div id="auth-widget"></div></div>
+</header>
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <p class="breadcrumb"><a href="../../index.html">ГЛАВНАЯ</a> / <a href="../theory.html">ТЕОРИЯ</a> / <a href="../theory.html">IP АДРЕСА И СЕТИ</a> / МАРШРУТИЗАЦИЯ</p>
+    <div class="theory-hero-emoji">₊⊹</div>
+    <h1 class="page-title" style="color:var(--yellow)">ПЕРЕДАЧА ДАННЫХ</h1>
+    <p class="page-subtitle pixel-text">Как пакеты путешествуют по сети</p>
+    <div class="theory-tags">
+      <span class="ttag ttag-yellow">IP / Сети</span>
+      <span class="ttag ttag-level">Практик</span>
+    </div>
+  </div>
+</section>
+<main class="page-content theory-page-content">
+
+  <div class="content-block yellow-accent">
+    <h2 class="block-title yellow">[ КАК УСТРОЙСТВА НАХОДЯТ ДРУГ ДРУГА ]</h2>
+    <div class="theory-steps">
+      <div class="theory-step">
+        <div class="theory-step-num">01</div>
+        <div class="theory-step-body">
+          <div class="theory-step-title">ПРОВЕРКА ПОДСЕТИ</div>
+          <p class="theory-step-text">Отправитель сравнивает свой IP и IP получателя с помощью маски подсети. Если адрес сети совпадает — получатель в одной сети, пакет идёт напрямую.</p>
+        </div>
+      </div>
+      <div class="theory-step">
+        <div class="theory-step-num">02</div>
+        <div class="theory-step-body">
+          <div class="theory-step-title">ЧЕРЕЗ ШЛЮЗ (РОУТЕР)</div>
+          <p class="theory-step-text">Если адрес сети не совпадает — пакет отправляется на шлюз по умолчанию (default gateway). Обычно это роутер с адресом <code>.1</code> в подсети.</p>
+        </div>
+      </div>
+      <div class="theory-step">
+        <div class="theory-step-num">03</div>
+        <div class="theory-step-body">
+          <div class="theory-step-title">МАРШРУТИЗАЦИЯ</div>
+          <p class="theory-step-text">Роутер смотрит в таблицу маршрутов и передаёт пакет следующему устройству. Пакет прыгает от роутера к роутеру, пока не доберётся до цели.</p>
+        </div>
+      </div>
+    </div>
+    <div class="code-block" style="margin-top:16px"><span class="code-header">ПРИМЕР</span><pre><code>Компьютер A:  192.168.1.10 / маска 255.255.255.0
+Компьютер B:  192.168.1.50 → одна сеть → напрямую ✓
+Сервер C:     10.0.0.5     → разные сети → через роутер →</code></pre></div>
+  </div>
+  <div class="content-block yellow-accent">
+    <h2 class="block-title yellow">[ РОЛЬ РОУТЕРА ]</h2>
+    <div class="types-grid">
+  <div class="type-card"><div class="type-name pixel-text">Маршрутизация</div><div class="type-desc">Определяет, куда переслать пакет</div></div>
+  <div class="type-card"><div class="type-name pixel-text">Firewall</div><div class="type-desc">Фильтрует нежелательный трафик</div></div>
+  <div class="type-card"><div class="type-name pixel-text">DHCP-сервер</div><div class="type-desc">Раздаёт IP-адреса устройствам</div></div>
+  <div class="type-card"><div class="type-name pixel-text">NAT</div><div class="type-desc">Переводит частные IP во внешние</div></div>
+    </div>
+  </div>
+
+  <div class="theory-nav">
+    <a href="net-subnet.html" class="btn-theory-nav pixel-text">◄ МАСКА ПОДСЕТИ</a>
+    <a href="../theory.html" class="btn-theory-nav btn-theory-next pixel-text">К ТЕОРИИ ►</a>
+  </div>
+</main>
+<footer class="footer">
+  <p class="pixel-text">GAME<span class="accent">CODE</span> &copy; 2026</p>
+  <p class="footer-sub">Изучай программирование в играх</p>
+</footer>
+<script src="../../js/pixels-bg.js"></script>
+<script>window.AUTH_ROOT = "../..";</script>
+<script src="../../js/auth.js"></script>
+<script>
+  const s=document.getElementById('sidebar'),o=document.getElementById('overlay'),m=document.getElementById('menuBtn'),c=document.getElementById('sidebarClose');
+  const op=()=>{s.classList.add('open');o.classList.add('active');document.body.style.overflow='hidden';};
+  const cl=()=>{s.classList.remove('open');o.classList.remove('active');document.body.style.overflow='';};
+  m.addEventListener('click',op);c.addEventListener('click',cl);o.addEventListener('click',cl);
+  document.addEventListener('keydown',e=>e.key==='Escape'&&cl());
+</script>
+</body>
+</html>

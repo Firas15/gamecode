@@ -1,0 +1,323 @@
+/*  КТО ХОЧЕТ СТАТЬ ПРОГРАММИСТОМ — MOBILE.CSS */
+
+/* ── TABLET (max-width: 1024px) ── */
+@media (max-width: 1024px) {
+
+  .prize-ladder-col {
+    width: 180px;
+    flex-shrink: 0;
+  }
+  .ladder-item { font-size: 8px; padding: 4px 8px; }
+
+  .cs-info { padding: 36px 28px; }
+}
+
+/* ── PHABLET (max-width: 900px) ── */
+@media (max-width: 900px) {
+  /* Hide the right prize ladder; show a compact floating indicator */
+  .prize-ladder-col { display: none; }
+
+  .game-content {
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .question-box {
+    padding: 20px 16px;
+  }
+
+  .question-text {
+    font-size: clamp(11px, 3.2vw, 15px);
+    line-height: 1.7;
+  }
+
+  .answers-grid {
+    gap: 8px;
+  }
+
+  .answer-btn {
+    min-height: 48px;
+    font-size: clamp(9px, 2.5vw, 11px);
+    padding: 10px 12px;
+  }
+
+  .hints-row {
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .hint-btn {
+    flex: 0 0 auto;
+    min-width: 80px;
+    min-height: 44px;
+    font-size: 8px;
+  }
+
+  /* Menu */
+  .menu-prize-ladder {
+    max-width: 340px;
+    padding: 14px 18px;
+  }
+  .menu-title {
+    font-size: clamp(11px, 3vw, 16px);
+  }
+
+  .game-header {
+    height: auto;
+    min-height: 0;
+    padding: 10px 12px 8px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 12px;
+    align-items: center;
+  }
+  .header-left,
+  .header-right {
+    min-width: 0;
+    gap: 10px;
+  }
+  .header-left {
+    align-items: center;
+    flex-wrap: nowrap;
+  }
+  .question-counter {
+    min-width: 0;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #q-num {
+    font-size: 9px;
+    white-space: nowrap;
+  }
+  .difficulty-badge,
+  .lang-badge {
+    font-size: 6px;
+    padding: 3px 6px;
+  }
+  .header-right {
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+  }
+  .header-timer,
+  .current-prize,
+  .safe-prize {
+    min-width: 0;
+  }
+  .header-timer .timer-value,
+  .prize-amount,
+  .safe-amount {
+    font-size: 11px;
+  }
+}
+
+/* ── MOBILE (max-width: 700px) ── already in style.css, we extend ── */
+@media (max-width: 700px) {
+  .game-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "left right"
+      "counter counter";
+    padding: 8px 10px;
+    gap: 8px 10px;
+  }
+  .header-left {
+    grid-area: left;
+    gap: 8px;
+  }
+  .header-right {
+    grid-area: right;
+    gap: 10px;
+    justify-self: end;
+  }
+  .question-counter {
+    grid-area: counter;
+    gap: 6px;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+  }
+  #q-num {
+    font-size: 8px;
+    min-width: 0;
+  }
+  .btn-esc {
+    padding: 8px 9px;
+    font-size: 7px;
+    min-height: 32px;
+  }
+  .header-timer .timer-label,
+  .prize-label,
+  .safe-label {
+    font-size: 5px;
+  }
+  .header-timer .timer-value,
+  .prize-amount,
+  .safe-amount {
+    font-size: 10px;
+  }
+  .game-body {
+    top: 76px;
+  }
+
+  .answers-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .answer-btn {
+    min-height: 48px;
+    font-size: clamp(9px, 3vw, 11px);
+    padding: 10px 14px;
+    line-height: 1.5;
+  }
+
+  /* Back button */
+  .back-btn {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    font-size: 8px;
+  }
+
+  /* Game bottom section */
+  .game-bottom {
+    max-height: 78vh;
+    overflow-y: auto;
+    padding: 10px 10px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .question-box { padding: 16px 14px; }
+  .question-text {
+    font-size: clamp(10px, 3.5vw, 14px);
+    line-height: 1.7;
+  }
+
+  .hints-row {
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .hint-btn {
+    flex: 1 1 calc(33% - 8px);
+    min-height: 44px;
+    font-size: 8px;
+    text-align: center;
+  }
+
+  /* Compact menu */
+  #s-menu {
+    padding: 16px 12px;
+    gap: 20px;
+    overflow-y: auto;
+    justify-content: flex-start;
+    padding-top: 60px; /* space for back btn */
+  }
+  .menu-hero { gap: 8px; }
+  .menu-icon { font-size: 40px; }
+  .menu-title { font-size: clamp(10px, 3.5vw, 15px); }
+
+  .menu-prize-ladder {
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+    padding: 12px 14px;
+  }
+  .ladder-mini-item { font-size: 7px; }
+
+  .btn-play {
+    width: 100%;
+    text-align: center;
+    padding: 14px 20px;
+    font-size: 11px;
+  }
+
+  /* Result / end screens */
+  .result-title { font-size: clamp(14px, 4.5vw, 22px); }
+  .result-prize { font-size: clamp(20px, 7vw, 36px); }
+  .result-actions {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+  .result-actions button,
+  .result-actions a {
+    width: 100%;
+    text-align: center;
+    min-height: 44px;
+  }
+}
+
+/* ── SMALL PHONE (max-width: 480px) ── */
+@media (max-width: 480px) {
+  .game-header {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "left"
+      "counter"
+      "right";
+    justify-items: stretch;
+  }
+  .header-left {
+    justify-content: space-between;
+  }
+  .question-counter {
+    justify-content: flex-start;
+  }
+  .game-bottom {
+    max-height: min(72vh, 500px);
+    padding: 8px;
+  }
+  .header-right {
+    width: 100%;
+    justify-self: stretch;
+    justify-content: space-between;
+  }
+  .answer-btn {
+    font-size: clamp(8px, 3.2vw, 10px);
+    min-height: 44px;
+    padding: 8px 10px;
+  }
+  .question-text { font-size: clamp(9px, 3.8vw, 13px); }
+
+  .hints-row { gap: 5px; }
+  .hint-btn {
+    flex: 0 0 calc(33% - 6px);
+    font-size: 7px;
+    padding: 8px 4px;
+  }
+  .hint-icon { font-size: 14px; }
+
+  .back-btn { top: 6px; left: 6px; font-size: 7px; padding: 7px 10px; }
+
+  .game-body {
+    top: 108px;
+  }
+}
+
+/* ── LANDSCAPE PHONE ── */
+@media (max-height: 500px) and (max-width: 900px) {
+  .game-bottom { max-height: 68vh; }
+  .question-box { padding: 10px 12px; }
+  .hints-row { margin-top: 6px; }
+  #s-menu {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-top: 50px;
+    overflow-y: auto;
+  }
+  .menu-prize-ladder { max-width: 300px; }
+}
+
+/* ── TOUCH TARGETS ── */
+@media (hover: none) and (pointer: coarse) {
+  .answer-btn, .hint-btn, .btn-play, .back-btn {
+    min-height: 44px;
+  }
+  /* Remove hover-glow jank */
+  .answer-btn:hover { box-shadow: none; }
+  .answer-btn:active { opacity: 0.85; }
+}

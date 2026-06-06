@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Операторы — Game Code</title>
+  <link rel="icon" href="../../img/ICON.PNG" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../css/style.css"/>
+  <link rel="stylesheet" href="../../css/pages.css"/>
+  <link rel="stylesheet" href="../../css/auth.css"/>
+  <link rel="stylesheet" href="theory-page.css"/>
+  <link rel="stylesheet" href="../../css/mobile.css"/>
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+<nav class="sidebar" id="sidebar">
+  <button class="sidebar-close" id="sidebarClose">х</button>
+  <div class="sidebar-logo"><span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span></div>
+  <ul class="sidebar-nav">
+    <li><a href="../../index.html"    class="sidebar-link">Все игры</a></li>
+    <li><a href="../leaderboard.html" class="sidebar-link">Лидеры</a></li>
+    <li><a href="../how-to-play.html" class="sidebar-link">Как играть</a></li>
+    <li><a href="../theory.html"      class="sidebar-link active">Теория</a></li>
+    <li><a href="../about.html"       class="sidebar-link">О нас</a></li>
+  </ul>
+  <div class="sidebar-footer"><span>V1.0 — GameCode</span></div>
+</nav>
+<header class="header">
+  <div class="header-left">
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <div class="site-title">
+      <a href="../../index.html" class="logo pixel-text" style="text-decoration:none">GAME<span class="accent">CODE</span></a>
+      <p class="tagline pixel-text">Изучай программирование в играх</p>
+    </div>
+  </div>
+  <div class="header-right"><div id="auth-widget"></div></div>
+</header>
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <p class="breadcrumb"><a href="../../index.html">ГЛАВНАЯ</a> / <a href="../theory.html">ТЕОРИЯ</a> / <a href="../theory.html">C++</a> / ОПЕРАТОРЫ</p>
+    <div class="theory-hero-emoji">₊⊹</div>
+    <h1 class="page-title" style="color:var(--cyan)">ОПЕРАТОРЫ</h1>
+    <p class="page-subtitle pixel-text">Арифметика, сравнение, логика</p>
+    <div class="theory-tags">
+      <span class="ttag ttag-cyan">C++</span>
+      <span class="ttag ttag-level">Новичок</span>
+    </div>
+  </div>
+</section>
+<main class="page-content theory-page-content">
+
+  <div class="content-block cyan-accent">
+    <h2 class="block-title cyan">[ АРИФМЕТИЧЕСКИЕ ОПЕРАТОРЫ ]</h2>
+    <div class="ops-grid">
+      <div class="op-card"><div class="op-sym">+</div><div class="op-name">Сложение</div><div class="op-example">5 + 3 = 8</div></div>
+      <div class="op-card"><div class="op-sym">-</div><div class="op-name">Вычитание</div><div class="op-example">10 - 4 = 6</div></div>
+      <div class="op-card"><div class="op-sym">*</div><div class="op-name">Умножение</div><div class="op-example">3 * 4 = 12</div></div>
+      <div class="op-card"><div class="op-sym">/</div><div class="op-name">Деление</div><div class="op-example">7 / 2 = 3 !</div></div>
+      <div class="op-card"><div class="op-sym">%</div><div class="op-name">Остаток</div><div class="op-example">7 % 2 = 1</div></div>
+    </div>
+    <div class="info-box yellow"><span class="info-icon">₊⊹</span><div class="info-text"><strong>Целочисленное деление!</strong> В C++ <code>7 / 2 = 3</code> (не 3.5!), потому что оба числа целые. Для дробного результата: <code>7.0 / 2</code> или <code>(double)7 / 2</code>.</div></div>
+  </div>
+  <div class="content-block cyan-accent">
+    <h2 class="block-title cyan">[ ОПЕРАТОРЫ ИНКРЕМЕНТА ]</h2>
+    <div class="code-block"><span class="code-header">C++</span><pre><code><span class="code-var">int</span> x = <span class="code-num">5</span>;
+x++;       <span class="code-comment">// x = x + 1  → 6  (постфикс)</span>
+++x;       <span class="code-comment">// x = x + 1  → 7  (префикс)</span>
+x--;       <span class="code-comment">// x = x - 1  → 6</span>
+
+x += <span class="code-num">10</span>;  <span class="code-comment">// x = x + 10 → 16</span>
+x *= <span class="code-num">2</span>;   <span class="code-comment">// x = x * 2  → 32</span>
+x /= <span class="code-num">4</span>;   <span class="code-comment">// x = x / 4  → 8</span>
+x %= <span class="code-num">3</span>;   <span class="code-comment">// x = x % 3  → 2</span></code></pre></div>
+  </div>
+  <div class="content-block cyan-accent">
+    <h2 class="block-title cyan">[ ОПЕРАТОРЫ СРАВНЕНИЯ ]</h2>
+    <div class="code-block"><span class="code-header">C++</span><pre><code>cout &lt;&lt; (<span class="code-num">5</span> == <span class="code-num">5</span>);  <span class="code-comment">// 1 (true)</span>
+cout &lt;&lt; (<span class="code-num">5</span> != <span class="code-num">3</span>);  <span class="code-comment">// 1 (true)</span>
+cout &lt;&lt; (<span class="code-num">5</span> &gt;  <span class="code-num">3</span>);  <span class="code-comment">// 1 (true)</span>
+cout &lt;&lt; (<span class="code-num">5</span> &lt;  <span class="code-num">3</span>);  <span class="code-comment">// 0 (false)</span>
+cout &lt;&lt; (<span class="code-num">5</span> &gt;= <span class="code-num">5</span>);  <span class="code-comment">// 1 (true)</span>
+
+<span class="code-comment">// Логические:</span>
+cout &lt;&lt; (<span class="code-num">5</span>&gt;<span class="code-num">3</span> &amp;&amp; <span class="code-num">2</span>&lt;<span class="code-num">4</span>);  <span class="code-comment">// AND → 1</span>
+cout &lt;&lt; (<span class="code-num">5</span>&gt;<span class="code-num">9</span> || <span class="code-num">2</span>&lt;<span class="code-num">4</span>);  <span class="code-comment">// OR  → 1</span>
+cout &lt;&lt; !<span class="code-bool">true</span>;           <span class="code-comment">// NOT → 0</span></code></pre></div>
+  </div>
+
+  <div class="theory-nav">
+    <a href="cpp-io.html" class="btn-theory-nav pixel-text">◄ ВВОД И ВЫВОД</a>
+    <a href="cpp-loops.html" class="btn-theory-nav btn-theory-next pixel-text">ЦИКЛЫ ►</a>
+  </div>
+</main>
+<footer class="footer">
+  <p class="pixel-text">GAME<span class="accent">CODE</span> &copy; 2026</p>
+  <p class="footer-sub">Изучай программирование в играх</p>
+</footer>
+<script src="../../js/pixels-bg.js"></script>
+<script>window.AUTH_ROOT = "../..";</script>
+<script src="../../js/auth.js"></script>
+<script>
+  const s=document.getElementById('sidebar'),o=document.getElementById('overlay'),m=document.getElementById('menuBtn'),c=document.getElementById('sidebarClose');
+  const op=()=>{s.classList.add('open');o.classList.add('active');document.body.style.overflow='hidden';};
+  const cl=()=>{s.classList.remove('open');o.classList.remove('active');document.body.style.overflow='';};
+  m.addEventListener('click',op);c.addEventListener('click',cl);o.addEventListener('click',cl);
+  document.addEventListener('keydown',e=>e.key==='Escape'&&cl());
+</script>
+</body>
+</html>

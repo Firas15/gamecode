@@ -1256,6 +1256,149 @@ function addScore(int $userId, string $gameId, int $score, array $meta = []): ar
     return $entry;
 }
 
+// =============================================================================
+// PIXELGAME — контент игры (уровни, вопросы монстров)
+// Postgres — источник истины, JSON-файлы в games/pixelgame/data/ — read-only
+// аварийный фолбэк (тот же паттерн, что games/news/chat_faq).
+// =============================================================================
+
+function gamecode_pixelgame_level_file(int $levelNumber): string {
+    return __DIR__ . "/../games/pixelgame/data/levels/level{$levelNumber}.json";
+}
+
+function gamecode_pixelgame_questions_file(): string {
+    return __DIR__ . '/../games/pixelgame/data/monster-questions.json';
+}
+
+/**
+ * Читает данные одного уровня (jsonb-блок как в level*.json).
+ * Postgres → фолбэк на статический JSON-файл.
+ */
+function readPixelgameLevel(int $levelNumber): ?array {
+    $rows = gamecode_pg_query_all(
+        'SELECT level_number, title, data FROM pixelgame_levels WHERE level_number = $1',
+        [$levelNumber]
+    );
+    if (is_array($rows) && !empty($rows)) {
+        $data = json_decode((string)$rows[0]['data'], true);
+        if (is_array($data)) {
+            return $data;
+        }
+    }
+    // Фолбэк на статический JSON, если Postgres недоступен или строки нет
+    return gamecode_json_read(gamecode_pixelgame_level_file($levelNumber));
+}
+
+/**
+ * Список всех уровней (для редактора в админке).
+ * @return array<int, array>  ключ — level_number
+ */
+function readPixelgameLevels(): array {
+    $levels = [];
+    $rows = gamecode_pg_query_all(
+        'SELECT level_number, title, data FROM pixelgame_levels ORDER BY level_number ASC'
+    );
+    if (is_array($rows) && !empty($rows)) {
+        foreach ($rows as $row) {
+            $data = json_decode((string)$row['data'], true);
+            if (is_array($data)) {
+                $levels[(int)$row['level_number']] = $data;
+            }
+        }
+        if (!empty($levels)) {
+            return $levels;
+        }
+    }
+
+    // Фолбэк: статические JSON-файлы level1..4
+    for ($n = 1; $n <= 4; $n++) {
+        $data = gamecode_json_read(gamecode_pixelgame_level_file($n));
+        if (is_array($data)) {
+            $levels[$n] = $data;
+        }
+    }
+    return $levels;
+}
+
+/**
+ * Сохраняет (upsert) уровень. Вызывается из админки.
+ */
+function writePixelgameLevel(int $levelNumber, array $data): bool {
+    $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($json === false) {
+        return false;
+    }
+    $title = (string)($data['title'] ?? ($data['name'] ?? "Level {$levelNumber}"));
+    $now = date('Y-m-d H:i:s');
+    $result = gamecode_pg_exec(
+        'INSERT INTO pixelgame_levels (level_number, title, data, created_at, updated_at)
+         VALUES ($1, $2, $3::jsonb, $4, $5)
+         ON CONFLICT (level_number) DO UPDATE SET
+             title = EXCLUDED.title,
+             data = EXCLUDED.data,
+             updated_at = EXCLUDED.updated_at',
+        [$levelNumber, $title, $json, $now, $now]
+    );
+    return $result !== false;
+}
+
+/**
+ * Удаляет уровень из БД (админка).
+ */
+function deletePixelgameLevel(int $levelNumber): bool {
+    return gamecode_pg_exec(
+        'DELETE FROM pixelgame_levels WHERE level_number = $1',
+        [$levelNumber]
+    ) !== false;
+}
+
+/**
+ * Читает блок вопросов для боёв ({topic, questions:[...]}).
+ * Postgres → фолбэк на статический JSON-файл.
+ */
+function readPixelgameMonsterQuestions(): ?array {
+    $rows = gamecode_pg_query_all(
+        'SELECT data FROM pixelgame_monster_questions ORDER BY id ASC LIMIT 1'
+    );
+    if (is_array($rows) && !empty($rows)) {
+        $data = json_decode((string)$rows[0]['data'], true);
+        if (is_array($data)) {
+            return $data;
+        }
+    }
+    return gamecode_json_read(gamecode_pixelgame_questions_file());
+}
+
+/**
+ * Сохраняет (upsert) блок вопросов монстров.
+ */
+function writePixelgameMonsterQuestions(array $data): bool {
+    $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($json === false) {
+        return false;
+    }
+    $topic = (string)($data['topic'] ?? 'go');
+    $now = date('Y-m-d H:i:s');
+
+    $rows = gamecode_pg_query_all('SELECT id FROM pixelgame_monster_questions ORDER BY id ASC LIMIT 1');
+    if (is_array($rows) && !empty($rows)) {
+        $result = gamecode_pg_exec(
+            'UPDATE pixelgame_monster_questions
+             SET topic = $1, data = $2::jsonb, updated_at = $3
+             WHERE id = $4',
+            [$topic, $json, $now, (int)$rows[0]['id']]
+        );
+        return $result !== false;
+    }
+
+    $result = gamecode_pg_exec(
+        'INSERT INTO pixelgame_monster_questions (topic, data, created_at, updated_at)
+         VALUES ($1, $2::jsonb, $3, $4)',
+        [$topic, $json, $now, $now]
+    );
+    return $result !== false;
+}
+
 function adminAvatarFileKey(array $u): string {
     $av = $u['avatar_emoji'] ?? 'avatar1';
     return is_string($av) && preg_match('/^avatar\d+$/', $av) ? $av : 'avatar1';

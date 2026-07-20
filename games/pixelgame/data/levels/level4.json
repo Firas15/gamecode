@@ -1,0 +1,77 @@
+{
+  "level": 4,
+  "title": "Level 4: Условные конструкции",
+  "chests": [
+    {
+      "id": 1,
+      "question": "Что выведет программа?",
+      "code": "hp := 0\nif hp <= 0 {\n\tfmt.Println(\"Dead\")\n}",
+      "options": ["Dead", "0", "Ничего", "Ошибка"],
+      "correct": 0,
+      "hint": "Условие hp <= 0 истинно.",
+      "reward": {
+        "label": "📄 Часть 1: Уровень игрока",
+        "code": "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tlevel := 12"
+      }
+    },
+    {
+      "id": 2,
+      "question": "Какая конструкция корректна в Go?",
+      "code": "",
+      "options": ["if(level > 10)", "if level > 10", "if { level > 10 }", "if level > 10 then"],
+      "correct": 1,
+      "hint": "Скобки вокруг условия не обязательны.",
+      "reward": {
+        "label": "📄 Часть 2: Условие if",
+        "code": "\tif level >= 10 {\n\t\tfmt.Println(\"Открыт новый навык\")\n\t}"
+      }
+    },
+    {
+      "id": 3,
+      "question": "Что выведет программа?",
+      "code": "x := 15\nif x > 20 {\n\tfmt.Println(\"A\")\n} else if x > 10 {\n\tfmt.Println(\"B\")\n} else {\n\tfmt.Println(\"C\")\n}",
+      "options": ["A", "B", "C", "Ничего"],
+      "correct": 1,
+      "hint": "Проверки выполняются сверху вниз.",
+      "reward": {
+        "label": "📄 Часть 3: Ранг игрока",
+        "code": "\trank := \"silver\""
+      }
+    },
+    {
+      "id": 4,
+      "question": "Что выведет данный switch?",
+      "code": "switch 2 {\ncase 1:\n\tfmt.Println(\"One\")\ncase 2:\n\tfmt.Println(\"Two\")\ndefault:\n\tfmt.Println(\"Other\")\n}",
+      "options": ["One", "Two", "Other", "Ошибка"],
+      "correct": 1,
+      "hint": "В Go break внутри case обычно не нужен.",
+      "reward": {
+        "label": "📄 Часть 4: Switch",
+        "code": "\tswitch rank {\n\tcase \"bronze\":\n\t\tfmt.Println(\"Бронза\")"
+      }
+    },
+    {
+      "id": 5,
+      "question": "Какой результат будет у выражения?",
+      "code": "!(10 > 5)",
+      "options": ["true", "false", "10", "Ошибка"],
+      "correct": 1,
+      "hint": "Оператор ! инвертирует логическое значение.",
+      "reward": {
+        "label": "📄 Часть 5: Ветки switch",
+        "code": "\tcase \"silver\":\n\t\tfmt.Println(\"Серебро\")\n\tdefault:\n\t\tfmt.Println(\"Неизвестный ранг\")\n\t}\n}"
+      }
+    }
+  ],
+  "final": {
+    "output": "Открыт новый навык\nСеребро",
+    "summary": "Программа использует if и switch для проверки уровня и ранга игрока.",
+    "explain": [
+      { "title": "1. Переменная level", "text": "Уровень игрока хранится в переменной <b>level</b>." },
+      { "title": "2. Условие if", "text": "Если <b>level >= 10</b>, открывается новый навык." },
+      { "title": "3. Ранг", "text": "Переменная <b>rank</b> определяет текущий ранг игрока." },
+      { "title": "4. Switch", "text": "Конструкция <b>switch rank</b> выбирает нужную ветку." },
+      { "title": "5. Результат", "text": "Для ранга <b>silver</b> выводится «Серебро», иначе — сообщение по умолчанию." }
+    ]
+  }
+}

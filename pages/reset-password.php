@@ -33,7 +33,7 @@ require_once dirname(__DIR__) . '/includes/assets.php';
       <li><a href="theory.html"      class="sidebar-link">Теория</a></li>
       <li><a href="about.html"       class="sidebar-link">О нас</a></li>
     </ul>
-    <div class="sidebar-footer"><span>V1.0 — GameCode</span></div>
+    <div class="sidebar-footer"><span>V2.0 — GameCode</span></div>
   </nav>
 
   <header class="header">

@@ -12,7 +12,7 @@ header('Cache-Control: no-store');
 require_once __DIR__ . '/../includes/db.php';
 
 $game = isset($_GET['game']) ? trim($_GET['game']) : 'all';
-$allowedGames = ['all', 'sorter', 'network', 'millionaire'];
+$allowedGames = ['all', 'sorter', 'network', 'millionaire', 'pixelgame'];
 $limit = min((int)($_GET['limit'] ?? 10), 50);
 
 if (!in_array($game, $allowedGames, true)) {

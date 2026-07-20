@@ -307,29 +307,26 @@
     color: #ffd930;
 }
 .footer {
-    margin-top: 60px;
+    margin-top: auto;
 }
 
 @media (max-width: 700px) {
     .lb-tabs {
-        justify-content: flex-start;
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        padding: 18px 8px 0;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
+        justify-content: center;
+        flex-wrap: wrap;
+        overflow-x: hidden;
+        padding: 16px 12px 0;
+        gap: 6px;
     }
-    .lb-tabs::-webkit-scrollbar { display: none; }
     .lb-tab {
-        flex: 0 0 auto;
+        flex: 0 0 calc(50% - 3px);
+        max-width: calc(50% - 3px);
         min-height: 44px;
         font-size: 7px;
-        padding: 8px 10px;
-        /* Длинный текст переносится внутри кнопки */
+        padding: 8px 6px;
         white-space: normal;
         text-align: center;
-        max-width: 100px;
-        line-height: 1.8;
+        line-height: 1.7;
     }
     .lb-table {
         min-width: 480px;

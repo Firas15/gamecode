@@ -41,6 +41,16 @@ const GAME_VISUALS = {
     desc: "15 вопросов по Python и C++. Четыре подсказки. Доберись до виртуального миллиона и докажи, что ты настоящий программист!",
     tags: ["Python", "C++", "Викторина"],
   },
+  pixelgame: {
+    img: "js/img_carusel/pixelmainicon.png",
+    accentColor: "var(--pink)",
+    gradientFrom: "#14092e",
+    gradientTo: "#1e0f3f",
+    level: "ПРАКТИК",
+    levelColor: "var(--yellow)",
+    desc: "Пиксельная RPG: исследуй лабиринт внутри компьютера, открывай сундуки с кодом, побеждай вирусы и собери программу на Go, чтобы выбраться!",
+    tags: ["Go", "RPG", "Квест"],
+  },
 };
 
 const FALLBACK_VISUAL = {

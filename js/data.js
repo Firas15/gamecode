@@ -103,14 +103,14 @@ const GAMES = [
   },
   {
     sectionId: "section2",
-    id: "newgame5",
-    emoji: "𝄃𝄃𝄂𝄂𝄀𝄁𝄃𝄂𝄂𝄃",
-    title: "ИГРА 5",
-    desc: "Скоро здесь что-то появится",
+    id: "pixelgame",
+    emoji: "👾",
+    title: "CodeQuest — Внутри компьютера",
+    desc: "Пиксельная RPG: исследуй лабиринт, открывай сундуки с кодом и собери программу на Go",
     tags: ["medium"],
-    stars: 3,
-    wip: true,
-    link: "#",
+    stars: 2,
+    wip: false, // карточка кликабельна; статус WIP для карусели управляется в admin/games.php (БД)
+    link: "games/pixelgame/index.html",
   },
   {
     sectionId: "section2",

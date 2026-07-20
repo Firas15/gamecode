@@ -1,0 +1,77 @@
+{
+  "level": 2,
+  "title": "Level 2: Переменные и типы данных",
+  "chests": [
+    {
+      "id": 1,
+      "question": "Какой тип будет выведен для переменной x?",
+      "code": "x := 10\nfmt.Printf(\"%T\", x)",
+      "options": ["float64", "int", "int64", "uint"],
+      "correct": 1,
+      "hint": "При коротком объявлении целочисленный литерал получает тип int.",
+      "reward": {
+        "label": "📄 Часть 1: Объявление переменных",
+        "code": "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tvar gold int = 100"
+      }
+    },
+    {
+      "id": 2,
+      "question": "Что произойдет при выполнении данного кода?",
+      "code": "var hp int\nfmt.Println(hp)",
+      "options": ["Ошибка компиляции", "nil", "0", "Неопределенное значение"],
+      "correct": 2,
+      "hint": "Все переменные в Go получают нулевое значение по умолчанию.",
+      "reward": {
+        "label": "📄 Часть 2: Строки и вывод",
+        "code": "\tvar playerName string = \"Knight\"\n\tfmt.Println(\"Игрок:\", playerName)"
+      }
+    },
+    {
+      "id": 3,
+      "question": "Какая строка НЕ скомпилируется?",
+      "code": "",
+      "options": ["age := 20", "var age int = 20", "age := int64(20)", "var age := 20"],
+      "correct": 3,
+      "hint": "Оператор := используется без ключевого слова var.",
+      "reward": {
+        "label": "📄 Часть 3: Константа",
+        "code": "\tconst maxLevel = 100"
+      }
+    },
+    {
+      "id": 4,
+      "question": "Что произойдет при попытке изменить константу?",
+      "code": "const MaxHp = 100\nMaxHp = 200",
+      "options": ["MaxHp станет равен 200", "Будет паника во время выполнения", "Ошибка компиляции", "Значение проигнорируется"],
+      "correct": 2,
+      "hint": "Константы нельзя изменять после объявления.",
+      "reward": {
+        "label": "📄 Часть 4: Числа с плавающей точкой",
+        "code": "\tvar mana float64 = 75.5"
+      }
+    },
+    {
+      "id": 5,
+      "question": "Какой результат выведет программа?",
+      "code": "var a int = 5\nvar b float64 = float64(a)\nfmt.Printf(\"%T\", b)",
+      "options": ["int", "float32", "float64", "Ошибка компиляции"],
+      "correct": 2,
+      "hint": "В Go нет неявного преобразования между числовыми типами.",
+      "reward": {
+        "label": "📄 Часть 5: Финальный вывод",
+        "code": "\tfmt.Printf(\"Gold: %d\\n\", gold)\n\tfmt.Printf(\"Mana: %.1f\\n\", mana)\n}"
+      }
+    }
+  ],
+  "final": {
+    "output": "Игрок: Knight\nGold: 100\nMana: 75.5",
+    "summary": "Все пять фрагментов собираются в программу с переменными разных типов: int, string, const и float64.",
+    "explain": [
+      { "title": "1. Целые числа", "text": "Переменная <b>gold</b> объявлена как <b>int</b> и хранит количество золота игрока." },
+      { "title": "2. Строки", "text": "Переменная <b>playerName</b> типа <b>string</b> выводится через <b>fmt.Println</b>." },
+      { "title": "3. Константы", "text": "<b>const maxLevel</b> задаёт неизменяемое значение максимального уровня." },
+      { "title": "4. Float64", "text": "Переменная <b>mana</b> хранит дробное значение маны." },
+      { "title": "5. Форматированный вывод", "text": "<b>fmt.Printf</b> выводит gold и mana с нужными спецификаторами <b>%d</b> и <b>%.1f</b>." }
+    ]
+  }
+}

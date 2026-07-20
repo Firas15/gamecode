@@ -29,7 +29,7 @@
       <li><a href="theory.html" class="sidebar-link">Теория</a></li>
       <li><a href="about.html" class="sidebar-link">О нас</a></li>
     </ul>
-    <div class="sidebar-footer"><span>V1.0 — GameCode</span></div>
+    <div class="sidebar-footer"><span>V2.0 — GameCode</span></div>
   </nav>
 
   <header class="header">
@@ -59,6 +59,7 @@
       <button class="lb-tab" data-game="sorter">СОРТИРОВЩИК</button>
       <button class="lb-tab" data-game="network">СЕТЕВОЙ МАРШРУТ</button>
       <button class="lb-tab" data-game="millionaire">КТО ХОЧЕТ СТАТЬ ПРОГРАММИСТОМ</button>
+      <button class="lb-tab" data-game="pixelgame">ВНУТРИ КОМПЬЮТЕРА</button>
     </div>
 
     <div class="content-block yellow-accent">
@@ -122,14 +123,16 @@
       all: 'все игры',
       sorter: 'Сортировщик',
       network: 'Сетевой маршрут',
-      millionaire: 'Кто хочет стать программистом'
+      millionaire: 'Кто хочет стать программистом',
+      pixelgame: 'CodeQuest — Внутри компьютера'
     };
 
     const GAME_TITLES = {
       all: '[ ВСЕ ИГРЫ ]',
       sorter: '[ СОРТИРОВЩИК ]',
       network: '[ СЕТЕВОЙ МАРШРУТ ]',
-      millionaire: '[ КТО ХОЧЕТ СТАТЬ ПРОГРАММИСТОМ ]'
+      millionaire: '[ КТО ХОЧЕТ СТАТЬ ПРОГРАММИСТОМ ]',
+      pixelgame: '[ ВНУТРИ КОМПЬЮТЕРА ]'
     };
 
     const LB_API_URL = new URL('../api/leaderboard.php', window.location.href).href;

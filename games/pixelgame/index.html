@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ru" data-game-id="pixelgame">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CodeQuest — Внутри Компьютера</title>
+  <script>
+    (function () {
+      const api = '../../api/version.php';
+      const url = new URL(window.location.href);
+      const current = url.searchParams.get('cv') || '0';
+      window.__assetVersion = current;
+      window.__assetUrl = function (path) {
+        return path + (path.indexOf('?') >= 0 ? '&' : '?') + 'v=' + encodeURIComponent(current);
+      };
+      fetch(api, { cache: 'no-store' })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (!data || !data.version || data.version === current) return;
+          url.searchParams.set('cv', data.version);
+          window.location.replace(url.toString());
+        })
+        .catch(() => {});
+    })();
+  </script>
+  <script>
+    document.write('<link rel="icon" href="' + window.__assetUrl('../../img/ICON.PNG') + '" type="image/png">');
+    document.write('<link rel="stylesheet" href="' + window.__assetUrl('css/style.css') + '">');
+    document.write('<link rel="stylesheet" href="' + window.__assetUrl('../../css/leaderboard.css') + '">');
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<!-- МЕНЮ -->
+<div id="screen-menu" class="screen active">
+  <a href="../../index.html" class="back-btn pixel-text">◄ НА ГЛАВНУЮ</a>
+  <div class="menu-bg">
+    <div class="scanlines"></div>
+    <canvas id="menu-canvas" class="menu-canvas"></canvas>
+    <div class="menu-center">
+      <div class="menu-logo-wrap">
+        <div class="menu-logo-tag pixel-text">// ADVENTURE </div>
+        <div class="menu-logo">
+          <span class="ml-code">CODE</span><span class="ml-quest">QUEST</span>
+        </div>
+        <div class="menu-logo-sub pixel-text">ВНУТРИ КОМПЬЮТЕРА</div>
+      </div>
+      <div class="menu-scene">
+        <div class="ms-char">
+          <div class="ms-hero-wrap">
+            <img id="menu-hero-img" src="assets/player/hero.png" class="ms-hero-img" alt="hero">
+          </div>
+          <div class="ms-label pixel-text">ПИКСЕЛЬ</div>
+        </div>
+        <div class="ms-char">
+          <canvas id="menu-villain-canvas" width="72" height="72" class="ms-canvas"></canvas>
+          <div class="ms-label pixel-text" style="color:var(--pink)">ГЛЮК</div>
+        </div>
+      </div>
+      <div class="menu-mission">
+        <div class="mm-line pixel-text"><span class="mm-bullet c">▶</span> Исследуй лабиринт — открывай сундуки с кодом</div>
+        <div class="mm-line pixel-text"><span class="mm-bullet y">▶</span> Решай задачи Go чтобы получить часть программы</div>
+        <div class="mm-line pixel-text"><span class="mm-bullet p">▶</span> Победи вирусы, доберись до финала и запусти код!</div>
+      </div>
+      <div class="menu-btns">
+        <button class="pixel-btn menu-btn-start" id="btn-start">▶ НАЧАТЬ ИГРУ</button>
+        <button class="pixel-btn secondary" id="btn-how">? КАК ИГРАТЬ</button>
+      </div>
+      <div class="lb-widget" id="lb-pixelgame"></div>
+    </div>
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+  </div>
+</div>
+
+<!-- ВЫБОР УРОВНЯ -->
+<div id="screen-levels" class="screen">
+  <div class="levels-bg">
+    <div class="scanlines"></div>
+    <div class="levels-wrap">
+      <div class="levels-header">
+        <div class="levels-title pixel-text">[ ВЫБОР УРОВНЯ ]</div>
+        <div class="levels-sub pixel-text">Выбери миссию для прохождения</div>
+      </div>
+      <div class="level-grid">
+        <button class="level-card level-available level-accent-1" id="btn-level-1" data-level="1">
+          <div class="level-num pixel-text">01</div>
+          <div class="level-name pixel-text">УРОВЕНЬ 1</div>
+          <div class="level-desc">Основы Go — вывод и пакеты</div>
+          <div class="level-badge level-badge-open pixel-text">ДОСТУПЕН</div>
+        </button>
+        <button class="level-card level-available level-accent-2" id="btn-level-2" data-level="2">
+          <div class="level-num pixel-text">02</div>
+          <div class="level-name pixel-text">УРОВЕНЬ 2</div>
+          <div class="level-desc">Переменные и типы данных</div>
+          <div class="level-badge level-badge-open pixel-text">ДОСТУПЕН</div>
+        </button>
+        <button class="level-card level-available level-accent-3" id="btn-level-3" data-level="3">
+          <div class="level-num pixel-text">03</div>
+          <div class="level-name pixel-text">УРОВЕНЬ 3</div>
+          <div class="level-desc">Операторы и ввод данных</div>
+          <div class="level-badge level-badge-open pixel-text">ДОСТУПЕН</div>
+        </button>
+        <button class="level-card level-available level-accent-4" id="btn-level-4" data-level="4">
+          <div class="level-num pixel-text">04</div>
+          <div class="level-name pixel-text">УРОВЕНЬ 4</div>
+          <div class="level-desc">Условные конструкции</div>
+          <div class="level-badge level-badge-open pixel-text">ДОСТУПЕН</div>
+        </button>
+      </div>
+      <button class="pixel-btn secondary" id="btn-levels-back">◄ НАЗАД</button>
+    </div>
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+  </div>
+</div>
+
+<!-- КАК ИГРАТЬ -->
+<div id="screen-how" class="screen">
+  <div class="how-bg">
+    <div class="scanlines"></div>
+    <div class="how-wrap">
+      <div class="how-header">
+        <div class="how-title pixel-text">[ РУКОВОДСТВО ]</div>
+        <div class="how-sub pixel-text">Выживание в цифровом лабиринте</div>
+      </div>
+      <div class="how-sections">
+        <div class="how-section">
+          <div class="how-sec-title pixel-text"><span class="hs-num">01</span> УПРАВЛЕНИЕ</div>
+          <div class="how-sec-body">
+            <div class="how-keys">
+              <div class="key-row center"><div class="key-cap">W</div></div>
+              <div class="key-row">
+                <div class="key-cap">A</div>
+                <div class="key-cap">S</div>
+                <div class="key-cap">D</div>
+              </div>
+              <div class="key-or pixel-text">или ← ↑ ↓ →</div>
+            </div>
+          </div>
+        </div>
+        <div class="how-section">
+          <div class="how-sec-title pixel-text"><span class="hs-num">02</span> ЦЕЛИ</div>
+          <div class="how-sec-body">
+            <div class="how-goal">
+              <div class="hg-icon"></div>
+              <div class="hg-text">
+                <div class="hg-name pixel-text">СУНДУКИ С КОДОМ</div>
+                <div class="hg-desc">Подойди к сундуку и ответь на вопрос по Go. Правильный ответ — получаешь кусок финальной программы в инвентарь.</div>
+              </div>
+            </div>
+            <div class="how-goal">
+              <div class="hg-icon"></div>
+              <div class="hg-text">
+                <div class="hg-name pixel-text">ФИНИШ — ПОРТАЛ</div>
+                <div class="hg-desc">Собери все 5 частей и добеги до золотого портала. Там собери Go-программу из частей и запусти её!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="how-section">
+          <div class="how-sec-title pixel-text"><span class="hs-num">03</span> ВРАГИ</div>
+          <div class="how-sec-body">
+            <div class="how-threat">
+              <div class="ht-bar ht-virus"></div>
+              <div class="ht-info">
+                <div class="ht-name pixel-text">ВИРУСЫ (3 вида)</div>
+                <div class="ht-desc">Замечают тебя с ~5 клеток и атакуют. При контакте — вопрос по Go. Победишь — враг уничтожен. От них можно убежать!</div>
+              </div>
+            </div>
+            <div class="how-threat">
+              <div class="ht-bar ht-trap"></div>
+              <div class="ht-info">
+                <div class="ht-name pixel-text" style="color:var(--pink)">ЛОВУШКИ</div>
+                <div class="ht-desc">Случайный эффект: урон / замедление / телепорт к старту. Отмечены красным — обходи стороной.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="how-section">
+          <div class="how-sec-title pixel-text"><span class="hs-num">04</span> ЗДОРОВЬЕ</div>
+          <div class="how-sec-body">
+            <div class="how-hp-row">
+              <canvas class="px-heart-canvas how-heart-canvas"></canvas>
+              <canvas class="px-heart-canvas how-heart-canvas"></canvas>
+              <canvas class="px-heart-canvas how-heart-canvas"></canvas>
+              <canvas class="px-heart-canvas how-heart-canvas"></canvas>
+              <canvas class="px-heart-canvas how-heart-canvas"></canvas>
+            </div>
+            <div class="how-hp-desc">5 HP. Потерял все — Game Over. После удара 2–3 сек неуязвимости.</div>
+          </div>
+        </div>
+      </div>
+      <div class="how-tip pixel-text">
+         <span style="color:var(--yellow)">СОВЕТ:</span> Вирусов можно обмануть — заманивай в узкие коридоры и убегай!
+      </div>
+      <button class="pixel-btn" id="btn-back">◄ НАЗАД</button>
+    </div>
+  </div>
+</div>
+
+<!-- ИГРА -->
+<div id="screen-game" class="screen">
+  <div id="hud">
+    <button type="button" id="hud-toggle" class="hud-toggle-btn pixel-text" aria-label="Меню HUD">≡</button>
+    <div id="hud-hp"><span class="hud-label">HP</span><div id="hp-hearts"></div></div>
+    <div id="hud-extra">
+      <button type="button" class="hud-menu-btn pixel-text" id="btn-to-menu">[ В МЕНЮ ]</button>
+      <div id="hud-level" class="hud-label">УРОВЕНЬ 1</div>
+      <div id="hud-score"><span class="hud-label">КОД</span><span id="score-count">0/5</span></div>
+      <div id="hud-pts"><span class="hud-label">ОЧКИ</span><span id="pts-count">0</span></div>
+      <div id="hud-status" class="hud-label"></div>
+    </div>
+  </div>
+  <canvas id="game-canvas"></canvas>
+  <div id="vpad">
+    <div class="vpad-row"><button class="vpad-btn" id="vpad-up">▲</button></div>
+    <div class="vpad-row">
+      <button class="vpad-btn" id="vpad-left">◄</button>
+      <div class="vpad-center"></div>
+      <button class="vpad-btn" id="vpad-right">►</button>
+    </div>
+    <div class="vpad-row"><button class="vpad-btn" id="vpad-down">▼</button></div>
+  </div>
+  <div id="inventory">
+    <div class="inv-title pixel-text">[ ИНВЕНТАРЬ ]</div>
+    <div id="inv-items"></div>
+  </div>
+</div>
+
+<!-- ДИАЛОГ ВОПРОСА -->
+<div id="dialog-question" class="dialog hidden">
+  <div class="dialog-box">
+    <div class="dialog-header" id="q-header">СУНДУК НАЙДЕН</div>
+    <div class="q-text" id="q-text"></div>
+    <div class="q-code" id="q-code"></div>
+    <div class="q-options" id="q-options"></div>
+    <div class="dialog-hint" id="q-hint"></div>
+  </div>
+</div>
+
+<!-- ДИАЛОГ БИТВЫ -->
+<div id="dialog-battle" class="dialog hidden">
+  <div class="dialog-box battle-box">
+    <div class="dialog-header">АТАКА ВИРУСА!</div>
+    <div class="battle-enemy"id="battle-enemy-sprite"></div>
+    <div class="q-text" id="b-text"></div>
+    <div class="q-code" id="b-code"></div>
+    <div class="q-options" id="b-options"></div>
+    <div class="dialog-hint" id="b-hint"></div>
+  </div>
+</div>
+
+<!-- ФИНАЛ -->
+<div id="screen-final" class="screen">
+  <div class="final-content">
+    <h2 class="pixel-title green">[ ПОБЕДА! ]</h2>
+    <p class="final-sub">Ты выбрался из компьютера и собрал все части программы!</p>
+    <div class="final-assembly">
+      <div class="assembly-title">[ СОБЕРИ ПРОГРАММУ — ПЕРЕТАЩИ ЧАСТИ В ПРАВИЛЬНОМ ПОРЯДКЕ ]</div>
+      <div id="assembly-slots"></div>
+      <button class="pixel-btn" id="btn-run">▶ ЗАПУСТИТЬ ПРОГРАММУ</button>
+    </div>
+    <div id="final-result" class="hidden">
+      <div class="result-title">[ РЕЗУЛЬТАТ ВЫПОЛНЕНИЯ ]</div>
+      <div id="result-output"></div>
+      <div class="result-title" style="margin-top:24px">[ ОБЪЯСНЕНИЕ ]</div>
+      <div id="result-explain"></div>
+      <button class="pixel-btn" id="btn-restart" style="margin-top:28px">ИГРАТЬ СНОВА</button>
+    </div>
+  </div>
+</div>
+
+<!-- GAME OVER -->
+<div id="screen-gameover" class="screen">
+  <div class="gameover-content">
+    <div class="gameover-title">[ GAME OVER ]</div>
+    <div class="gameover-sub">Вирусы уничтожили систему...</div>
+    <div class="gameover-skull">💀</div>
+    <button class="pixel-btn" id="btn-gameover-restart">ПОПРОБОВАТЬ СНОВА</button>
+  </div>
+</div>
+
+<div id="dialog-notice" class="dialog hidden">
+  <div class="dialog-box notice-box">
+    <div class="dialog-header" id="notice-header">УВЕДОМЛЕНИЕ</div>
+    <div class="q-text" id="notice-text"></div>
+    <div class="dialog-actions">
+      <button class="pixel-btn" id="notice-ok">OK</button>
+    </div>
+  </div>
+</div>
+
+<div id="dialog-confirm" class="dialog hidden">
+  <div class="dialog-box notice-box confirm-box">
+    <div class="dialog-header" id="confirm-header">ПОДТВЕРЖДЕНИЕ</div>
+    <div class="q-text" id="confirm-text"></div>
+    <div class="dialog-actions confirm-actions">
+      <button class="pixel-btn secondary" id="confirm-no">НЕТ</button>
+      <button class="pixel-btn confirm-yes-btn" id="confirm-yes">ДА</button>
+    </div>
+  </div>
+</div>
+
+<script>document.write('<script src="' + window.__assetUrl('../../js/wip-guard.js') + '"><\/script>')</script>
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.how-heart-canvas').forEach(function(cv) {
+    if (typeof drawPixelHeart === 'function') drawPixelHeart(cv, false);
+  });
+});
+</script>
+<script>document.write('<script src="' + window.__assetUrl('../../js/leaderboard.js') + '"><\/script>')</script>
+<script>document.write('<script src="' + window.__assetUrl('js/game.js') + '"><\/script>')</script>
+<script>
+// Глитч-призрак в меню — запускается после полной загрузки страницы
+window.addEventListener('load', function() {
+  function startGlitch() {
+    var vc = document.getElementById('menu-villain-canvas');
+    if (!vc) return;
+    var ctx = vc.getContext('2d');
+    vc.width = 72; vc.height = 72;
+    var start = null;
+    function draw(ts) {
+      if (!start) start = ts;
+      var t = ts - start;
+      ctx.clearRect(0, 0, 72, 72);
+      var bob = Math.sin(t / 320) * 4;
+      var rot = Math.sin(t / 640) * 0.06;
+      // тень
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.beginPath(); ctx.ellipse(36, 70, 12, 4, 0, 0, Math.PI*2); ctx.fill();
+      // масштаб 48→72
+      ctx.save();
+      ctx.translate(36, 36 + bob);
+      ctx.rotate(rot);
+      ctx.scale(1.5, 1.5);
+      ctx.translate(-24, -24);
+      // тело тёмное
+      ctx.fillStyle = '#003a18'; ctx.fillRect(8, 6, 24, 26);
+      // тело светлое
+      ctx.fillStyle = '#005530'; ctx.fillRect(10, 4, 20, 24);
+      // зубцы внизу
+      var gw = Math.sin(t / 200) > 0 ? 1 : -1;
+      ctx.fillStyle = '#005530';
+      ctx.fillRect(8,  28, 8, 6 + gw*3);
+      ctx.fillRect(20, 28, 8, 6 - gw*3);
+      ctx.fillRect(32, 28, 8, 6 + gw*3);
+      ctx.fillStyle = '#003a18';
+      ctx.fillRect(16, 28, 4, 4);
+      ctx.fillRect(28, 28, 4, 4);
+      // глаза-крестики
+      ctx.fillStyle = '#00ff88';
+      ctx.fillRect(13, 10, 2, 6); ctx.fillRect(11, 12, 6, 2);
+      ctx.fillRect(23, 10, 2, 6); ctx.fillRect(21, 12, 6, 2);
+      // мерцание
+      if (Math.sin(t/150) > 0.6) {
+        ctx.fillStyle = 'rgba(0,255,100,0.35)';
+        ctx.fillRect(8, 4, 24, 3);
+      }
+      // помехи
+      ctx.fillStyle = 'rgba(0,220,100,0.15)';
+      ctx.fillRect(8, 14, 24, 2); ctx.fillRect(8, 20, 24, 2);
+      ctx.restore();
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  }
+  startGlitch();
+});
+</script>
+</body>
+</html>

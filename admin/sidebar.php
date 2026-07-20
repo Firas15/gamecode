@@ -4,6 +4,7 @@ $links = [
   'dashboard.php' => ['icon' => '📊', 'label' => 'DASHBOARD'],
   'users.php'     => ['icon' => '👥', 'label' => 'ПОЛЬЗОВАТЕЛИ'],
   'games.php'     => ['icon' => '🎮', 'label' => 'ИГРЫ'],
+  'pixelgame_editor.php' => ['icon' => '👾', 'label' => 'PIXELGAME'],
   'news.php'      => ['icon' => '📰', 'label' => 'НОВОСТИ'],
   'log.php'       => ['icon' => '📋', 'label' => 'ЛОГ'],
   'settings.php'  => ['icon' => '⚙',  'label' => 'НАСТРОЙКИ'],

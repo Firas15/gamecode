@@ -29,7 +29,7 @@ if (!isLoggedIn()) {
 $body   = json_decode(file_get_contents('php://input'), true);
 $gameId = isset($body['game_id']) ? trim($body['game_id']) : '';
 
-$allowedGames = ['sorter', 'network', 'millionaire'];
+$allowedGames = ['sorter', 'network', 'millionaire', 'pixelgame'];
 if (!in_array($gameId, $allowedGames, true)) {
     http_response_code(400);
     echo json_encode(['error' => 'Unknown game_id']);

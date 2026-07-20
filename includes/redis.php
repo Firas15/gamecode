@@ -155,6 +155,7 @@ const CACHE_TTL_NEWS        = 1800;  // 30 мин — новости обнов�
 const CACHE_TTL_FAQ         = 3600;  // 1 час  — FAQ почти статичен
 const CACHE_TTL_LEADERBOARD = 300;   // 5 мин  — лидерборд обновляется часто
 const CACHE_TTL_USER        = 600;   // 10 мин — профиль может меняться
+const CACHE_TTL_PIXELGAME_CONTENT = 3600; // 1 час — контент уровней меняется редко (как games/faq)
 
 // =============================================================================
 // КЛЮЧИ REDIS
@@ -164,9 +165,13 @@ const CACHE_KEY_GAMES    = 'gamecode:games';
 const CACHE_KEY_NEWS     = 'gamecode:news';
 const CACHE_KEY_FAQ      = 'gamecode:faq';
 const CACHE_KEY_LB_ALL   = 'gamecode:lb:all';
+const CACHE_KEY_PIXELGAME_QUESTIONS = 'gamecode:pixelgame:questions';
 
 function cache_key_lb(string $game): string {
     return 'gamecode:lb:' . $game;
+}
+function cache_key_pixelgame_level(int $levelNumber): string {
+    return 'gamecode:pixelgame:level:' . $levelNumber;
 }
 function cache_key_user(int $id): string {
     return 'gamecode:user:' . $id;
@@ -206,6 +211,63 @@ function cached_read_games(): array {
 function cached_write_games(array $games): void {
     writeGames($games);
     cache_delete(CACHE_KEY_GAMES);
+}
+
+// =============================================================================
+// КЭШИРОВАННЫЕ ФУНКЦИИ — PIXELGAME (контент уровней и вопросов)
+// Cache-Aside по образцу cached_read_games().
+// =============================================================================
+
+/**
+ * Читает уровень Pixelgame: Redis → PostgreSQL (фолбэк JSON) → Redis.
+ */
+function cached_read_pixelgame_level(int $levelNumber): ?array {
+    $key = cache_key_pixelgame_level($levelNumber);
+
+    $cached = cache_get($key);
+    if ($cached !== null) {
+        return $cached;
+    }
+
+    $level = readPixelgameLevel($levelNumber);
+    if (!is_array($level)) {
+        return null;
+    }
+
+    cache_set($key, $level, CACHE_TTL_PIXELGAME_CONTENT);
+    return $level;
+}
+
+/**
+ * Читает вопросы монстров Pixelgame: Redis → PostgreSQL (фолбэк JSON) → Redis.
+ */
+function cached_read_pixelgame_monster_questions(): ?array {
+    $cached = cache_get(CACHE_KEY_PIXELGAME_QUESTIONS);
+    if ($cached !== null) {
+        return $cached;
+    }
+
+    $questions = readPixelgameMonsterQuestions();
+    if (!is_array($questions)) {
+        return null;
+    }
+
+    cache_set(CACHE_KEY_PIXELGAME_QUESTIONS, $questions, CACHE_TTL_PIXELGAME_CONTENT);
+    return $questions;
+}
+
+/**
+ * Сбрасывает кэш контента Pixelgame.
+ * Вызывается из админки после сохранения уровня/вопросов.
+ * @param int $levelNumber 0 — сбросить все уровни
+ */
+function cache_invalidate_pixelgame(int $levelNumber = 0): void {
+    if ($levelNumber > 0) {
+        cache_delete(cache_key_pixelgame_level($levelNumber), CACHE_KEY_PIXELGAME_QUESTIONS);
+        return;
+    }
+    cache_delete_pattern('gamecode:pixelgame:level:*');
+    cache_delete(CACHE_KEY_PIXELGAME_QUESTIONS);
 }
 
 // =============================================================================

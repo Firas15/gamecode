@@ -85,7 +85,7 @@
         <span class="pixel-text accent">CODE</span>
       </div>
       <ul class="sidebar-nav">${links}</ul>
-      <div class="sidebar-footer"><span>V1.0 — CLASSIFIER GAME</span></div>
+      <div class="sidebar-footer"><span>V2.0 — GameCode</span></div>
     `;
   }
 

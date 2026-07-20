@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             if (!$msg) {
                 $games[] = compact('id','title','desc','emoji','level','stars','link','wip') + ['created_at' => date('Y-m-d H:i:s')];
-                writeGames($games);
+                cached_write_games($games);
                 writeLog('Добавлена игра', $title);
                 $msg = "Игра «{$title}» добавлена!"; $msgType = 'success';
             }
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($g['id'] === $gid) { $title = $g['title']; return false; }
             return true;
         });
-        writeGames(array_values($games));
+        cached_write_games(array_values($games));
         writeLog('Удалена игра', $title);
         $msg = "Игра «{$title}» удалена."; $msgType = 'success';
     }
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
             }
         } unset($g);
-        writeGames($games);
+        cached_write_games($games);
     }
 }
 

@@ -1,0 +1,44 @@
+# ── Конфигурация с паролями (не пушить!) ──
+config.php
+admin/config.php
+
+# ── Секреты ──
+data/app_secret.key
+*.key
+*.env
+.env*
+
+# ── Runtime-данные (генерируются на сервере) ──
+data/users.json
+data/scores.json
+data/admin_log.json
+data/news.json
+
+# ── PHP-утилиты и временные скрипты ──
+fix_*.php
+*_test.php
+*_debug.php
+
+# ── IDE и редакторы ──
+.vscode/
+.idea/
+*.suo
+*.user
+
+# ── OS ──
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# ── Логи и кэш ──
+*.log
+*.cache
+/cache/
+
+# ── Загруженные файлы пользователей ──
+img/news/
+img/avatars/
+
+# ── PHP Composer ──
+vendor/
+composer.lock

@@ -1349,7 +1349,7 @@ function startBattle(enemy) {
     return;
   }
   const names=['ГЛИТЧ','ГЛИТЧ','ГЛИТЧ'];
-  document.getElementById('battle-enemy-sprite').textContent=['🟢','🩷','🔵'][enemy.type];
+  document.getElementById('battle-enemy-sprite').textContent='';
   document.getElementById('b-text').textContent=`${names[enemy.type]} атакует! ${q.text}`;
   document.getElementById('b-code').textContent=q.code||'';
   document.getElementById('b-hint').textContent='Ответь правильно, чтобы победить врага.';
@@ -1382,9 +1382,7 @@ startBattle = function(enemy) {
   const battleQuestions=getBattleQuestionPool();
   const q=battleQuestions[Math.floor(Math.random()*battleQuestions.length)];
   const names=['ГЛИТЧ','ГЛИТЧ','ГЛИТЧ'];
-  const sprites=['🟢','🩷','🔵'];
-
-  document.getElementById('battle-enemy-sprite').textContent=sprites[enemy.type];
+  document.getElementById('battle-enemy-sprite').textContent='';
   document.getElementById('b-text').textContent=`${names[enemy.type]} атакует! ${q.text}`;
   document.getElementById('b-code').textContent=q.code || '';
   document.getElementById('b-hint').textContent='Ответь правильно, чтобы победить врага.';

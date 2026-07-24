@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Функции — Go — Game Code</title>
+  <link rel="icon" href="../../img/ICON.PNG" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../css/style.css"/>
+  <link rel="stylesheet" href="../../css/pages.css"/>
+  <link rel="stylesheet" href="../../css/auth.css"/>
+  <link rel="stylesheet" href="theory-page.css"/>
+  <link rel="stylesheet" href="../../css/mobile.css"/>
+</head>
+<body>
+
+<div class="overlay" id="overlay"></div>
+<nav class="sidebar" id="sidebar">
+  <button class="sidebar-close" id="sidebarClose">х</button>
+  <div class="sidebar-logo"><span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span></div>
+  <ul class="sidebar-nav">
+    <li><a href="../../index.html"   class="sidebar-link">Все игры</a></li>
+    <li><a href="../leaderboard.html" class="sidebar-link">Лидеры</a></li>
+    <li><a href="../how-to-play.html" class="sidebar-link">Как играть</a></li>
+    <li><a href="../theory.html"      class="sidebar-link active">Теория</a></li>
+    <li><a href="../about.html"       class="sidebar-link">О нас</a></li>
+  </ul>
+  <div class="sidebar-footer"><span>V2.0 — GameCode</span></div>
+</nav>
+
+<header class="header">
+  <div class="header-left">
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <div class="site-title">
+      <a href="../../index.html" class="logo pixel-text" style="text-decoration:none">GAME<span class="accent">CODE</span></a>
+      <p class="tagline pixel-text">Изучай программирование в играх</p>
+    </div>
+  </div>
+  <div class="header-right"><div id="auth-widget"></div></div>
+</header>
+
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <p class="breadcrumb">
+      <a href="../../index.html">ГЛАВНАЯ</a> /
+      <a href="../theory.html">ТЕОРИЯ</a> /
+      <a href="../theory.html">GO</a> /
+      ФУНКЦИИ
+    </p>
+    <div class="theory-hero-emoji">₊⊹</div>
+    <h1 class="page-title accent">ФУНКЦИИ</h1>
+    <p class="page-subtitle pixel-text">func — строительный блок любой Go-программы</p>
+    <div class="theory-tags">
+      <span class="ttag" style="color:var(--accent);border-color:var(--accent)">Go</span>
+      <span class="ttag ttag-level">Средний</span>
+    </div>
+  </div>
+</section>
+
+<main class="page-content theory-page-content">
+
+  <!-- ОБЪЯВЛЕНИЕ ФУНКЦИИ -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ ОБЪЯВЛЕНИЕ ФУНКЦИИ ]</h2>
+    <p class="section-text">
+      Функция в Go объявляется ключевым словом <code>func</code>. Синтаксис: <code>func имя(параметры) тип_возврата { тело }</code>. Если функция ничего не возвращает, тип возврата не указывается.
+    </p>
+    <div class="code-block">
+      <span class="code-header">GO</span>
+      <pre><code><span class="code-kw">func</span> <span class="code-func">greet</span>(<span class="code-var">name</span> <span class="code-kw">string</span>) <span class="code-kw">string</span> {
+    <span class="code-kw">return</span> <span class="code-string">"Привет, "</span> + <span class="code-var">name</span> + <span class="code-string">"!"</span>
+}
+
+<span class="code-kw">func</span> <span class="code-func">main</span>() {
+    <span class="code-var">msg</span> := <span class="code-func">greet</span>(<span class="code-string">"Gopher"</span>)
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-var">msg</span>)  <span class="code-comment">// Привет, Gopher!</span>
+}</code></pre>
+    </div>
+    <div class="info-box yellow">
+      <span class="info-icon">₊⊹</span>
+      <div class="info-text">
+        <strong>Тип после имени параметра:</strong><br/>
+        В Go тип параметра пишется ПОСЛЕ имени: <code>name string</code>, а не <code>string name</code>. Это читается как "переменная <code>name</code> типа <code>string</code>".
+      </div>
+    </div>
+  </div>
+
+  <!-- НЕСКОЛЬКО ПАРАМЕТРОВ И ВОЗВРАТОВ -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ НЕСКОЛЬКО ПАРАМЕТРОВ И ВОЗВРАТОВ ]</h2>
+    <p class="section-text">
+      Главная особенность Go: функция может вернуть <strong>несколько значений</strong>. Это используется повсеместно — принято возвращать пару (результат, ошибка).
+    </p>
+    <div class="code-block">
+      <span class="code-header">GO</span>
+      <pre><code><span class="code-kw">func</span> <span class="code-func">divide</span>(<span class="code-var">a</span>, <span class="code-var">b</span> <span class="code-kw">float64</span>) (<span class="code-kw">float64</span>, <span class="code-kw">error</span>) {
+    <span class="code-kw">if</span> <span class="code-var">b</span> == <span class="code-num">0</span> {
+        <span class="code-kw">return</span> <span class="code-num">0</span>, <span class="code-var">fmt</span>.<span class="code-func">Errorf</span>(<span class="code-string">"деление на ноль"</span>)
+    }
+    <span class="code-kw">return</span> <span class="code-var">a</span> / <span class="code-var">b</span>, <span class="code-bool">nil</span>
+}
+
+<span class="code-kw">func</span> <span class="code-func">main</span>() {
+    <span class="code-var">result</span>, <span class="code-var">err</span> := <span class="code-func">divide</span>(<span class="code-num">10</span>, <span class="code-num">3</span>)
+    <span class="code-kw">if</span> <span class="code-var">err</span> != <span class="code-bool">nil</span> {
+        <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Ошибка:"</span>, <span class="code-var">err</span>)
+        <span class="code-kw">return</span>
+    }
+    <span class="code-var">fmt</span>.<span class="code-func">Printf</span>(<span class="code-string">"Результат: %.2f\n"</span>, <span class="code-var">result</span>)  <span class="code-comment">// 3.33</span>
+}</code></pre>
+    </div>
+    <div class="info-box green">
+      <span class="info-icon">₊⊹</span>
+      <div class="info-text">
+        <strong>nil — нулевое значение для ошибок</strong><br/>
+        <code>nil</code> — нулевое значение для указателей, интерфейсов, ошибок. Если <code>err == nil</code>, значит ошибки нет и операция прошла успешно. Это идиоматический Go.
+      </div>
+    </div>
+  </div>
+
+  <!-- ИМЕНОВАННЫЕ ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ ИМЕНОВАННЫЕ ВОЗВРАЩАЕМЫЕ ЗНАЧЕНИЯ ]</h2>
+    <p class="section-text">
+      Возвращаемым значениям можно дать имена прямо в сигнатуре функции. Тогда <code>return</code> без аргументов вернёт их текущие значения — это называется "голый return".
+    </p>
+    <div class="code-block">
+      <span class="code-header">GO</span>
+      <pre><code><span class="code-kw">func</span> <span class="code-func">minMax</span>(<span class="code-var">numbers</span> []<span class="code-kw">int</span>) (<span class="code-var">min</span>, <span class="code-var">max</span> <span class="code-kw">int</span>) {
+    <span class="code-var">min</span>, <span class="code-var">max</span> = <span class="code-var">numbers</span>[<span class="code-num">0</span>], <span class="code-var">numbers</span>[<span class="code-num">0</span>]
+    <span class="code-kw">for</span> <span class="code-var">_</span>, <span class="code-var">n</span> := <span class="code-kw">range</span> <span class="code-var">numbers</span> {
+        <span class="code-kw">if</span> <span class="code-var">n</span> &lt; <span class="code-var">min</span> { <span class="code-var">min</span> = <span class="code-var">n</span> }
+        <span class="code-kw">if</span> <span class="code-var">n</span> &gt; <span class="code-var">max</span> { <span class="code-var">max</span> = <span class="code-var">n</span> }
+    }
+    <span class="code-kw">return</span>  <span class="code-comment">// голый return — возвращает min и max</span>
+}
+
+<span class="code-kw">func</span> <span class="code-func">main</span>() {
+    <span class="code-var">min</span>, <span class="code-var">max</span> := <span class="code-func">minMax</span>([]<span class="code-kw">int</span>{<span class="code-num">3</span>, <span class="code-num">1</span>, <span class="code-num">7</span>, <span class="code-num">2</span>, <span class="code-num">9</span>})
+    <span class="code-var">fmt</span>.<span class="code-func">Printf</span>(<span class="code-string">"Мин: %d, Макс: %d\n"</span>, <span class="code-var">min</span>, <span class="code-var">max</span>)
+    <span class="code-comment">// Мин: 1, Макс: 9</span>
+}</code></pre>
+    </div>
+  </div>
+
+  <!-- DEFER -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ DEFER — ОТЛОЖЕННЫЙ ВЫЗОВ ]</h2>
+    <p class="section-text">
+      <code>defer</code> откладывает вызов функции до момента, когда текущая функция завершится. Отложенные вызовы выполняются даже при возникновении ошибки. Несколько <code>defer</code> выполняются в порядке стека (последний добавленный — первый выполненный).
+    </p>
+    <div class="code-block">
+      <span class="code-header">GO</span>
+      <pre><code><span class="code-kw">func</span> <span class="code-func">processFile</span>() {
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Открываем файл"</span>)
+    <span class="code-kw">defer</span> <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Закрываем файл"</span>)  <span class="code-comment">// выполнится последним</span>
+
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Обрабатываем данные"</span>)
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Сохраняем результат"</span>)
+}
+<span class="code-comment">// Вывод:</span>
+<span class="code-comment">// Открываем файл</span>
+<span class="code-comment">// Обрабатываем данные</span>
+<span class="code-comment">// Сохраняем результат</span>
+<span class="code-comment">// Закрываем файл</span></code></pre>
+    </div>
+    <div class="info-box yellow">
+      <span class="info-icon">₊⊹</span>
+      <div class="info-text">
+        <strong>defer — одна из самых элегантных идей Go</strong><br/>
+        Ты объявляешь очистку рядом с созданием ресурса, а не в конце функции. Это делает код понятнее: открытие и закрытие файла находятся рядом, а не разделены сотнями строк.
+      </div>
+    </div>
+  </div>
+
+  <!-- ПОПРОБУЙ САМ -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ ПОПРОБУЙ САМ ]</h2>
+    <div class="challenge-box">
+      <div class="challenge-header">
+        <span class="challenge-icon">₊⊹</span>
+        <span class="block-title accent" style="margin:0">ЗАДАНИЕ</span>
+      </div>
+      <p class="challenge-text">
+        Напиши функцию <code>pow(base, exp int) int</code>, которая возвращает <code>base</code> в степени <code>exp</code>.<br/>
+        Используй цикл <code>for</code> внутри функции.<br/>
+        Вызови её с разными аргументами и выведи результаты.
+      </p>
+      <details class="challenge-hint">
+        <summary class="pixel-text">[ ПОКАЗАТЬ РЕШЕНИЕ ]</summary>
+        <div class="code-block" style="margin-top:12px">
+          <pre><code><span class="code-kw">package</span> <span class="code-var">main</span>
+
+<span class="code-kw">import</span> <span class="code-string">"fmt"</span>
+
+<span class="code-kw">func</span> <span class="code-func">pow</span>(<span class="code-var">base</span>, <span class="code-var">exp</span> <span class="code-kw">int</span>) <span class="code-kw">int</span> {
+    <span class="code-var">result</span> := <span class="code-num">1</span>
+    <span class="code-kw">for</span> <span class="code-var">i</span> := <span class="code-num">0</span>; <span class="code-var">i</span> &lt; <span class="code-var">exp</span>; <span class="code-var">i</span>++ {
+        <span class="code-var">result</span> *= <span class="code-var">base</span>
+    }
+    <span class="code-kw">return</span> <span class="code-var">result</span>
+}
+
+<span class="code-kw">func</span> <span class="code-func">main</span>() {
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-func">pow</span>(<span class="code-num">2</span>, <span class="code-num">10</span>)) <span class="code-comment">// 1024</span>
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-func">pow</span>(<span class="code-num">3</span>, <span class="code-num">4</span>))  <span class="code-comment">// 81</span>
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-func">pow</span>(<span class="code-num">5</span>, <span class="code-num">3</span>))  <span class="code-comment">// 125</span>
+}</code></pre>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="theory-nav">
+    <a href="go-loops.html" class="btn-theory-nav pixel-text">◄ ЦИКЛЫ</a>
+    <a href="../theory.html" class="btn-theory-nav btn-theory-next pixel-text">К ТЕОРИИ ►</a>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <p class="pixel-text">GAME<span class="accent">CODE</span> &copy; 2026</p>
+  <p class="footer-sub">Изучай программирование в играх</p>
+</footer>
+
+<script src="../../js/pixels-bg.js"></script>
+<script>window.AUTH_ROOT = "../..";</script>
+<script src="../../js/auth.js"></script>
+<script>
+  const sidebar=document.getElementById('sidebar'),overlay=document.getElementById('overlay'),menuBtn=document.getElementById('menuBtn'),sidebarClose=document.getElementById('sidebarClose');
+  const open=()=>{sidebar.classList.add('open');overlay.classList.add('active');document.body.style.overflow='hidden';};
+  const close=()=>{sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';};
+  menuBtn.addEventListener('click',open);sidebarClose.addEventListener('click',close);overlay.addEventListener('click',close);
+  document.addEventListener('keydown',e=>e.key==='Escape'&&close());
+</script>
+</body>
+</html>

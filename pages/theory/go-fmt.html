@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Вывод и форматирование — Go — Game Code</title>
+  <link rel="icon" href="../../img/ICON.PNG" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../css/style.css"/>
+  <link rel="stylesheet" href="../../css/pages.css"/>
+  <link rel="stylesheet" href="../../css/auth.css"/>
+  <link rel="stylesheet" href="theory-page.css"/>
+  <link rel="stylesheet" href="../../css/mobile.css"/>
+</head>
+<body>
+
+<div class="overlay" id="overlay"></div>
+<nav class="sidebar" id="sidebar">
+  <button class="sidebar-close" id="sidebarClose">х</button>
+  <div class="sidebar-logo"><span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span></div>
+  <ul class="sidebar-nav">
+    <li><a href="../../index.html"   class="sidebar-link">Все игры</a></li>
+    <li><a href="../leaderboard.html" class="sidebar-link">Лидеры</a></li>
+    <li><a href="../how-to-play.html" class="sidebar-link">Как играть</a></li>
+    <li><a href="../theory.html"      class="sidebar-link active">Теория</a></li>
+    <li><a href="../about.html"       class="sidebar-link">О нас</a></li>
+  </ul>
+  <div class="sidebar-footer"><span>V2.0 — GameCode</span></div>
+</nav>
+
+<header class="header">
+  <div class="header-left">
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <div class="site-title">
+      <a href="../../index.html" class="logo pixel-text" style="text-decoration:none">GAME<span class="accent">CODE</span></a>
+      <p class="tagline pixel-text">Изучай программирование в играх</p>
+    </div>
+  </div>
+  <div class="header-right"><div id="auth-widget"></div></div>
+</header>
+
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <p class="breadcrumb">
+      <a href="../../index.html">ГЛАВНАЯ</a> /
+      <a href="../theory.html">ТЕОРИЯ</a> /
+      <a href="../theory.html">GO</a> /
+      ВЫВОД И ФОРМАТИРОВАНИЕ
+    </p>
+    <div class="theory-hero-emoji">₊⊹</div>
+    <h1 class="page-title accent">ВЫВОД И ФОРМАТИРОВАНИЕ</h1>
+    <p class="page-subtitle pixel-text">Пакет fmt — главный инструмент вывода в Go</p>
+    <div class="theory-tags">
+      <span class="ttag" style="color:var(--accent);border-color:var(--accent)">Go</span>
+      <span class="ttag ttag-level">Новичок</span>
+    </div>
+  </div>
+</section>
+
+<main class="page-content theory-page-content">
+
+  <!-- ОСНОВНЫЕ ФУНКЦИИ -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ ОСНОВНЫЕ ФУНКЦИИ ]</h2>
+    <p class="section-text">
+      Пакет <code>fmt</code> предоставляет три основные функции вывода. Они отличаются тем, как обрабатывают перевод строки и форматирование.
+    </p>
+    <div class="code-block">
+      <span class="code-header">GO</span>
+      <pre><code><span class="code-kw">package</span> <span class="code-var">main</span>
+
+<span class="code-kw">import</span> <span class="code-string">"fmt"</span>
+
+<span class="code-kw">func</span> <span class="code-func">main</span>() {
+    <span class="code-var">fmt</span>.<span class="code-func">Print</span>(<span class="code-string">"Без переноса строки"</span>)      <span class="code-comment">// курсор остаётся на той же строке</span>
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"С переносом строки"</span>)    <span class="code-comment">// добавляет \n в конце</span>
+    <span class="code-var">fmt</span>.<span class="code-func">Printf</span>(<span class="code-string">"Привет, %s!\n"</span>, <span class="code-string">"Gopher"</span>) <span class="code-comment">// форматированный вывод</span>
+}</code></pre>
+    </div>
+  </div>
+
+  <!-- ФОРМАТНЫЕ ГЛАГОЛЫ -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ ФОРМАТНЫЕ ГЛАГОЛЫ ]</h2>
+    <p class="section-text">
+      <code>fmt.Printf</code> использует форматные глаголы — специальные коды, которые заменяются значениями переменных. Каждый глагол начинается с символа <code>%</code>.
+    </p>
+    <div class="info-box yellow">
+      <span class="info-icon">₊⊹</span>
+      <div class="info-text">
+        <strong>Основные форматные глаголы:</strong><br/>
+        <code>%d</code> — целое число (decimal)<br/>
+        <code>%f</code> — число с точкой (<code>%.2f</code> — два знака после запятой)<br/>
+        <code>%s</code> — строка<br/>
+        <code>%v</code> — любое значение (универсальный глагол)<br/>
+        <code>%T</code> — тип переменной<br/>
+        <code>%b</code> — двоичное представление числа<br/>
+        <code>%t</code> — булево значение (true/false)
+      </div>
+    </div>
+    <div class="code-block">
+      <span class="code-header">GO</span>
+      <pre><code><span class="code-var">name</span>  := <span class="code-string">"Gopher"</span>
+<span class="code-var">score</span> := <span class="code-num">1500</span>
+<span class="code-var">pi</span>    := <span class="code-num">3.14159</span>
+
+<span class="code-var">fmt</span>.<span class="code-func">Printf</span>(<span class="code-string">"Игрок: %s\n"</span>, <span class="code-var">name</span>)
+<span class="code-var">fmt</span>.<span class="code-func">Printf</span>(<span class="code-string">"Очки: %d\n"</span>, <span class="code-var">score</span>)
+<span class="code-var">fmt</span>.<span class="code-func">Printf</span>(<span class="code-string">"Пи: %.2f\n"</span>, <span class="code-var">pi</span>)        <span class="code-comment">// 3.14</span>
+<span class="code-var">fmt</span>.<span class="code-func">Printf</span>(<span class="code-string">"Тип: %T\n"</span>, <span class="code-var">score</span>)      <span class="code-comment">// int</span>
+<span class="code-var">fmt</span>.<span class="code-func">Printf</span>(<span class="code-string">"Двоичный: %b\n"</span>, <span class="code-num">42</span>)    <span class="code-comment">// 101010</span></code></pre>
+    </div>
+  </div>
+
+  <!-- fmt.Sprintf -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ fmt.Sprintf — СТРОКА БЕЗ ВЫВОДА ]</h2>
+    <p class="section-text">
+      <code>fmt.Sprintf</code> работает как <code>fmt.Printf</code>, но вместо вывода на экран <strong>возвращает готовую строку</strong>. Полезно, когда нужно сформировать строку для дальнейшего использования.
+    </p>
+    <div class="code-block">
+      <span class="code-header">GO</span>
+      <pre><code><span class="code-var">hero</span> := <span class="code-string">"Марк"</span>
+<span class="code-var">hp</span>   := <span class="code-num">80</span>
+
+<span class="code-var">msg</span> := <span class="code-var">fmt</span>.<span class="code-func">Sprintf</span>(<span class="code-string">"Игрок %s — здоровье: %d%%"</span>, <span class="code-var">hero</span>, <span class="code-var">hp</span>)
+<span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-var">msg</span>)  <span class="code-comment">// Игрок Марк — здоровье: 80%</span></code></pre>
+    </div>
+    <div class="info-box yellow">
+      <span class="info-icon">₊⊹</span>
+      <div class="info-text">
+        <strong>%% — буквальный знак процента</strong><br/>
+        Чтобы вывести символ <code>%</code>, нужно написать <code>%%</code>. Одинарный <code>%</code> будет воспринят как начало форматного глагола.
+      </div>
+    </div>
+  </div>
+
+  <!-- ВВОД ДАННЫХ -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ ВВОД ДАННЫХ — fmt.Scan ]</h2>
+    <p class="section-text">
+      Для чтения данных от пользователя используется <code>fmt.Scan</code>. Она записывает введённое значение в переменную, адрес которой ты передаёшь через оператор <code>&amp;</code>.
+    </p>
+    <div class="code-block">
+      <span class="code-header">GO</span>
+      <pre><code><span class="code-kw">package</span> <span class="code-var">main</span>
+
+<span class="code-kw">import</span> <span class="code-string">"fmt"</span>
+
+<span class="code-kw">func</span> <span class="code-func">main</span>() {
+    <span class="code-kw">var</span> <span class="code-var">name</span> <span class="code-kw">string</span>
+    <span class="code-var">fmt</span>.<span class="code-func">Print</span>(<span class="code-string">"Введи имя: "</span>)
+    <span class="code-var">fmt</span>.<span class="code-func">Scan</span>(&amp;<span class="code-var">name</span>)
+    <span class="code-var">fmt</span>.<span class="code-func">Printf</span>(<span class="code-string">"Привет, %s!\n"</span>, <span class="code-var">name</span>)
+}</code></pre>
+    </div>
+    <div class="info-box green">
+      <span class="info-icon">₊⊹</span>
+      <div class="info-text">
+        <strong>&amp; — это указатель на переменную</strong><br/>
+        <code>fmt.Scan</code> нужен адрес переменной, чтобы записать в неё значение. Символ <code>&amp;</code> перед именем переменной возвращает её адрес в памяти — это один из фундаментальных механизмов Go.
+      </div>
+    </div>
+  </div>
+
+  <!-- ПОПРОБУЙ САМ -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ ПОПРОБУЙ САМ ]</h2>
+    <div class="challenge-box">
+      <div class="challenge-header">
+        <span class="challenge-icon">₊⊹</span>
+        <span class="block-title accent" style="margin:0">ЗАДАНИЕ</span>
+      </div>
+      <p class="challenge-text">
+        Создай переменные для игрового персонажа: имя, уровень, здоровье.<br/>
+        Выведи красивую карточку персонажа с помощью <code>fmt.Printf</code>:<br/>
+        <code>Имя: Марк | Уровень: 5 | HP: 100/100</code><br/><br/>
+        Используй форматные глаголы <code>%s</code> и <code>%d</code>.
+      </p>
+      <details class="challenge-hint">
+        <summary class="pixel-text">[ ПОКАЗАТЬ РЕШЕНИЕ ]</summary>
+        <div class="code-block" style="margin-top:12px">
+          <pre><code><span class="code-kw">package</span> <span class="code-var">main</span>
+
+<span class="code-kw">import</span> <span class="code-string">"fmt"</span>
+
+<span class="code-kw">func</span> <span class="code-func">main</span>() {
+    <span class="code-var">name</span>   := <span class="code-string">"Марк"</span>
+    <span class="code-var">level</span>  := <span class="code-num">5</span>
+    <span class="code-var">hp</span>     := <span class="code-num">100</span>
+    <span class="code-var">maxHp</span>  := <span class="code-num">100</span>
+
+    <span class="code-var">fmt</span>.<span class="code-func">Printf</span>(<span class="code-string">"Имя: %s | Уровень: %d | HP: %d/%d\n"</span>,
+        <span class="code-var">name</span>, <span class="code-var">level</span>, <span class="code-var">hp</span>, <span class="code-var">maxHp</span>)
+}</code></pre>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="theory-nav">
+    <a href="go-variables.html" class="btn-theory-nav pixel-text">◄ ПЕРЕМЕННЫЕ И ТИПЫ</a>
+    <a href="go-conditions.html" class="btn-theory-nav btn-theory-next pixel-text">УСЛОВИЯ ►</a>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <p class="pixel-text">GAME<span class="accent">CODE</span> &copy; 2026</p>
+  <p class="footer-sub">Изучай программирование в играх</p>
+</footer>
+
+<script src="../../js/pixels-bg.js"></script>
+<script>window.AUTH_ROOT = "../..";</script>
+<script src="../../js/auth.js"></script>
+<script>
+  const sidebar=document.getElementById('sidebar'),overlay=document.getElementById('overlay'),menuBtn=document.getElementById('menuBtn'),sidebarClose=document.getElementById('sidebarClose');
+  const open=()=>{sidebar.classList.add('open');overlay.classList.add('active');document.body.style.overflow='hidden';};
+  const close=()=>{sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';};
+  menuBtn.addEventListener('click',open);sidebarClose.addEventListener('click',close);overlay.addEventListener('click',close);
+  document.addEventListener('keydown',e=>e.key==='Escape'&&close());
+</script>
+</body>
+</html>

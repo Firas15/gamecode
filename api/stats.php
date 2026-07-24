@@ -10,9 +10,10 @@ header('Cache-Control: no-store');
 
 require_once __DIR__ . '/../includes/db.php';
 
-$users = readUsers();
+$rows = gamecode_pg_query_all('SELECT COUNT(*) AS cnt FROM users', []);
+$userCount = (int)($rows[0]['cnt'] ?? 0);
 
 echo json_encode([
     'ok'         => true,
-    'user_count' => count($users),
+    'user_count' => $userCount,
 ]);

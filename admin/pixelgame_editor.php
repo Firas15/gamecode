@@ -702,67 +702,37 @@ const TOOLS = [
 // ─────────────────────────────────────────
 //  DEFAULT MAPS (LEVELS)
 // ─────────────────────────────────────────
+// Карта 21×21 совпадает с MAP_DEFAULT в games/pixelgame/js/game.js
+// Формат: 0=пол, 1=стена, 2=игрок, 3=финиш, 4=враг, 5=сундук, 7=ловушка
+const GAME_MAP_21x21 = [
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [1,2,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,1],
+  [1,0,1,0,1,0,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1],
+  [1,0,1,0,1,0,1,0,4,0,1,0,5,0,1,0,1,0,0,0,1],
+  [1,0,1,0,0,0,1,0,1,0,1,0,1,1,1,0,1,1,1,0,1],
+  [1,0,1,1,1,1,1,0,1,0,1,0,0,0,1,0,0,0,1,0,1],
+  [1,0,0,0,0,0,1,0,1,0,1,1,1,0,1,0,1,0,1,0,1],
+  [1,0,1,1,1,0,1,0,1,0,0,0,1,0,1,0,1,0,4,0,1],
+  [1,0,1,0,5,0,1,0,1,0,4,0,1,0,1,0,1,1,1,1,1],
+  [1,0,1,0,1,1,1,0,1,0,0,0,1,0,1,0,0,0,0,0,1],
+  [1,0,1,0,0,0,0,0,1,1,1,1,1,0,1,1,1,1,1,0,1],
+  [1,0,1,1,1,1,1,1,1,0,0,0,1,0,4,0,0,0,1,0,1],
+  [1,0,0,0,0,0,0,0,1,0,1,0,1,0,1,1,1,0,5,0,1],
+  [1,0,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],
+  [1,0,4,0,1,0,5,0,1,0,1,0,1,0,0,0,1,0,1,0,1],
+  [1,0,1,0,1,0,1,1,1,0,1,0,1,1,1,1,1,0,1,0,1],
+  [1,0,1,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,5,0,1],
+  [1,0,1,0,1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1],
+  [1,0,1,0,0,0,0,0,0,0,0,0,1,0,4,0,1,0,0,0,1],
+  [1,0,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,3,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+];
+
 const DEFAULT_LEVELS = [
-  {
-    name: 'Level 1',
-    map: [
-      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-      [1,2,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
-      [1,0,1,1,0,1,1,1,0,0,1,0,1,1,0,0,0,1,0,1],
-      [1,0,1,0,0,0,0,1,0,0,0,0,0,1,0,1,0,1,0,1],
-      [1,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1],
-      [1,0,1,0,1,1,1,0,1,1,0,1,1,0,1,1,1,0,0,1],
-      [1,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0,1,0,4,1],
-      [1,0,1,1,1,0,1,1,1,0,1,1,1,1,1,0,1,0,0,1],
-      [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-      [1,0,1,0,1,1,0,1,0,1,0,1,0,1,1,0,1,0,0,1],
-      [1,5,1,0,1,0,0,1,0,0,0,1,0,0,1,0,1,0,4,1],
-      [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1],
-      [1,0,1,1,1,0,1,1,0,1,0,1,1,0,1,1,0,1,0,1],
-      [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,1],
-      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    ]
-  },
-  {
-    name: 'Level 2',
-    map: [
-      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-      [1,2,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1],
-      [1,0,1,0,1,0,1,1,1,0,1,1,1,0,1,0,1,1,0,1],
-      [1,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0,1],
-      [1,0,1,1,1,0,1,0,1,1,1,0,1,1,1,0,0,1,0,1],
-      [1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
-      [1,1,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,1],
-      [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,1],
-      [1,0,1,1,0,1,1,1,0,1,0,1,1,1,0,1,1,0,0,1],
-      [1,5,1,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,1],
-      [1,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,5,0,1],
-      [1,0,1,0,1,1,0,1,0,1,0,1,0,1,1,0,1,1,0,1],
-      [1,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,4,1],
-      [1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,3,1],
-      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    ]
-  },
-  {
-    name: 'Level 3',
-    map: [
-      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-      [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-      [1,0,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,0,0,1],
-      [1,0,1,0,0,0,0,1,0,1,0,1,0,0,0,0,1,0,0,1],
-      [1,2,1,0,1,1,0,1,0,0,0,1,0,1,1,0,1,0,0,1],
-      [1,0,1,0,1,0,0,0,0,1,0,0,0,0,1,0,1,0,5,1],
-      [1,0,0,0,1,0,1,1,0,1,0,1,1,0,1,0,0,0,0,1],
-      [1,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0,1,0,0,1],
-      [1,0,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,0,4,1],
-      [1,0,1,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,1],
-      [1,0,0,0,1,0,1,1,0,1,0,1,1,0,1,0,0,0,0,1],
-      [1,0,1,1,1,0,0,1,0,0,0,1,0,0,1,0,1,4,0,1],
-      [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1],
-      [1,0,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,0,3,1],
-      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    ]
-  },
+  { name: 'Level 1', map: GAME_MAP_21x21 },
+  { name: 'Level 2', map: GAME_MAP_21x21 },
+  { name: 'Level 3', map: GAME_MAP_21x21 },
+  { name: 'Level 4', map: GAME_MAP_21x21 },
 ];
 
 // ─────────────────────────────────────────
@@ -961,6 +931,125 @@ function paintAt(e) {
     renderMap();
     updateStats();
   }
+}
+
+// ── GAME-ACCURATE RENDERER (textures removed, restored to original) ──
+const TS = 48;
+let edTexWall = null, edTexFloor = null, edTexFloorB = null;
+
+function buildEdTextures() {
+  // Стена — точная копия buildWallTex() из игры
+  const wc = document.createElement('canvas'); wc.width=TS; wc.height=TS;
+  const wx = wc.getContext('2d');
+  wx.fillStyle='#0e1928'; wx.fillRect(0,0,TS,TS);
+  const bH=11, bW=TS/2+1;
+  for(let row=0;row<Math.ceil(TS/bH)+1;row++){
+    const off=(row%2)*bW/2;
+    for(let col=-1;col<3;col++){
+      const bx=col*bW+off, by=row*bH, lum=13+(row*3+col*2)%6;
+      wx.fillStyle=`hsl(220,42%,${lum}%)`; wx.fillRect(bx+1,by+1,bW-2,bH-2);
+      wx.fillStyle='#050c18'; wx.fillRect(bx,by,bW,1); wx.fillRect(bx,by,1,bH);
+      wx.fillStyle='rgba(255,255,255,0.04)'; wx.fillRect(bx+2,by+2,4,2);
+    }
+  }
+  const gw=wx.createLinearGradient(0,0,0,9);
+  gw.addColorStop(0,'rgba(0,229,255,0.2)'); gw.addColorStop(1,'rgba(0,229,255,0)');
+  wx.fillStyle=gw; wx.fillRect(0,0,TS,9);
+  wx.strokeStyle='rgba(0,229,255,0.08)'; wx.lineWidth=1; wx.strokeRect(0,0,TS,TS);
+  edTexWall = wc;
+
+  // Пол — точная копия buildFloorTex() из игры
+  function mkFloor(alt){
+    const fc=document.createElement('canvas'); fc.width=TS; fc.height=TS;
+    const fx=fc.getContext('2d');
+    fx.fillStyle=alt?'#080f1a':'#0a1422'; fx.fillRect(0,0,TS,TS);
+    fx.strokeStyle='rgba(0,229,255,0.08)'; fx.lineWidth=1; fx.strokeRect(2,2,TS-4,TS-4);
+    const corner=(bx,by)=>{ fx.fillStyle='rgba(0,229,255,0.14)'; fx.fillRect(bx,by,3,3); };
+    corner(3,3); corner(TS-6,3); corner(3,TS-6); corner(TS-6,TS-6);
+    if(!alt){
+      fx.strokeStyle='rgba(0,229,255,0.04)'; fx.lineWidth=1;
+      fx.beginPath(); fx.moveTo(0,TS); fx.lineTo(TS,0); fx.stroke();
+      fx.beginPath(); fx.moveTo(TS/2,0); fx.lineTo(TS,TS/2); fx.stroke();
+    }
+    fx.fillStyle=alt?'rgba(178,75,255,0.07)':'rgba(0,229,255,0.06)';
+    fx.beginPath(); fx.arc(TS/2,TS/2,2,0,Math.PI*2); fx.fill();
+    return fc;
+  }
+  edTexFloor = mkFloor(false);
+  edTexFloorB = mkFloor(true);
+}
+
+function drawEdChest(ctx, x, y) {
+  const S=CELL/TS;
+  ctx.save(); ctx.translate(x,y); ctx.scale(S,S);
+  ctx.fillStyle='rgba(255,214,0,0.14)'; ctx.beginPath(); ctx.arc(TS/2,TS/2,26,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#5c3d11'; ctx.fillRect(5,16,TS-10,TS-20);
+  ctx.fillStyle='#c89a30'; ctx.fillRect(5,TS-8,TS-10,3);
+  ctx.fillStyle='#7a5219'; ctx.fillRect(5,10,TS-10,9);
+  ctx.fillStyle='#c89a30'; ctx.fillRect(5,10,TS-10,2); ctx.fillRect(5,17,TS-10,2);
+  ctx.fillStyle='#ffd600'; ctx.fillRect(TS/2-5,14,10,10);
+  ctx.fillStyle='#fff176'; ctx.fillRect(TS/2-3,15,4,4);
+  ctx.fillStyle='#ffd600'; ctx.font='bold 11px "Press Start 2P"'; ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+  ctx.fillText('?',TS/2,-2);
+  ctx.restore();
+}
+
+function drawEdTrap(ctx, x, y) {
+  const S=CELL/TS;
+  ctx.save(); ctx.translate(x,y); ctx.scale(S,S);
+  ctx.fillStyle='rgba(0,0,0,0.75)'; ctx.fillRect(4,4,TS-8,TS-8);
+  ctx.fillStyle='rgba(255,77,109,0.25)'; ctx.fillRect(4,4,TS-8,TS-8);
+  ctx.strokeStyle='rgba(255,77,109,0.75)'; ctx.lineWidth=2; ctx.setLineDash([4,4]);
+  ctx.strokeRect(4,4,TS-8,TS-8); ctx.setLineDash([]);
+  ctx.fillStyle='rgba(255,77,109,0.95)'; ctx.font='14px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('⚠',TS/2,TS/2);
+  ctx.restore();
+}
+
+function drawEdFinish(ctx, x, y) {
+  const S=CELL/TS;
+  ctx.save(); ctx.translate(x,y); ctx.scale(S,S);
+  ctx.strokeStyle='rgba(57,255,20,0.8)'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.arc(TS/2,TS/2,22,0,Math.PI*1.5); ctx.stroke();
+  ctx.fillStyle='rgba(57,255,20,0.15)'; ctx.beginPath(); ctx.arc(TS/2,TS/2,16,0,Math.PI*2); ctx.fill();
+  ctx.font='20px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('🏆',TS/2,TS/2);
+  ctx.fillStyle='#39ff14'; ctx.font='6px "Press Start 2P"'; ctx.textBaseline='alphabetic';
+  ctx.fillText('ФИНАЛ',TS/2,-6);
+  ctx.restore();
+}
+
+function drawEdMonster(ctx, x, y, type) {
+  const S=CELL/TS;
+  ctx.save(); ctx.translate(x,y); ctx.scale(S,S);
+  ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(TS/2,TS-3,11,4,0,0,Math.PI*2); ctx.fill();
+  const cfg=[
+    {d:'rgba(0,255,100,0.15)',  dark:'#003a18', light:'#005530', eyes:'#00ff88'},
+    {d:'rgba(255,100,180,0.15)',dark:'#44002a', light:'#660040', eyes:'#ff69b4'},
+    {d:'rgba(0,229,255,0.15)',  dark:'#003a44', light:'#005566', eyes:'#00ffff'},
+  ][type]||{d:'rgba(0,255,100,0.15)',dark:'#003a18',light:'#005530',eyes:'#00ff88'};
+  ctx.fillStyle=cfg.d;
+  for(let i=0;i<6;i++) ctx.fillRect(4+(i*13%5)*8,2+(i*7%5)*8,6,6);
+  ctx.fillStyle=cfg.dark; ctx.fillRect(8,6,24,26);
+  ctx.fillStyle=cfg.light; ctx.fillRect(10,4,20,24);
+  ctx.fillStyle=cfg.light;
+  ctx.fillRect(8,28,8,6); ctx.fillRect(20,28,8,6); ctx.fillRect(32,28,8,6);
+  ctx.fillStyle=cfg.dark; ctx.fillRect(16,28,4,4); ctx.fillRect(28,28,4,4);
+  ctx.fillStyle=cfg.eyes;
+  [[13,10],[23,10]].forEach(([ex,ey])=>{ ctx.fillRect(ex,ey,2,6); ctx.fillRect(ex-2,ey+2,6,2); });
+  ctx.restore();
+}
+
+function drawEdPlayer(ctx, x, y) {
+  const S=CELL/TS;
+  ctx.save(); ctx.translate(x,y); ctx.scale(S,S);
+  ctx.fillStyle='rgba(34,197,94,0.15)'; ctx.beginPath(); ctx.arc(TS/2,TS/2,22,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='rgba(34,197,94,0.7)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(TS/2,TS/2,18,0,Math.PI*2); ctx.stroke();
+  ctx.fillStyle='#22c55e'; ctx.font='bold 14px "Press Start 2P"';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('P',TS/2,TS/2);
+  ctx.restore();
 }
 
 function renderMap() {

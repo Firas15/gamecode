@@ -59,7 +59,7 @@ function ai_tokenize(string $text): array {
 }
 
 function ai_load_faq_map(): array {
-    $items = gamecode_chat_faq_load_items();
+    $items = cached_load_faq();
     $faqMap = [];
 
     foreach ($items as $entry) {

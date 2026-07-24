@@ -26,49 +26,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// Считаем статистику из Postgres
-$allScores  = readScores();
-$userId     = (int)$user['id'];
-
-$gamesPlayed = (int)($user['games_played'] ?? 0); // счётчик запусков из ping-game
-
-$bestPerGame = [];
-foreach ($allScores as $entry) {
-    if ((int)$entry['user_id'] === $userId) {
-        $gid = $entry['game_id'];
-        if (!isset($bestPerGame[$gid]) || (int)$entry['score'] > $bestPerGame[$gid]) {
-            $bestPerGame[$gid] = (int)$entry['score'];
-        }
-    }
-}
-$bestScore = array_sum($bestPerGame);
+// Считаем статистику из Postgres — только записи текущего пользователя
+$userId      = (int)$user['id'];
+$gamesPlayed = (int)($user['games_played'] ?? 0);
 
 $gameLabels = [
     'sorter'      => 'Сортировщик',
     'network'     => 'Сетевой маршрут',
     'millionaire' => 'Кто хочет стать программистом',
+    'pixelgame'   => 'Внутри компьютера',
 ];
 $gameColors = [
     'total'       => '#00e5ff',
     'sorter'      => '#39ff14',
     'network'     => '#f5d800',
     'millionaire' => '#ff4d6d',
+    'pixelgame'   => '#bf5af2',
 ];
 
-$userScoreEntries = [];
-foreach ($allScores as $entry) {
-    $gameId = (string)($entry['game_id'] ?? '');
-    if ((int)($entry['user_id'] ?? 0) !== $userId || !isset($gameLabels[$gameId])) {
-        continue;
-    }
-    $userScoreEntries[] = $entry;
-}
+// Грузим только записи текущего пользователя (не все 9000+ строк)
+$userScoreRows = gamecode_pg_query_all(
+    'SELECT game_id, score, created_at, updated_at FROM scores
+     WHERE user_id = $1 AND game_id = ANY($2)
+     ORDER BY id ASC',
+    [$userId, '{' . implode(',', array_keys($gameLabels)) . '}']
+);
+if (!is_array($userScoreRows)) $userScoreRows = [];
 
-usort($userScoreEntries, static function (array $a, array $b): int {
-    $cmp = strcmp((string)($a['created_at'] ?? ''), (string)($b['created_at'] ?? ''));
-    if ($cmp !== 0) return $cmp;
-    return strcmp((string)($a['updated_at'] ?? ''), (string)($b['updated_at'] ?? ''));
-});
+$bestPerGame = [];
+foreach ($userScoreRows as $entry) {
+    $gid = (string)($entry['game_id'] ?? '');
+    $sc  = (int)($entry['score'] ?? 0);
+    if (!isset($bestPerGame[$gid]) || $sc > $bestPerGame[$gid]) {
+        $bestPerGame[$gid] = $sc;
+    }
+}
+$bestScore = array_sum($bestPerGame);
+
+$userScoreEntries = $userScoreRows;
 
 function gc_sample_progress_series(array $series, int $maxPoints = 28): array {
     $count = count($series);
@@ -139,9 +134,58 @@ $progressChartData = [
     'series'   => $progressChartSeries,
 ];
 
+// ── Ранги в лидерборде ──
+function gc_rank_color(int $rank): string {
+    if ($rank === 1) return '#ffd700';
+    if ($rank === 2) return '#c0c0c0';
+    if ($rank === 3) return '#cd7f32';
+    return 'var(--cyan, #00e5ff)';
+}
+
+// Ранги через тот же SQL что и build_leaderboard_from_db в redis.php
+// JOIN users гарантирует что считаем только реальных пользователей
+$ranksByGame = [];
+foreach (array_keys($gameLabels) as $gid) {
+    $rows = gamecode_pg_query_all(
+        'SELECT rnk FROM (
+            SELECT s.user_id, ROW_NUMBER() OVER (ORDER BY SUM(s.score) DESC) AS rnk
+            FROM scores s
+            JOIN users u ON u.id = s.user_id
+            WHERE s.game_id = $1
+            GROUP BY s.user_id
+         ) t WHERE user_id = $2',
+        [$gid, $userId]
+    );
+    if (!empty($rows[0]['rnk'])) {
+        $ranksByGame[$gid] = (int)$rows[0]['rnk'];
+    }
+}
+
+// Общий ранг — как leaderboard?game=all
+$rows = gamecode_pg_query_all(
+    'SELECT rnk FROM (
+        SELECT s.user_id, ROW_NUMBER() OVER (ORDER BY SUM(s.score) DESC) AS rnk
+        FROM scores s
+        JOIN users u ON u.id = s.user_id
+        WHERE s.user_id IS NOT NULL
+        GROUP BY s.user_id
+     ) t WHERE user_id = $1',
+    [$userId]
+);
+$overallRank = !empty($rows[0]['rnk']) ? (int)$rows[0]['rnk'] : null;
+
+// ── История последних 10 попыток — SQL с сортировкой и лимитом ──
+$recentRows = gamecode_pg_query_all(
+    'SELECT game_id, score, created_at FROM scores
+     WHERE user_id = $1 AND game_id = ANY($2)
+     ORDER BY id DESC LIMIT 10',
+    [$userId, '{' . implode(',', array_keys($gameLabels)) . '}']
+);
+$recentAttempts = is_array($recentRows) ? $recentRows : [];
+
 $avatars  = ['avatar1','avatar2','avatar3','avatar4','avatar5'];
 $langs    = ['','Python','C++','JavaScript','Java','Go','Rust','TypeScript','C#','PHP','Kotlin'];
-$games    = ['','Кто хочет стать программистом','Сетевой маршрут','Сортировщик'];
+$games    = ['','Кто хочет стать программистом','Сетевой маршрут','Сортировщик','Внутри компьютера'];
 $regDate  = date('d.m.Y', strtotime($user['created_at']));
 ?>
 <!DOCTYPE html>
@@ -240,8 +284,46 @@ $regDate  = date('d.m.Y', strtotime($user['created_at']));
           <div class="pstat-val pixel-text cyan"><?= $regDate ?></div>
           <div class="pstat-label pixel-text">Дата регистрации</div>
         </div>
+        <?php if ($overallRank !== null): ?>
+        <div class="profile-stat">
+          <div class="pstat-val pixel-text" style="color:<?= gc_rank_color($overallRank) ?>">#<?= $overallRank ?></div>
+          <div class="pstat-label pixel-text">Место в рейтинге</div>
+        </div>
+        <?php endif; ?>
       </div>
     </div>
+
+    <!-- Очки по играм -->
+    <?php if (!empty($bestPerGame)): ?>
+    <div class="content-block yellow-accent" style="animation-delay:0.03s">
+      <h2 class="block-title yellow">[ ОЧКИ ПО ИГРАМ ]</h2>
+      <div class="profile-game-cards">
+        <?php foreach ($gameLabels as $gid => $glabel): ?>
+        <?php $hasStat = isset($bestPerGame[$gid]) && $bestPerGame[$gid] > 0; ?>
+        <div class="profile-game-card <?= $hasStat ? '' : 'profile-game-card--empty' ?>">
+          <div class="pgc-top">
+            <span class="pgc-swatch" style="background:<?= $gameColors[$gid] ?>"></span>
+            <span class="pgc-name pixel-text"><?= htmlspecialchars($glabel) ?></span>
+          </div>
+          <?php if ($hasStat): ?>
+            <div class="pgc-score pixel-text" style="color:<?= $gameColors[$gid] ?>"><?= number_format($bestPerGame[$gid], 0, '.', ' ') ?></div>
+            <div class="pgc-meta pixel-text">
+              <?php if (isset($ranksByGame[$gid])): ?>
+              <span style="color:<?= gc_rank_color($ranksByGame[$gid]) ?>">#<?= $ranksByGame[$gid] ?> в рейтинге</span>
+              <?php endif; ?>
+              <?php if (!empty($progressAttemptsByGame[$gid])): ?>
+              &nbsp;·&nbsp;<?= $progressAttemptsByGame[$gid] ?> попыт.
+              <?php endif; ?>
+            </div>
+          <?php else: ?>
+            <div class="pgc-score pixel-text pgc-score--none">—</div>
+            <div class="pgc-meta pixel-text">ещё не играл</div>
+          <?php endif; ?>
+        </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
+    <?php endif; ?>
 
     <div class="content-block green-accent" style="animation-delay:0.05s">
       <h2 class="block-title green">[ ПРОГРЕСС ПО ОЧКАМ ]</h2>
@@ -300,6 +382,30 @@ $regDate  = date('d.m.Y', strtotime($user['created_at']));
       </div>
       <?php endif; ?>
     </div>
+
+    <!-- Последние игры -->
+    <?php if (!empty($recentAttempts)): ?>
+    <div class="content-block" style="animation-delay:0.08s; border-color:rgba(0,229,255,0.2);">
+      <h2 class="block-title cyan">[ ПОСЛЕДНИЕ ИГРЫ ]</h2>
+      <div class="profile-history">
+        <?php foreach ($recentAttempts as $attempt): ?>
+        <?php
+            $hgid  = (string)($attempt['game_id'] ?? '');
+            $hname = $gameLabels[$hgid] ?? $hgid;
+            $hcol  = $gameColors[$hgid] ?? '#00e5ff';
+            $hsc   = (int)($attempt['score'] ?? 0);
+            $hdate = !empty($attempt['created_at']) ? date('d.m.Y  H:i', strtotime($attempt['created_at'])) : '—';
+        ?>
+        <div class="profile-history-row">
+          <span class="ph-dot" style="background:<?= $hcol ?>"></span>
+          <span class="ph-game pixel-text" style="color:<?= $hcol ?>"><?= htmlspecialchars($hname) ?></span>
+          <span class="ph-score pixel-text"><?= number_format($hsc, 0, '.', ' ') ?></span>
+          <span class="ph-date pixel-text"><?= $hdate ?></span>
+        </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
+    <?php endif; ?>
 
     <!-- О себе (только чтение если пусто, иначе показываем) -->
     <?php if (!empty($user['bio']) || !empty($user['favorite_lang'])): ?>

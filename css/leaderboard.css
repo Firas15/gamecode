@@ -131,39 +131,45 @@
     border-color: #00e5ff;
 }
 
-/* Вкладки игр */
-.lb-tabs {
+/* Выпадающий список игр */
+.lb-select-wrap {
     display: flex;
     justify-content: center;
-    gap: 8px;
-    flex-wrap: wrap;
     padding: 28px 16px 0;
 }
 
-.lb-tab {
+.lb-select {
     font-family: 'Press Start 2P', monospace;
     font-size: 8px;
-    padding: 8px 14px;
-    background: transparent;
-    border: 1px solid rgba(0,229,255,0.25);
-    color: rgba(0,229,255,0.6);
-    cursor: pointer;
-    border-radius: 3px;
     letter-spacing: 1px;
-    transition: all 0.2s;
-}
-
-.lb-tab:hover {
-    border-color: rgba(0,229,255,0.6);
-    color: #00e5ff;
+    padding: 10px 40px 10px 16px;
     background: rgba(0,229,255,0.06);
+    border: 1px solid rgba(0,229,255,0.35);
+    color: #00e5ff;
+    border-radius: 3px;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2300e5ff' stroke-width='1.5' fill='none' stroke-linecap='square'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    min-width: 280px;
+    max-width: 100%;
 }
 
-.lb-tab.active {
+.lb-select:hover,
+.lb-select:focus {
     border-color: #00e5ff;
-    color: #00e5ff;
-    background: rgba(0,229,255,0.1);
     box-shadow: 0 0 12px rgba(0,229,255,0.15);
+}
+
+.lb-select option {
+    background: #0a1628;
+    color: #e0f7fa;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
 }
 
 /* Таблица */
@@ -311,22 +317,14 @@
 }
 
 @media (max-width: 700px) {
-    .lb-tabs {
-        justify-content: center;
-        flex-wrap: wrap;
-        overflow-x: hidden;
+    .lb-select-wrap {
         padding: 16px 12px 0;
-        gap: 6px;
     }
-    .lb-tab {
-        flex: 0 0 calc(50% - 3px);
-        max-width: calc(50% - 3px);
-        min-height: 44px;
+    .lb-select {
+        min-width: 0;
+        width: 100%;
         font-size: 7px;
-        padding: 8px 6px;
-        white-space: normal;
-        text-align: center;
-        line-height: 1.7;
+        padding: 10px 36px 10px 12px;
     }
     .lb-table {
         min-width: 480px;
@@ -457,19 +455,6 @@
     }
     .lb-page-title {
         font-size: clamp(13px, 4vw, 18px);
-    }
-
-    /* Вкладки на телефоне */
-    .lb-tabs {
-        padding: 10px 8px 0;
-        gap: 5px;
-    }
-    .lb-tab {
-        font-size: 6px;
-        padding: 7px 8px;
-        max-width: 80px;
-        min-height: 48px;
-        line-height: 1.9;
     }
 
     /* Спиннер и заглушка */

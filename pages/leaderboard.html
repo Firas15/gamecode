@@ -54,12 +54,14 @@
   </section>
 
   <main class="page-content">
-    <div class="lb-tabs">
-      <button class="lb-tab active" data-game="all">ВСЕ ИГРЫ</button>
-      <button class="lb-tab" data-game="sorter">СОРТИРОВЩИК</button>
-      <button class="lb-tab" data-game="network">СЕТЕВОЙ МАРШРУТ</button>
-      <button class="lb-tab" data-game="millionaire">КТО ХОЧЕТ СТАТЬ ПРОГРАММИСТОМ</button>
-      <button class="lb-tab" data-game="pixelgame">ВНУТРИ КОМПЬЮТЕРА</button>
+    <div class="lb-select-wrap">
+      <select id="lb-game-select" class="lb-select pixel-text">
+        <option value="all">ВСЕ ИГРЫ</option>
+        <option value="sorter">СОРТИРОВЩИК</option>
+        <option value="network">СЕТЕВОЙ МАРШРУТ</option>
+        <option value="millionaire">КТО ХОЧЕТ СТАТЬ ПРОГРАММИСТОМ</option>
+        <option value="pixelgame">ВНУТРИ КОМПЬЮТЕРА</option>
+      </select>
     </div>
 
     <div class="content-block yellow-accent">
@@ -207,14 +209,10 @@
         .replace(/"/g, '&quot;');
     }
 
-    document.querySelectorAll('.lb-tab').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.lb-tab').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentGame = btn.dataset.game;
-        document.getElementById('lb-block-title').textContent = GAME_TITLES[currentGame];
-        loadTable(currentGame);
-      });
+    document.getElementById('lb-game-select').addEventListener('change', function() {
+      currentGame = this.value;
+      document.getElementById('lb-block-title').textContent = GAME_TITLES[currentGame];
+      loadTable(currentGame);
     });
 
     loadTable('all').catch(err => {

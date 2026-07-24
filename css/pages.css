@@ -1063,3 +1063,109 @@
 }
 
 #pixelsBgCanvas { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+
+/* ── Profile: per-game cards ── */
+.profile-game-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin-top: 4px;
+}
+.profile-game-card {
+    background: rgba(0,229,255,0.04);
+    border: 1px solid rgba(0,229,255,0.15);
+    border-radius: 4px;
+    padding: 14px 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.profile-game-card--empty {
+    opacity: 0.5;
+}
+.pgc-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2px;
+}
+.pgc-swatch {
+    width: 8px;
+    height: 8px;
+    border-radius: 1px;
+    flex-shrink: 0;
+}
+.pgc-name {
+    font-size: 7px;
+    color: rgba(224,247,250,0.8);
+    line-height: 1.5;
+}
+.pgc-score {
+    font-size: 18px;
+    line-height: 1.1;
+    margin-top: 2px;
+}
+.pgc-score--none {
+    color: rgba(0,229,255,0.3) !important;
+}
+.pgc-meta {
+    font-size: 7px;
+    color: rgba(224,247,250,0.45);
+    line-height: 1.6;
+}
+
+/* ── Profile: history ── */
+.profile-history {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 4px;
+}
+.profile-history-row {
+    display: grid;
+    grid-template-columns: 10px 1fr auto auto;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 4px;
+    border-bottom: 1px solid rgba(0,229,255,0.07);
+}
+.profile-history-row:last-child {
+    border-bottom: none;
+}
+.ph-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 1px;
+    flex-shrink: 0;
+}
+.ph-game {
+    font-size: 7px;
+    line-height: 1.5;
+}
+.ph-score {
+    font-size: 8px;
+    color: #e0f7fa;
+    white-space: nowrap;
+    text-align: right;
+}
+.ph-date {
+    font-size: 7px;
+    color: rgba(224,247,250,0.4);
+    white-space: nowrap;
+    text-align: right;
+    min-width: 90px;
+}
+@media (max-width: 520px) {
+    .profile-game-cards {
+        grid-template-columns: 1fr 1fr;
+    }
+    .profile-history-row {
+        grid-template-columns: 8px 1fr auto;
+        grid-template-rows: auto auto;
+    }
+    .ph-date {
+        grid-column: 2 / -1;
+        text-align: left;
+        min-width: 0;
+    }
+}

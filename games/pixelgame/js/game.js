@@ -878,11 +878,24 @@ function drawChests(cam) {
   });
 }
 
+// Перемешивает варианты ответов (Fisher-Yates), возвращает новый массив и новый индекс правильного
+function shuffleOptions(options, correctIndex) {
+  const indexed = options.map((opt, i) => ({ opt, correct: i === correctIndex }));
+  for (let i = indexed.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indexed[i], indexed[j]] = [indexed[j], indexed[i]];
+  }
+  return {
+    options: indexed.map(x => x.opt),
+    correct: indexed.findIndex(x => x.correct),
+  };
+}
+
 // ═══ ВРАГИ — ПИКСЕЛЬНЫЕ ПЕРСОНАЖИ С АГРЕССИЕЙ ═══
 const AGGRO_RANGE   = TILE * 4.5;  // дистанция агра
 const DEAGGRO_RANGE = TILE * 7;    // дистанция сброса агра
 const ENEMY_SPEED   = 120;         // скорость при преследовании
-const PATROL_SPEED  = 45;          // скорость патруля
+const PATROL_SPEED  = 65;          // скорость патруля
 
 // Проверка прямой видимости: нет ли стены на пути от (x1,y1) до (x2,y2)
 function hasLineOfSight(x1, y1, x2, y2) {
@@ -926,19 +939,32 @@ function updateEnemyAI(e, dt) {
     if (!collides(nx,e.y)) e.x=nx; else { e.dx=0; }
     if (!collides(e.x,ny)) e.y=ny; else { e.dy=0; }
   } else {
-    // Патруль — случайное движение
-    e.moveTimer+=dt;
-    const period=1200+e.id.charCodeAt(1)*400;
-    if (e.moveTimer>period) {
-      e.moveTimer=0;
-      const dirs=[{dx:1,dy:0},{dx:-1,dy:0},{dx:0,dy:1},{dx:0,dy:-1},{dx:0,dy:0},{dx:0,dy:0}];
-      const d=dirs[Math.floor(Math.random()*dirs.length)];
-      e.dx=d.dx; e.dy=d.dy;
+    // Патруль — всегда двигается, меняет направление по таймеру или при ударе о стену
+    e.moveTimer += dt;
+    const period = 700 + (e.id.charCodeAt(1) % 6) * 90; // 700–1150 мс, у каждого монстра своё
+    if (e.moveTimer > period) {
+      e.moveTimer = 0;
+      const dirs = [{dx:1,dy:0},{dx:-1,dy:0},{dx:0,dy:1},{dx:0,dy:-1}];
+      const d = dirs[Math.floor(Math.random() * dirs.length)];
+      e.dx = d.dx; e.dy = d.dy;
     }
-    const speed=PATROL_SPEED*dt/1000;
-    const nx=e.x+e.dx*speed, ny=e.y+e.dy*speed;
-    if (!collides(nx,e.y)) e.x=nx; else e.dx*=-1;
-    if (!collides(e.x,ny)) e.y=ny; else e.dy*=-1;
+    const speed = PATROL_SPEED * dt / 1000;
+    const nx = e.x + e.dx * speed, ny = e.y + e.dy * speed;
+    const PATROL_DIRS = [{dx:1,dy:0},{dx:-1,dy:0},{dx:0,dy:1},{dx:0,dy:-1}];
+    if (!collides(nx, e.y)) {
+      e.x = nx;
+    } else {
+      const d = PATROL_DIRS[Math.floor(Math.random() * PATROL_DIRS.length)];
+      e.dx = d.dx; e.dy = d.dy;
+      e.moveTimer = period; // сразу перевыбрать на следующем кадре
+    }
+    if (!collides(e.x, ny)) {
+      e.y = ny;
+    } else {
+      const d = PATROL_DIRS[Math.floor(Math.random() * PATROL_DIRS.length)];
+      e.dx = d.dx; e.dy = d.dy;
+      e.moveTimer = period;
+    }
   }
 
   // Анимация
@@ -1277,11 +1303,12 @@ function openChest(chest) {
   document.getElementById('q-code').textContent=code;
   document.getElementById('q-hint').textContent='Ответь правильно — получишь часть кода!';
   const opts=document.getElementById('q-options'); opts.innerHTML='';
-  options.forEach((opt,i)=>{
+  const shuffled=shuffleOptions(options, correctIndex);
+  shuffled.options.forEach((opt,i)=>{
     const btn=document.createElement('button'); btn.className='q-opt'; btn.textContent=opt;
     btn.addEventListener('click',()=>{
       opts.querySelectorAll('.q-opt').forEach(b=>b.style.pointerEvents='none');
-      if(i===correctIndex){
+      if(i===shuffled.correct){
         Audio.correct();
         btn.classList.add('correct');
         document.getElementById('q-hint').textContent='Верно!';
@@ -1365,7 +1392,8 @@ startBattle = function(enemy) {
   const opts=document.getElementById('b-options');
   opts.innerHTML='';
 
-  q.options.forEach((opt,i)=>{
+  const shuffledB=shuffleOptions(q.options, q.correct);
+  shuffledB.options.forEach((opt,i)=>{
     const btn=document.createElement('button');
     btn.className='q-opt';
     btn.textContent=opt;
@@ -1373,7 +1401,7 @@ startBattle = function(enemy) {
     btn.addEventListener('click',()=>{
       opts.querySelectorAll('.q-opt').forEach(b=>b.style.pointerEvents='none');
 
-      if(i===q.correct){
+      if(i===shuffledB.correct){
         btn.classList.add('correct');
         Audio.correct();
         state.monsterBattlesWon++;
@@ -1472,7 +1500,8 @@ function updateHUD() {
   document.getElementById('score-count').textContent=`${state.score}/${state.totalChests}`;
   document.getElementById('hud-level').textContent=`УРОВЕНЬ ${state.currentLevel}`;
   const mult=[1.0,1.2,1.4,1.6][Math.min(state.currentLevel-1,3)];
-  const base=Math.max(0,state.score*20+state.hp*10+state.monsterBattlesWon*15-state.wrongChestAnswers*5);
+  const damageTaken=state.maxHp-state.hp;
+  const base=Math.max(0,state.score*20+state.monsterBattlesWon*15-damageTaken*15-state.wrongChestAnswers*15);
   document.getElementById('pts-count').textContent=Math.round(base*mult);
 }
 function updateInventory() {
@@ -1682,6 +1711,9 @@ function runProgram(){
   document.getElementById('result-output').textContent=getLevelFinal().output;
   renderFinalExplanation();
   document.getElementById('final-result').classList.remove('hidden');
+  // Показываем кнопку следующего уровня только если есть следующий
+  const nextBtn=document.getElementById('btn-next-level');
+  if(nextBtn) nextBtn.style.display=state.currentLevel<4?'':'none';
   setTimeout(()=>document.getElementById('final-result').scrollIntoView({behavior:'smooth'}),100);
   submitPixelgameScore();
 }
@@ -1861,6 +1893,14 @@ document.getElementById('btn-gameover-restart').addEventListener('click',async (
 });
 document.getElementById('btn-restart').addEventListener('click',()=>{cancelAnimationFrame(state.animFrame);showScreen('menu');
 initMenuAnimation();});
+document.getElementById('btn-next-level').addEventListener('click',async()=>{
+  Audio.click();
+  try {
+    await startLevel(state.currentLevel+1);
+  } catch(error) {
+    handleLevelLoadError(state.currentLevel+1, error);
+  }
+});
 
 renderLevelCards();
 showScreen('menu');

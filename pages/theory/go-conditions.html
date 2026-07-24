@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Условия — Go — Game Code</title>
+  <link rel="icon" href="../../img/ICON.PNG" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../css/style.css"/>
+  <link rel="stylesheet" href="../../css/pages.css"/>
+  <link rel="stylesheet" href="../../css/auth.css"/>
+  <link rel="stylesheet" href="theory-page.css"/>
+  <link rel="stylesheet" href="../../css/mobile.css"/>
+</head>
+<body>
+
+<div class="overlay" id="overlay"></div>
+<nav class="sidebar" id="sidebar">
+  <button class="sidebar-close" id="sidebarClose">х</button>
+  <div class="sidebar-logo"><span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span></div>
+  <ul class="sidebar-nav">
+    <li><a href="../../index.html"   class="sidebar-link">Все игры</a></li>
+    <li><a href="../leaderboard.html" class="sidebar-link">Лидеры</a></li>
+    <li><a href="../how-to-play.html" class="sidebar-link">Как играть</a></li>
+    <li><a href="../theory.html"      class="sidebar-link active">Теория</a></li>
+    <li><a href="../about.html"       class="sidebar-link">О нас</a></li>
+  </ul>
+  <div class="sidebar-footer"><span>V2.0 — GameCode</span></div>
+</nav>
+
+<header class="header">
+  <div class="header-left">
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <div class="site-title">
+      <a href="../../index.html" class="logo pixel-text" style="text-decoration:none">GAME<span class="accent">CODE</span></a>
+      <p class="tagline pixel-text">Изучай программирование в играх</p>
+    </div>
+  </div>
+  <div class="header-right"><div id="auth-widget"></div></div>
+</header>
+
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <p class="breadcrumb">
+      <a href="../../index.html">ГЛАВНАЯ</a> /
+      <a href="../theory.html">ТЕОРИЯ</a> /
+      <a href="../theory.html">GO</a> /
+      УСЛОВИЯ
+    </p>
+    <div class="theory-hero-emoji">₊⊹</div>
+    <h1 class="page-title accent">УСЛОВИЯ</h1>
+    <p class="page-subtitle pixel-text">if, else и switch в Go</p>
+    <div class="theory-tags">
+      <span class="ttag" style="color:var(--accent);border-color:var(--accent)">Go</span>
+      <span class="ttag ttag-level">Средний</span>
+    </div>
+  </div>
+</section>
+
+<main class="page-content theory-page-content">
+
+  <!-- IF И ELSE -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ IF И ELSE ]</h2>
+    <p class="section-text">
+      В Go скобки вокруг условия не нужны — это сделано для краткости. Однако фигурные скобки вокруг тела <strong>обязательны</strong>, даже если в нём одна строка.
+    </p>
+    <div class="code-block">
+      <span class="code-header">GO</span>
+      <pre><code><span class="code-var">hp</span> := <span class="code-num">30</span>
+
+<span class="code-kw">if</span> <span class="code-var">hp</span> &lt;= <span class="code-num">0</span> {
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Игра окончена!"</span>)
+} <span class="code-kw">else if</span> <span class="code-var">hp</span> &lt; <span class="code-num">50</span> {
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Мало здоровья!"</span>)
+} <span class="code-kw">else</span> {
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Всё в порядке"</span>)
+}</code></pre>
+    </div>
+    <div class="info-box yellow">
+      <span class="info-icon">₊⊹</span>
+      <div class="info-text">
+        <strong>Нет тернарного оператора!</strong><br/>
+        В Go нет конструкции <code>a ? b : c</code>. Всегда используй <code>if-else</code> — это сделано намеренно для читаемости и предсказуемости кода.
+      </div>
+    </div>
+  </div>
+
+  <!-- IF С ИНИЦИАЛИЗАТОРОМ -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ IF С ИНИЦИАЛИЗАТОРОМ ]</h2>
+    <p class="section-text">
+      Уникальная особенность Go — возможность объявить переменную прямо в заголовке <code>if</code>. Такая переменная видна только внутри этого блока <code>if-else</code> и нигде больше.
+    </p>
+    <div class="code-block">
+      <span class="code-header">GO</span>
+      <pre><code><span class="code-kw">if</span> <span class="code-var">score</span> := <span class="code-func">calculateScore</span>(); <span class="code-var">score</span> &gt; <span class="code-num">1000</span> {
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Рекорд!"</span>, <span class="code-var">score</span>)
+} <span class="code-kw">else</span> {
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Очки:"</span>, <span class="code-var">score</span>)
+}
+<span class="code-comment">// score здесь уже не существует — она за пределами видимости</span></code></pre>
+    </div>
+  </div>
+
+  <!-- SWITCH-CASE -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ SWITCH-CASE ]</h2>
+    <p class="section-text">
+      В Go <code>switch</code> не требует <code>break</code> — каждый <code>case</code> автоматически заканчивается после выполнения. Ключевое слово <code>fallthrough</code> явно продолжает выполнение в следующий <code>case</code>.
+    </p>
+    <div class="code-block">
+      <span class="code-header">GO</span>
+      <pre><code><span class="code-var">level</span> := <span class="code-num">3</span>
+
+<span class="code-kw">switch</span> <span class="code-var">level</span> {
+<span class="code-kw">case</span> <span class="code-num">1</span>:
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Лёгкий уровень"</span>)
+<span class="code-kw">case</span> <span class="code-num">2</span>, <span class="code-num">3</span>:
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Средний уровень"</span>)  <span class="code-comment">// срабатывает на 2 или 3</span>
+<span class="code-kw">case</span> <span class="code-num">4</span>:
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Сложный уровень"</span>)
+<span class="code-kw">default</span>:
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Неизвестный уровень"</span>)
+}</code></pre>
+    </div>
+  </div>
+
+  <!-- SWITCH БЕЗ ВЫРАЖЕНИЯ -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ SWITCH БЕЗ ВЫРАЖЕНИЯ ]</h2>
+    <p class="section-text">
+      <code>switch</code> можно использовать без выражения — тогда каждый <code>case</code> содержит произвольное условие. Это читается как цепочка <code>if-else</code>, но аккуратнее.
+    </p>
+    <div class="code-block">
+      <span class="code-header">GO</span>
+      <pre><code><span class="code-var">x</span> := <span class="code-num">42</span>
+
+<span class="code-kw">switch</span> {
+<span class="code-kw">case</span> <span class="code-var">x</span> &lt; <span class="code-num">0</span>:
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Отрицательное"</span>)
+<span class="code-kw">case</span> <span class="code-var">x</span> == <span class="code-num">0</span>:
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Ноль"</span>)
+<span class="code-kw">case</span> <span class="code-var">x</span> &gt; <span class="code-num">0</span> &amp;&amp; <span class="code-var">x</span> &lt; <span class="code-num">100</span>:
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Положительное до 100"</span>)
+<span class="code-kw">default</span>:
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"100 и больше"</span>)
+}</code></pre>
+    </div>
+    <div class="info-box yellow">
+      <span class="info-icon">₊⊹</span>
+      <div class="info-text">
+        <strong>switch без выражения — идиоматический Go</strong><br/>
+        Это один из самых чистых способов писать условия в Go. Опытные Go-разработчики предпочитают его длинным цепочкам <code>if-else if</code>.
+      </div>
+    </div>
+  </div>
+
+  <!-- ПОПРОБУЙ САМ -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ ПОПРОБУЙ САМ ]</h2>
+    <div class="challenge-box">
+      <div class="challenge-header">
+        <span class="challenge-icon">₊⊹</span>
+        <span class="block-title accent" style="margin:0">ЗАДАНИЕ</span>
+      </div>
+      <p class="challenge-text">
+        Напиши <code>switch</code>, который получает номер урока и выводит его название:<br/>
+        — 1 → "Основы"<br/>
+        — 2 → "Переменные"<br/>
+        — 3 → "Операторы"<br/>
+        — 4 → "Условия"<br/>
+        — иначе → "Неизвестный урок"
+      </p>
+      <details class="challenge-hint">
+        <summary class="pixel-text">[ ПОКАЗАТЬ РЕШЕНИЕ ]</summary>
+        <div class="code-block" style="margin-top:12px">
+          <pre><code><span class="code-kw">package</span> <span class="code-var">main</span>
+
+<span class="code-kw">import</span> <span class="code-string">"fmt"</span>
+
+<span class="code-kw">func</span> <span class="code-func">main</span>() {
+    <span class="code-var">lesson</span> := <span class="code-num">3</span>
+
+    <span class="code-kw">switch</span> <span class="code-var">lesson</span> {
+    <span class="code-kw">case</span> <span class="code-num">1</span>:
+        <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Основы"</span>)
+    <span class="code-kw">case</span> <span class="code-num">2</span>:
+        <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Переменные"</span>)
+    <span class="code-kw">case</span> <span class="code-num">3</span>:
+        <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Операторы"</span>)
+    <span class="code-kw">case</span> <span class="code-num">4</span>:
+        <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Условия"</span>)
+    <span class="code-kw">default</span>:
+        <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Неизвестный урок"</span>)
+    }
+}</code></pre>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="theory-nav">
+    <a href="go-fmt.html" class="btn-theory-nav pixel-text">◄ ВЫВОД И ФОРМАТИРОВАНИЕ</a>
+    <a href="go-loops.html" class="btn-theory-nav btn-theory-next pixel-text">ЦИКЛЫ ►</a>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <p class="pixel-text">GAME<span class="accent">CODE</span> &copy; 2026</p>
+  <p class="footer-sub">Изучай программирование в играх</p>
+</footer>
+
+<script src="../../js/pixels-bg.js"></script>
+<script>window.AUTH_ROOT = "../..";</script>
+<script src="../../js/auth.js"></script>
+<script>
+  const sidebar=document.getElementById('sidebar'),overlay=document.getElementById('overlay'),menuBtn=document.getElementById('menuBtn'),sidebarClose=document.getElementById('sidebarClose');
+  const open=()=>{sidebar.classList.add('open');overlay.classList.add('active');document.body.style.overflow='hidden';};
+  const close=()=>{sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';};
+  menuBtn.addEventListener('click',open);sidebarClose.addEventListener('click',close);overlay.addEventListener('click',close);
+  document.addEventListener('keydown',e=>e.key==='Escape'&&close());
+</script>
+</body>
+</html>

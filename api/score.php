@@ -201,8 +201,10 @@ function gc_compute_score(string $gameId, array $payload): array {
         $minMs = max(15000, $total * 4000 + $battlesAll * 2000);
         if ($elapsed < $minMs) return ['ok' => false, 'error' => 'Too fast'];
 
-        // Базовая формула из ТЗ + множитель сложности уровня
-        $base = ($chests * 20) + ($hp * 10) + ($battlesWon * 15) - ($wrong * 5);
+        // Базовая формула + множитель сложности уровня
+        // Старт с нуля: HP не бонус, а штраф за каждый полученный урон (-15)
+        $damageTaken = 5 - $hp; // maxHp всегда 5
+        $base = ($chests * 20) + ($battlesWon * 15) - ($damageTaken * 15) - ($wrong * 15);
         if ($base < 0) $base = 0;
         $multipliers = [1 => 1.0, 2 => 1.2, 3 => 1.4, 4 => 1.6];
         $score = (int)round($base * $multipliers[$level]);
@@ -233,13 +235,12 @@ if (empty($computed['ok'])) {
 $score = (int)$computed['score'];
 $meta = $computed['meta'] ?? [];
 
-$scores = readScores();
-$totalBeforeGame = 0;
-foreach ($scores as $entry) {
-    if ((int)($entry['user_id'] ?? 0) === $userId && (string)($entry['game_id'] ?? '') === $gameId) {
-        $totalBeforeGame += (int)($entry['score'] ?? 0);
-    }
-}
+// Сумма очков этого пользователя в этой игре ДО новой записи — SQL вместо readScores()
+$beforeRows = gamecode_pg_query_all(
+    'SELECT COALESCE(SUM(score), 0) AS total FROM scores WHERE user_id = $1 AND game_id = $2',
+    [$userId, $gameId]
+);
+$totalBeforeGame = (int)($beforeRows[0]['total'] ?? 0);
 
 $savedEntry = addScore($userId, $gameId, $score, $meta);
 if (!$savedEntry) {
@@ -250,13 +251,12 @@ if (!$savedEntry) {
 
 cache_invalidate_leaderboard($gameId);
 
-$allScores = readScores();
-$totalAll = 0;
-foreach ($allScores as $entry) {
-    if ((int)($entry['user_id'] ?? 0) === $userId) {
-        $totalAll += (int)($entry['score'] ?? 0);
-    }
-}
+// Сумма всех очков пользователя ПОСЛЕ сохранения — SQL вместо readScores()
+$afterRows = gamecode_pg_query_all(
+    'SELECT COALESCE(SUM(score), 0) AS total FROM scores WHERE user_id = $1',
+    [$userId]
+);
+$totalAll = (int)($afterRows[0]['total'] ?? 0);
 updateUser($userId, ['best_score' => $totalAll]);
 
 cache_invalidate_user($userId, $_SESSION['user_nickname'] ?? '');

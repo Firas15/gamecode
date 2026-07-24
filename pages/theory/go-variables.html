@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Переменные и типы — Go — Game Code</title>
+  <link rel="icon" href="../../img/ICON.PNG" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../css/style.css"/>
+  <link rel="stylesheet" href="../../css/pages.css"/>
+  <link rel="stylesheet" href="../../css/auth.css"/>
+  <link rel="stylesheet" href="theory-page.css"/>
+  <link rel="stylesheet" href="../../css/mobile.css"/>
+</head>
+<body>
+
+<div class="overlay" id="overlay"></div>
+<nav class="sidebar" id="sidebar">
+  <button class="sidebar-close" id="sidebarClose">х</button>
+  <div class="sidebar-logo"><span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span></div>
+  <ul class="sidebar-nav">
+    <li><a href="../../index.html"   class="sidebar-link">Все игры</a></li>
+    <li><a href="../leaderboard.html" class="sidebar-link">Лидеры</a></li>
+    <li><a href="../how-to-play.html" class="sidebar-link">Как играть</a></li>
+    <li><a href="../theory.html"      class="sidebar-link active">Теория</a></li>
+    <li><a href="../about.html"       class="sidebar-link">О нас</a></li>
+  </ul>
+  <div class="sidebar-footer"><span>V2.0 — GameCode</span></div>
+</nav>
+
+<header class="header">
+  <div class="header-left">
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <div class="site-title">
+      <a href="../../index.html" class="logo pixel-text" style="text-decoration:none">GAME<span class="accent">CODE</span></a>
+      <p class="tagline pixel-text">Изучай программирование в играх</p>
+    </div>
+  </div>
+  <div class="header-right"><div id="auth-widget"></div></div>
+</header>
+
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <p class="breadcrumb">
+      <a href="../../index.html">ГЛАВНАЯ</a> /
+      <a href="../theory.html">ТЕОРИЯ</a> /
+      <a href="../theory.html">GO</a> /
+      ПЕРЕМЕННЫЕ И ТИПЫ
+    </p>
+    <div class="theory-hero-emoji">₊⊹</div>
+    <h1 class="page-title accent">ПЕРЕМЕННЫЕ И ТИПЫ</h1>
+    <p class="page-subtitle pixel-text">Как хранить данные в Go</p>
+    <div class="theory-tags">
+      <span class="ttag" style="color:var(--accent);border-color:var(--accent)">Go</span>
+      <span class="ttag ttag-level">Новичок</span>
+    </div>
+  </div>
+</section>
+
+<main class="page-content theory-page-content">
+
+  <!-- ДВА СПОСОБА ОБЪЯВИТЬ ПЕРЕМЕННУЮ -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ ДВА СПОСОБА ОБЪЯВИТЬ ПЕРЕМЕННУЮ ]</h2>
+    <p class="section-text">
+      В Go есть два способа создать переменную: явное объявление через <code>var</code> (с указанием типа) и краткое объявление через <code>:=</code> (тип выводится автоматически).
+    </p>
+    <div class="code-block">
+      <span class="code-header">GO</span>
+      <pre><code><span class="code-comment">// Способ 1: var с типом</span>
+<span class="code-kw">var</span> <span class="code-var">age</span> <span class="code-kw">int</span> = <span class="code-num">17</span>
+<span class="code-kw">var</span> <span class="code-var">name</span> <span class="code-kw">string</span> = <span class="code-string">"Марк"</span>
+
+<span class="code-comment">// Способ 2: короткое объявление :=</span>
+<span class="code-var">score</span> := <span class="code-num">100</span>
+<span class="code-var">active</span> := <span class="code-bool">true</span>
+
+<span class="code-comment">// var без значения — нулевое значение</span>
+<span class="code-kw">var</span> <span class="code-var">hp</span> <span class="code-kw">int</span>       <span class="code-comment">// hp = 0</span>
+<span class="code-kw">var</span> <span class="code-var">title</span> <span class="code-kw">string</span> <span class="code-comment">// title = ""</span></code></pre>
+    </div>
+    <div class="info-box yellow">
+      <span class="info-icon">₊⊹</span>
+      <div class="info-text">
+        <strong>:= только внутри функций!</strong><br/>
+        Краткое объявление <code>:=</code> работает только внутри функций. На уровне пакета (вне функций) нужно использовать <code>var</code>.
+      </div>
+    </div>
+  </div>
+
+  <!-- ОСНОВНЫЕ ТИПЫ ДАННЫХ -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ ОСНОВНЫЕ ТИПЫ ДАННЫХ ]</h2>
+    <p class="section-text">Go — статически типизированный язык. Каждая переменная имеет строго определённый тип, который нельзя изменить после объявления.</p>
+    <div class="types-grid">
+      <div class="type-card">
+        <div class="type-name pixel-text">int</div>
+        <div class="type-desc">Целое число (64-bit)</div>
+        <div class="type-example">age := 25</div>
+      </div>
+      <div class="type-card">
+        <div class="type-name pixel-text">float64</div>
+        <div class="type-desc">Число с точкой</div>
+        <div class="type-example">pi := 3.14</div>
+      </div>
+      <div class="type-card">
+        <div class="type-name pixel-text">string</div>
+        <div class="type-desc">Строка (двойные кавычки)</div>
+        <div class="type-example">name := "Go"</div>
+      </div>
+      <div class="type-card">
+        <div class="type-name pixel-text">bool</div>
+        <div class="type-desc">Истина / ложь</div>
+        <div class="type-example">ok := true</div>
+      </div>
+      <div class="type-card">
+        <div class="type-name pixel-text">byte</div>
+        <div class="type-desc">Один байт (= uint8)</div>
+        <div class="type-example">b := byte('A')</div>
+      </div>
+      <div class="type-card">
+        <div class="type-name pixel-text">rune</div>
+        <div class="type-desc">Символ Unicode (= int32)</div>
+        <div class="type-example">r := 'Я'</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- НУЛЕВЫЕ ЗНАЧЕНИЯ -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ НУЛЕВЫЕ ЗНАЧЕНИЯ ]</h2>
+    <p class="section-text">
+      <strong>Важная особенность Go:</strong> переменные всегда инициализированы. Если ты объявляешь переменную без значения, Go автоматически присвоит ей нулевое значение для её типа.
+    </p>
+    <div class="code-block">
+      <span class="code-header">GO</span>
+      <pre><code><span class="code-kw">package</span> <span class="code-var">main</span>
+
+<span class="code-kw">import</span> <span class="code-string">"fmt"</span>
+
+<span class="code-kw">func</span> <span class="code-func">main</span>() {
+    <span class="code-kw">var</span> <span class="code-var">i</span> <span class="code-kw">int</span>
+    <span class="code-kw">var</span> <span class="code-var">f</span> <span class="code-kw">float64</span>
+    <span class="code-kw">var</span> <span class="code-var">s</span> <span class="code-kw">string</span>
+    <span class="code-kw">var</span> <span class="code-var">b</span> <span class="code-kw">bool</span>
+
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-var">i</span>)  <span class="code-comment">// 0</span>
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-var">f</span>)  <span class="code-comment">// 0</span>
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-var">s</span>)  <span class="code-comment">// "" (пустая строка)</span>
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-var">b</span>)  <span class="code-comment">// false</span>
+}</code></pre>
+    </div>
+    <div class="info-box green">
+      <span class="info-icon">₊⊹</span>
+      <div class="info-text">
+        <strong>Защита от undefined:</strong><br/>
+        Нулевые значения — защита от ошибок типа <code>undefined</code> или <code>null</code>, распространённых в других языках. В Go переменная всегда имеет корректное значение.
+      </div>
+    </div>
+  </div>
+
+  <!-- КОНСТАНТЫ -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ КОНСТАНТЫ ]</h2>
+    <p class="section-text">
+      Ключевое слово <code>const</code> объявляет неизменяемые значения. Особенность Go — специальный счётчик <code>iota</code> для создания перечислений: он автоматически увеличивается в каждой строке блока <code>const</code>.
+    </p>
+    <div class="code-block">
+      <span class="code-header">GO</span>
+      <pre><code><span class="code-kw">const</span> <span class="code-var">Pi</span> = <span class="code-num">3.14159</span>
+<span class="code-kw">const</span> (
+    <span class="code-var">StatusOK</span>       = <span class="code-num">200</span>
+    <span class="code-var">StatusNotFound</span> = <span class="code-num">404</span>
+)
+
+<span class="code-comment">// iota — автоматический счётчик</span>
+<span class="code-kw">const</span> (
+    <span class="code-var">Sunday</span>  = <span class="code-kw">iota</span>  <span class="code-comment">// 0</span>
+    <span class="code-var">Monday</span>           <span class="code-comment">// 1</span>
+    <span class="code-var">Tuesday</span>          <span class="code-comment">// 2</span>
+)</code></pre>
+    </div>
+  </div>
+
+  <!-- ПОПРОБУЙ САМ -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ ПОПРОБУЙ САМ ]</h2>
+    <div class="challenge-box">
+      <div class="challenge-header">
+        <span class="challenge-icon">₊⊹</span>
+        <span class="block-title accent" style="margin:0">ЗАДАНИЕ</span>
+      </div>
+      <p class="challenge-text">
+        Объяви переменные для игрового персонажа:<br/>
+        — имя (string)<br/>
+        — здоровье (int)<br/>
+        — уровень (int)<br/>
+        — активен ли (bool)<br/><br/>
+        Выведи их, а потом объяви такие же переменные без инициализации и выведи их нулевые значения.
+      </p>
+      <details class="challenge-hint">
+        <summary class="pixel-text">[ ПОКАЗАТЬ РЕШЕНИЕ ]</summary>
+        <div class="code-block" style="margin-top:12px">
+          <pre><code><span class="code-kw">package</span> <span class="code-var">main</span>
+
+<span class="code-kw">import</span> <span class="code-string">"fmt"</span>
+
+<span class="code-kw">func</span> <span class="code-func">main</span>() {
+    <span class="code-var">name</span>   := <span class="code-string">"Герой"</span>
+    <span class="code-var">hp</span>     := <span class="code-num">100</span>
+    <span class="code-var">level</span>  := <span class="code-num">1</span>
+    <span class="code-var">active</span> := <span class="code-bool">true</span>
+
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-var">name</span>, <span class="code-var">hp</span>, <span class="code-var">level</span>, <span class="code-var">active</span>)
+
+    <span class="code-comment">// Нулевые значения</span>
+    <span class="code-kw">var</span> <span class="code-var">emptyName</span>   <span class="code-kw">string</span>
+    <span class="code-kw">var</span> <span class="code-var">emptyHp</span>     <span class="code-kw">int</span>
+    <span class="code-kw">var</span> <span class="code-var">emptyActive</span> <span class="code-kw">bool</span>
+
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-var">emptyName</span>, <span class="code-var">emptyHp</span>, <span class="code-var">emptyActive</span>)
+    <span class="code-comment">// "" 0 false</span>
+}</code></pre>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="theory-nav">
+    <a href="go-basics.html" class="btn-theory-nav pixel-text">◄ СТРУКТУРА ПРОГРАММЫ</a>
+    <a href="go-fmt.html" class="btn-theory-nav btn-theory-next pixel-text">ВЫВОД И ФОРМАТИРОВАНИЕ ►</a>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <p class="pixel-text">GAME<span class="accent">CODE</span> &copy; 2026</p>
+  <p class="footer-sub">Изучай программирование в играх</p>
+</footer>
+
+<script src="../../js/pixels-bg.js"></script>
+<script>window.AUTH_ROOT = "../..";</script>
+<script src="../../js/auth.js"></script>
+<script>
+  const sidebar=document.getElementById('sidebar'),overlay=document.getElementById('overlay'),menuBtn=document.getElementById('menuBtn'),sidebarClose=document.getElementById('sidebarClose');
+  const open=()=>{sidebar.classList.add('open');overlay.classList.add('active');document.body.style.overflow='hidden';};
+  const close=()=>{sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';};
+  menuBtn.addEventListener('click',open);sidebarClose.addEventListener('click',close);overlay.addEventListener('click',close);
+  document.addEventListener('keydown',e=>e.key==='Escape'&&close());
+</script>
+</body>
+</html>

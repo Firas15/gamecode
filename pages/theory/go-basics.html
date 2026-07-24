@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Структура программы Go — Game Code</title>
+  <link rel="icon" href="../../img/ICON.PNG" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../css/style.css"/>
+  <link rel="stylesheet" href="../../css/pages.css"/>
+  <link rel="stylesheet" href="../../css/auth.css"/>
+  <link rel="stylesheet" href="theory-page.css"/>
+  <link rel="stylesheet" href="../../css/mobile.css"/>
+</head>
+<body>
+
+<div class="overlay" id="overlay"></div>
+<nav class="sidebar" id="sidebar">
+  <button class="sidebar-close" id="sidebarClose">х</button>
+  <div class="sidebar-logo"><span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span></div>
+  <ul class="sidebar-nav">
+    <li><a href="../../index.html"   class="sidebar-link">Все игры</a></li>
+    <li><a href="../leaderboard.html" class="sidebar-link">Лидеры</a></li>
+    <li><a href="../how-to-play.html" class="sidebar-link">Как играть</a></li>
+    <li><a href="../theory.html"      class="sidebar-link active">Теория</a></li>
+    <li><a href="../about.html"       class="sidebar-link">О нас</a></li>
+  </ul>
+  <div class="sidebar-footer"><span>V2.0 — GameCode</span></div>
+</nav>
+
+<header class="header">
+  <div class="header-left">
+    <button class="menu-btn" id="menuBtn"><span></span><span></span><span></span></button>
+    <div class="site-title">
+      <a href="../../index.html" class="logo pixel-text" style="text-decoration:none">GAME<span class="accent">CODE</span></a>
+      <p class="tagline pixel-text">Изучай программирование в играх</p>
+    </div>
+  </div>
+  <div class="header-right"><div id="auth-widget"></div></div>
+</header>
+
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <p class="breadcrumb">
+      <a href="../../index.html">ГЛАВНАЯ</a> /
+      <a href="../theory.html">ТЕОРИЯ</a> /
+      <a href="../theory.html">GO</a> /
+      СТРУКТУРА ПРОГРАММЫ
+    </p>
+    <div class="theory-hero-emoji">₊⊹</div>
+    <h1 class="page-title accent">СТРУКТУРА ПРОГРАММЫ</h1>
+    <p class="page-subtitle pixel-text">Как устроена любая программа на Go</p>
+    <div class="theory-tags">
+      <span class="ttag" style="color:var(--accent);border-color:var(--accent)">Go</span>
+      <span class="ttag ttag-level">Новичок</span>
+    </div>
+  </div>
+</section>
+
+<main class="page-content theory-page-content">
+
+  <!-- ЧТО ТАКОЕ GO -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ ЧТО ТАКОЕ GO ]</h2>
+    <p class="section-text">
+      Go (или Golang) — язык программирования, созданный в Google в 2009 году командой под руководством Роба Пайка и Кена Томпсона. Он сочетает в себе <strong>скорость C++</strong> и <strong>читаемость Python</strong>.
+    </p>
+    <p class="section-text">
+      Go используется в реальных продуктах: Docker, Kubernetes, серверная инфраструктура Google, Cloudflare. Язык <strong>статически типизирован</strong> (типы проверяются на этапе компиляции) и <strong>компилируемый</strong> (превращается в машинный код напрямую).
+    </p>
+    <div class="info-box yellow">
+      <span class="info-icon">₊⊹</span>
+      <div class="info-text">
+        <strong>Без точки с запятой!</strong><br/>
+        Go не требует точки с запятой в конце строки — компилятор добавляет их сам при разборе кода.
+      </div>
+    </div>
+  </div>
+
+  <!-- СТРУКТУРА ПРОГРАММЫ -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ СТРУКТУРА ПРОГРАММЫ ]</h2>
+    <p class="section-text">
+      Каждая программа Go начинается с объявления пакета. <code>package main</code> — особый пакет, из которого запускается программа. Ключевое слово <code>import</code> подключает стандартные библиотеки. Функция <code>func main()</code> — точка входа, с неё начинается выполнение.
+    </p>
+    <div class="code-block">
+      <span class="code-header">GO</span>
+      <pre><code><span class="code-kw">package</span> <span class="code-var">main</span>
+
+<span class="code-kw">import</span> <span class="code-string">"fmt"</span>
+
+<span class="code-kw">func</span> <span class="code-func">main</span>() {
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Привет, мир!"</span>)
+}</code></pre>
+    </div>
+    <div class="info-box yellow">
+      <span class="info-icon">₊⊹</span>
+      <div class="info-text">
+        <strong>Чистый код — требование компилятора:</strong><br/>
+        В Go импорт неиспользуемых пакетов — ошибка компиляции. Это приучает к чистому коду с самого начала.
+      </div>
+    </div>
+  </div>
+
+  <!-- НЕСКОЛЬКО ИМПОРТОВ -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ НЕСКОЛЬКО ИМПОРТОВ ]</h2>
+    <p class="section-text">
+      Когда нужно несколько пакетов, их группируют в скобки. Это называется блочным импортом — он читается аккуратнее, чем несколько отдельных <code>import</code>.
+    </p>
+    <div class="code-block">
+      <span class="code-header">GO</span>
+      <pre><code><span class="code-kw">package</span> <span class="code-var">main</span>
+
+<span class="code-kw">import</span> (
+    <span class="code-string">"fmt"</span>
+    <span class="code-string">"math"</span>
+    <span class="code-string">"strings"</span>
+)
+
+<span class="code-kw">func</span> <span class="code-func">main</span>() {
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-var">math</span>.<span class="code-func">Sqrt</span>(<span class="code-num">16</span>))         <span class="code-comment">// 4</span>
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-var">strings</span>.<span class="code-func">ToUpper</span>(<span class="code-string">"go"</span>)) <span class="code-comment">// GO</span>
+}</code></pre>
+    </div>
+  </div>
+
+  <!-- КОММЕНТАРИИ -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ КОММЕНТАРИИ ]</h2>
+    <p class="section-text">
+      В Go два вида комментариев: <code>//</code> для однострочных и <code>/* ... */</code> для многострочных. В Go принято документировать функции через <code>//</code> прямо перед ними — эти комментарии читаются инструментами вроде <code>go doc</code>.
+    </p>
+    <div class="code-block">
+      <span class="code-header">GO</span>
+      <pre><code><span class="code-kw">package</span> <span class="code-var">main</span>
+
+<span class="code-kw">import</span> <span class="code-string">"fmt"</span>
+
+<span class="code-comment">// greet возвращает приветствие для переданного имени.</span>
+<span class="code-comment">// Это документационный комментарий функции.</span>
+<span class="code-kw">func</span> <span class="code-func">greet</span>(<span class="code-var">name</span> <span class="code-kw">string</span>) <span class="code-kw">string</span> {
+    <span class="code-kw">return</span> <span class="code-string">"Привет, "</span> + <span class="code-var">name</span>
+}
+
+<span class="code-kw">func</span> <span class="code-func">main</span>() {
+    <span class="code-comment">/*
+       Многострочный комментарий.
+       Можно описать логику блока кода.
+    */</span>
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-func">greet</span>(<span class="code-string">"Gopher"</span>)) <span class="code-comment">// Привет, Gopher</span>
+}</code></pre>
+    </div>
+  </div>
+
+  <!-- ПОПРОБУЙ САМ -->
+  <div class="content-block accent-border">
+    <h2 class="block-title accent">[ ПОПРОБУЙ САМ ]</h2>
+    <div class="challenge-box">
+      <div class="challenge-header">
+        <span class="challenge-icon">₊⊹</span>
+        <span class="block-title accent" style="margin:0">ЗАДАНИЕ</span>
+      </div>
+      <p class="challenge-text">
+        Напиши программу на Go, которая выводит твоё имя и любимое число.<br/>
+        Используй два вызова <code>fmt.Println</code>.<br/>
+        Не забудь: <code>package main</code>, <code>import "fmt"</code> и <code>func main()</code>.
+      </p>
+      <details class="challenge-hint">
+        <summary class="pixel-text">[ ПОКАЗАТЬ РЕШЕНИЕ ]</summary>
+        <div class="code-block" style="margin-top:12px">
+          <pre><code><span class="code-kw">package</span> <span class="code-var">main</span>
+
+<span class="code-kw">import</span> <span class="code-string">"fmt"</span>
+
+<span class="code-kw">func</span> <span class="code-func">main</span>() {
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Меня зовут Марк"</span>)
+    <span class="code-var">fmt</span>.<span class="code-func">Println</span>(<span class="code-string">"Моё любимое число:"</span>, <span class="code-num">42</span>)
+}</code></pre>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="theory-nav">
+    <a href="../theory.html" class="btn-theory-nav pixel-text">◄ К ТЕОРИИ</a>
+    <a href="go-variables.html" class="btn-theory-nav btn-theory-next pixel-text">ПЕРЕМЕННЫЕ ►</a>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <p class="pixel-text">GAME<span class="accent">CODE</span> &copy; 2026</p>
+  <p class="footer-sub">Изучай программирование в играх</p>
+</footer>
+
+<script src="../../js/pixels-bg.js"></script>
+<script>window.AUTH_ROOT = "../..";</script>
+<script src="../../js/auth.js"></script>
+<script>
+  const sidebar=document.getElementById('sidebar'),overlay=document.getElementById('overlay'),menuBtn=document.getElementById('menuBtn'),sidebarClose=document.getElementById('sidebarClose');
+  const open=()=>{sidebar.classList.add('open');overlay.classList.add('active');document.body.style.overflow='hidden';};
+  const close=()=>{sidebar.classList.remove('open');overlay.classList.remove('active');document.body.style.overflow='';};
+  menuBtn.addEventListener('click',open);sidebarClose.addEventListener('click',close);overlay.addEventListener('click',close);
+  document.addEventListener('keydown',e=>e.key==='Escape'&&close());
+</script>
+</body>
+</html>

@@ -40,7 +40,6 @@
     <canvas id="menu-canvas" class="menu-canvas"></canvas>
     <div class="menu-center">
       <div class="menu-logo-wrap">
-        <div class="menu-logo-tag pixel-text">// ADVENTURE </div>
         <div class="menu-logo">
           <span class="ml-code">CODE</span><span class="ml-quest">QUEST</span>
         </div>
@@ -127,7 +126,7 @@
     <div class="how-wrap">
       <div class="how-header">
         <div class="how-title pixel-text">[ РУКОВОДСТВО ]</div>
-        <div class="how-sub pixel-text">Выживание в цифровом лабиринте</div>
+        <div class="how-sub pixel-text"> </div>
       </div>
       <div class="how-sections">
         <div class="how-section">
@@ -140,7 +139,7 @@
                 <div class="key-cap">S</div>
                 <div class="key-cap">D</div>
               </div>
-              <div class="key-or pixel-text">или ← ↑ ↓ →</div>
+              <div class="key-or pixel-text">или стрелочки</div>
             </div>
           </div>
         </div>
@@ -151,14 +150,14 @@
               <div class="hg-icon"></div>
               <div class="hg-text">
                 <div class="hg-name pixel-text">СУНДУКИ С КОДОМ</div>
-                <div class="hg-desc">Подойди к сундуку и ответь на вопрос по Go. Правильный ответ — получаешь кусок финальной программы в инвентарь.</div>
+                <div class="hg-desc">Подойди к сундуку и ответь на вопрос по языку программирования Go. При правильном ответе получаешь кусок финальной программы в инвентарь.</div>
               </div>
             </div>
             <div class="how-goal">
               <div class="hg-icon"></div>
               <div class="hg-text">
                 <div class="hg-name pixel-text">ФИНИШ — ПОРТАЛ</div>
-                <div class="hg-desc">Собери все 5 частей и добеги до золотого портала. Там собери Go-программу из частей и запусти её!</div>
+                <div class="hg-desc">Собери все 5 частей и добеги до компьютера. Там собери Go-программу из частей и запусти её.</div>
               </div>
             </div>
           </div>
@@ -169,8 +168,8 @@
             <div class="how-threat">
               <div class="ht-bar ht-virus"></div>
               <div class="ht-info">
-                <div class="ht-name pixel-text">ВИРУСЫ (3 вида)</div>
-                <div class="ht-desc">Замечают тебя с ~5 клеток и атакуют. При контакте — вопрос по Go. Победишь — враг уничтожен. От них можно убежать!</div>
+                <div class="ht-name pixel-text">ВИРУСЫ</div>
+                <div class="ht-desc">Замечают тебя с ~5 клеток и атакуют. Чтобы победить вирус — нужно ответить на вопрос.</div>
               </div>
             </div>
             <div class="how-threat">
@@ -192,7 +191,7 @@
               <canvas class="px-heart-canvas how-heart-canvas"></canvas>
               <canvas class="px-heart-canvas how-heart-canvas"></canvas>
             </div>
-            <div class="how-hp-desc">5 HP. Потерял все — Game Over. После удара 2–3 сек неуязвимости.</div>
+            <div class="how-hp-desc">У тебя 5 HP. Если потерял все — игра закончена. После удара у тебя есть 2–3 секунды неуязвимости.</div>
           </div>
         </div>
       </div>
@@ -218,14 +217,10 @@
     </div>
   </div>
   <canvas id="game-canvas"></canvas>
-  <div id="vpad">
-    <div class="vpad-row"><button class="vpad-btn" id="vpad-up">▲</button></div>
-    <div class="vpad-row">
-      <button class="vpad-btn" id="vpad-left">◄</button>
-      <div class="vpad-center"></div>
-      <button class="vpad-btn" id="vpad-right">►</button>
+  <div id="joystick-zone">
+    <div id="joystick-base">
+      <div id="joystick-knob"></div>
     </div>
-    <div class="vpad-row"><button class="vpad-btn" id="vpad-down">▼</button></div>
   </div>
   <div id="inventory">
     <div class="inv-title pixel-text">[ ИНВЕНТАРЬ ]</div>

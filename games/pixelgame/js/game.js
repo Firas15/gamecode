@@ -11,6 +11,9 @@ playerSprites.right.src = 'assets/player/right.png';
 playerSprites.up.src = 'assets/player/up.png';
 playerSprites.down.src = 'assets/player/down.png';
 
+const finishIcon = new Image();
+finishIcon.src = 'assets/icons/computer.png';
+
 // ═══════════════════════════════════════════════════
 //   НАСТРОЙКИ АНИМАЦИИ ПЕРСОНАЖА
 // ═══════════════════════════════════════════════════
@@ -1150,13 +1153,13 @@ function drawTraps(cam) {
 // ═══ ФИНИШ ═══
 function drawFinish(cam) {
   const sx=state.finish.x-cam.x,sy=state.finish.y-cam.y;
-  const t=Date.now(),p=0.5+Math.sin(t/500)*0.4,spin=(t/2000)%(Math.PI*2);
-  ctx.strokeStyle=`rgba(57,255,20,${p})`; ctx.lineWidth=3;
-  ctx.beginPath(); ctx.arc(sx+TILE/2,sy+TILE/2,22,spin,spin+Math.PI*1.5); ctx.stroke();
-  ctx.fillStyle=`rgba(57,255,20,${p*0.25})`; ctx.beginPath(); ctx.arc(sx+TILE/2,sy+TILE/2,16,0,Math.PI*2); ctx.fill();
-  ctx.font='20px serif'; ctx.textAlign='center'; ctx.fillText('🏆',sx+TILE/2,sy+TILE/2+7);
+  const iconSize=TILE+7;
+  if(finishIcon.complete && finishIcon.naturalWidth){
+    ctx.drawImage(finishIcon, sx+TILE/2-iconSize/2, sy+TILE/2-iconSize/2, iconSize, iconSize);
+  }
   const ready=state.score>=state.totalChests;
   ctx.fillStyle=ready?'#39ff14':'rgba(57,255,20,0.4)'; ctx.font='7px "Press Start 2P"';
+  ctx.textAlign='center';
   ctx.fillText(ready?'ФИНАЛ!':`${state.score}/${state.totalChests}`,sx+TILE/2,sy-8);
 }
 
@@ -1293,7 +1296,7 @@ function openChest(chest) {
       hint: data.hint
     };
   }
-  document.getElementById('q-header').textContent='📦 СУНДУК НАЙДЕН!';
+  document.getElementById('q-header').textContent='СУНДУК НАЙДЕН!';
   const question=getChestQuestionText(data);
   const code=data?.code ?? data?.q?.code ?? '';
   const options=data?.options ?? data?.q?.options ?? [];
@@ -1317,7 +1320,6 @@ function openChest(chest) {
           state.inventory.push({...data.reward,idx:chest.qIdx});
           Audio.pickup();
           updateHUD(); updateInventory(); hideDialog('dialog-question'); state.gameActive=true;
-          setStatus(`✓ ${data.reward.label} (${state.score}/${state.totalChests})`);
         },700);
       } else {
         Audio.wrong();
@@ -1361,8 +1363,8 @@ function startBattle(enemy) {
       if(i===q.correct){
         btn.classList.add('correct');
         Audio.correct();
-        document.getElementById('b-hint').textContent='✓ Победа! '+q.hint;
-        setTimeout(()=>{enemy.defeated=true;state.defeatedEnemies.add(enemy.id);Audio.kill();hideDialog('dialog-battle');state.gameActive=true;state.invincible=2000;setStatus('💥 '+names[enemy.type]+' уничтожен!');},900);
+        document.getElementById('b-hint').textContent='Победа! '+q.hint;
+        setTimeout(()=>{enemy.defeated=true;state.defeatedEnemies.add(enemy.id);Audio.kill();hideDialog('dialog-battle');state.gameActive=true;state.invincible=2000;setStatus(names[enemy.type]+' уничтожен!');},900);
       } else {
         btn.classList.add('wrong'); Audio.wrong(); opts.querySelectorAll('.q-opt')[q.correct]?.classList.add('correct');
         document.getElementById('b-hint').textContent='✗ '+q.hint;
@@ -1412,7 +1414,7 @@ startBattle = function(enemy) {
           hideDialog('dialog-battle');
           state.gameActive=true;
           state.invincible=2000;
-          setStatus(`💥 ${names[enemy.type]} уничтожен!`);
+          setStatus(`${names[enemy.type]} уничтожен!`);
         },700);
         return;
       }
@@ -1444,9 +1446,9 @@ function triggerTrap() {
   state.invincible=2500;
   Audio.damage(); const ov=document.createElement('div'); ov.className='trap-overlay'; document.body.appendChild(ov); setTimeout(()=>ov.remove(),400);
   const eff=Math.floor(Math.random()*3);
-  if(eff===0){loseHP(1);setStatus('⚡ БАГ! −1 HP!');}
-  else if(eff===1){state.player.slow=3000;setStatus('⚡ БАГ! Замедление 3 сек!');}
-  else{state.player.x=TILE;state.player.y=TILE;setStatus('⚡ ГЛИТЧ! Телепорт к старту!');}
+  if(eff===0){loseHP(1);setStatus('БАГ! −1 HP!');}
+  else if(eff===1){state.player.slow=3000;setStatus('БАГ! Замедление 3 сек!');}
+  else{state.player.x=TILE;state.player.y=TILE;setStatus('ГЛИТЧ! Телепорт к старту!');}
 }
 
 function loseHP(n) {
@@ -1502,13 +1504,37 @@ function updateHUD() {
   const base=Math.max(0,state.score*20+state.monsterBattlesWon*15-damageTaken*15-state.wrongChestAnswers*15);
   document.getElementById('pts-count').textContent=Math.round(base*mult);
 }
+const SCROLL_ICON_SVG = `
+<svg viewBox="0 0 32 24" xmlns="http://www.w3.org/2000/svg">
+  <rect x="6" y="3" width="20" height="18" fill="#e8dcc4"/>
+  <rect x="4" y="2" width="24" height="3" fill="#cdbb96"/>
+  <rect x="4" y="19" width="24" height="3" fill="#cdbb96"/>
+  <rect x="4" y="2" width="3" height="20" fill="#a89873"/>
+  <rect x="25" y="2" width="3" height="20" fill="#a89873"/>
+  <rect x="10" y="6" width="12" height="1.6" fill="#00e5ff"/>
+  <rect x="10" y="9" width="8" height="1.6" fill="#00e5ff"/>
+  <rect x="14" y="9" width="1.6" height="4" fill="#00e5ff"/>
+  <rect x="10" y="12" width="10" height="1.6" fill="#00e5ff"/>
+  <rect x="10" y="15" width="6" height="1.6" fill="#00e5ff"/>
+  <rect x="10" y="15" width="1.6" height="3" fill="#00e5ff"/>
+  <rect x="9" y="18" width="9" height="1.6" fill="#00e5ff"/>
+  <rect x="25" y="8" width="6" height="4" fill="#2a3f8f"/>
+  <rect x="25" y="12" width="4" height="2" fill="#1c2c66"/>
+</svg>`.trim();
 function updateInventory() {
   const inv=document.getElementById('inv-items'); inv.innerHTML='';
-  state.inventory.forEach(item=>{
-    const el=document.createElement('div'); el.className='inv-item';
-    el.innerHTML=`<div style="color:#ffd600;font-size:10px;margin-bottom:5px">${item.label}</div><div style="font-family:'Courier New',monospace;font-size:12px;color:#39ff14">${item.code.replace(/\n/g,'<br>')}</div>`;
-    inv.appendChild(el);
-  });
+  const totalSlots = state.totalChests || 5;
+  for (let i=0;i<totalSlots;i++){
+    const slot=document.createElement('div');
+    slot.className='inv-slot';
+    const item=state.inventory[i];
+    if(item){
+      slot.classList.add('filled');
+      slot.title=item.label||'';
+      slot.innerHTML=SCROLL_ICON_SVG;
+    }
+    inv.appendChild(slot);
+  }
 }
 function setStatus(msg) {
   const el=document.getElementById('hud-status'); el.textContent=msg;
@@ -1525,35 +1551,24 @@ function ensureFinalAssemblyLayout() {
   if (!finalAssembly || !title || !slots || !runBtn) return;
   if (document.getElementById('assembly-preview')) return;
 
-  const topbar=document.createElement('div');
-  topbar.className='assembly-topbar';
-  topbar.innerHTML=`
-    <div class="assembly-status-wrap">
-      <div class="assembly-status-label">SYSTEM CHECK</div>
-      <div id="assembly-status" class="assembly-status">0/5</div>
-    </div>
-    <div id="assembly-progress-text" class="assembly-progress-text">Assemble the fragments into one working Go program.</div>
-  `;
-
   const workbench=document.createElement('div');
   workbench.className='assembly-workbench';
 
   const partsPanel=document.createElement('div');
   partsPanel.className='assembly-panel';
-  partsPanel.innerHTML='<div class="assembly-panel-title">[ CODE BLOCKS ]</div>';
+  partsPanel.innerHTML='<div class="assembly-panel-title">[ БЛОКИ КОДА ]</div>';
   partsPanel.appendChild(slots);
 
   const previewPanel=document.createElement('div');
   previewPanel.className='assembly-panel preview-panel';
-  previewPanel.innerHTML='<div class="assembly-panel-title">[ PROGRAM PREVIEW ]</div><pre id="assembly-preview" class="assembly-preview"></pre>';
+  previewPanel.innerHTML='<div class="assembly-panel-title">[ ПРОГРАММА ]</div><pre id="assembly-preview" class="assembly-preview"></pre>';
 
   const error=document.createElement('div');
   error.id='assembly-error';
   error.className='hidden';
 
   workbench.append(partsPanel, previewPanel);
-  title.after(topbar);
-  topbar.after(workbench);
+  title.after(workbench);
   workbench.after(error);
 }
 
@@ -1627,7 +1642,7 @@ function updateAssemblyState() {
 
   if (progress) {
     if (correctCount===correctOrder.length) {
-      progress.textContent='Order verified. The program can now be launched.';
+      progress.textContent='Все элементы найдены. Теперь программу можно запускать.';
     } else {
       const firstMismatchIndex=slots.findIndex((slot,index)=>parseInt(slot.dataset.idx,10)!==correctOrder[index]);
       const expectedIdx=correctOrder[firstMismatchIndex];
@@ -1662,6 +1677,60 @@ function showFinalScreen() {
       hideAssemblyError();
       updateAssemblyState();
     });
+
+    // Touch drag support for mobile
+    let touchDragging = null;
+    let touchClone = null;
+    slot.addEventListener('touchstart', () => {
+      touchDragging = slot;
+      slot.classList.add('dragging');
+      touchClone = slot.cloneNode(true);
+      const rect = slot.getBoundingClientRect();
+      touchClone.style.cssText = `
+        position:fixed; z-index:9999; pointer-events:none; opacity:0.85;
+        width:${rect.width}px; left:${rect.left}px; top:${rect.top}px;
+        margin:0; transform:scale(1.04); box-shadow:0 8px 32px rgba(0,229,255,0.3);
+        transition:none;
+      `;
+      document.body.appendChild(touchClone);
+    }, { passive: true });
+
+    slot.addEventListener('touchmove', e => {
+      if (!touchDragging || !touchClone) return;
+      e.preventDefault();
+      const t = e.touches[0];
+      const rect = touchClone.getBoundingClientRect();
+      touchClone.style.left = (t.clientX - rect.width / 2) + 'px';
+      touchClone.style.top  = (t.clientY - rect.height / 2) + 'px';
+      touchClone.style.display = 'none';
+      const el = document.elementFromPoint(t.clientX, t.clientY);
+      touchClone.style.display = '';
+      const tgt = el && el.closest('.assembly-slot');
+      slots.querySelectorAll('.assembly-slot').forEach(s => s.classList.remove('touch-over'));
+      if (tgt && tgt !== touchDragging) tgt.classList.add('touch-over');
+    }, { passive: false });
+
+    slot.addEventListener('touchend', e => {
+      if (!touchDragging || !touchClone) return;
+      const t = e.changedTouches[0];
+      touchClone.style.display = 'none';
+      const el = document.elementFromPoint(t.clientX, t.clientY);
+      touchClone.style.display = '';
+      const tgt = el && el.closest('.assembly-slot');
+      if (tgt && tgt !== touchDragging) {
+        const rect = tgt.getBoundingClientRect();
+        const after = t.clientY > rect.top + rect.height / 2;
+        slots.insertBefore(touchDragging, after ? tgt.nextSibling : tgt);
+      }
+      slots.querySelectorAll('.assembly-slot').forEach(s => s.classList.remove('touch-over'));
+      touchDragging.classList.remove('dragging');
+      touchClone.remove();
+      touchClone = null;
+      touchDragging = null;
+      hideAssemblyError();
+      updateAssemblyState();
+    });
+
     slots.appendChild(slot);
   });
 
@@ -1693,17 +1762,15 @@ function runProgram(){
 
   if (!isCorrect) {
     Audio.wrong();
-    const mismatchIndex=order.findIndex((value,index)=>value!==correct[index]);
-    const expectedLabel=getChestRewardLabel(correct[mismatchIndex]);
-    const error=document.getElementById('assembly-error');
+    const error = document.getElementById('assembly-error');
     error.classList.remove('hidden');
-    error.innerHTML=`<strong>Compilation failed.</strong><br><br>Block ${mismatchIndex+1} is out of order.<br>Expected: ${expectedLabel}<br><br>Reorder the program so the logic flows from setup to final output.`;
-    error.scrollIntoView({behavior:'smooth', block:'center'});
-    btn.style.borderColor='var(--pink)';
-    btn.style.color='var(--pink)';
-    setTimeout(()=>{ btn.style.borderColor=''; btn.style.color=''; },1500);
+    error.innerHTML = `<strong>Ошибка!</strong> Один из кусков кода стоит не на своем месте.`;
+    error.scrollIntoView({behavior: 'smooth', block: 'center'});
+    btn.style.borderColor = 'var(--pink)';
+    btn.style.color = 'var(--pink)';
+    setTimeout(() => { btn.style.borderColor = ''; btn.style.color = ''; }, 1500);
     return;
-  }
+}
 
   Audio.correct();
   document.getElementById('result-output').textContent=getLevelFinal().output;
@@ -1819,7 +1886,7 @@ async function startGame() {
   showScreen('game');
   state.lastTime=performance.now();
   state.animFrame=requestAnimationFrame(gameLoop);
-  setTimeout(()=>setStatus('WASD — движение  |  Исследуй лабиринт, ищи сундуки 📦'),600);
+  setTimeout(()=>setStatus('WASD — движение  |  Исследуй лабиринт, ищи сундуки'),600);
 }
 
 document.addEventListener('keydown',e=>{state.keys[e.code]=true;e.preventDefault();});
@@ -1833,16 +1900,63 @@ document.getElementById('hud-toggle')?.addEventListener('click', () => {
   resizeCanvas();
 });
 
-// ═══ ВИРТУАЛЬНЫЙ D-PAD (мобильные устройства) ═══
+// ═══ ПЛАВАЮЩИЙ ДЖОЙСТИК (мобильные устройства) ═══
 (function(){
-  const keyMap={up:'ArrowUp',down:'ArrowDown',left:'ArrowLeft',right:'ArrowRight'};
-  ['up','down','left','right'].forEach(dir=>{
-    const btn=document.getElementById('vpad-'+dir);
-    if(!btn) return;
-    btn.addEventListener('touchstart',e=>{e.preventDefault();state.keys[keyMap[dir]]=true;},{passive:false});
-    btn.addEventListener('touchend',  e=>{e.preventDefault();state.keys[keyMap[dir]]=false;},{passive:false});
-    btn.addEventListener('touchcancel',()=>{state.keys[keyMap[dir]]=false;});
-  });
+  const zone  = document.getElementById('joystick-zone');
+  const base  = document.getElementById('joystick-base');
+  const knob  = document.getElementById('joystick-knob');
+  if (!zone) return;
+
+  const RADIUS = 55;   // макс. смещение стика (px)
+  const DEAD   = 0.25; // мёртвая зона (доля от RADIUS)
+  let active = false;
+  let originX = 0, originY = 0;
+
+  function clearKeys() {
+    ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].forEach(k => state.keys[k] = false);
+  }
+
+  function applyDir(dx, dy) {
+    const dist = Math.hypot(dx, dy);
+    if (dist < RADIUS * DEAD) { clearKeys(); return; }
+    const nx = dx / dist, ny = dy / dist;
+    state.keys['ArrowLeft']  = nx < -0.4;
+    state.keys['ArrowRight'] = nx >  0.4;
+    state.keys['ArrowUp']    = ny < -0.4;
+    state.keys['ArrowDown']  = ny >  0.4;
+  }
+
+  zone.addEventListener('touchstart', e => {
+    e.preventDefault();
+    active = true;
+    const t = e.touches[0];
+    const rect = base.getBoundingClientRect();
+    originX = rect.left + rect.width  / 2;
+    originY = rect.top  + rect.height / 2;
+    const dx = Math.max(-RADIUS, Math.min(RADIUS, t.clientX - originX));
+    const dy = Math.max(-RADIUS, Math.min(RADIUS, t.clientY - originY));
+    knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    applyDir(dx, dy);
+  }, { passive: false });
+
+  zone.addEventListener('touchmove', e => {
+    if (!active) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    const dx = Math.max(-RADIUS, Math.min(RADIUS, t.clientX - originX));
+    const dy = Math.max(-RADIUS, Math.min(RADIUS, t.clientY - originY));
+    knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    applyDir(dx, dy);
+  }, { passive: false });
+
+  function onEnd() {
+    active = false;
+    knob.style.transform = 'translate(-50%, -50%)';
+    clearKeys();
+  }
+
+  zone.addEventListener('touchend',    onEnd);
+  zone.addEventListener('touchcancel', onEnd);
 })();
 document.getElementById('notice-ok').addEventListener('click',()=>{ Audio.click(); hideNotice(); });
 document.getElementById('btn-start').addEventListener('click',()=>{

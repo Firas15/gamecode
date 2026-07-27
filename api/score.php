@@ -90,7 +90,7 @@ function gc_require_keys(array $arr, array $keys): bool {
     return true;
 }
 
-function gc_compute_score(string $gameId, array $payload): array {
+function gc_compute_score(string $gameId, array $payload, int $startedAt = 0): array {
     if ($gameId === 'network') {
         if (!gc_require_keys($payload, ['level_id', 'correct', 'wrong', 'elapsed_ms'])) {
             return ['ok' => false, 'error' => 'Invalid payload'];
@@ -178,11 +178,11 @@ function gc_compute_score(string $gameId, array $payload): array {
         }
 
         $level      = gc_int($payload['level'], 1, 4, -1);
-        $chests     = gc_int($payload['chests_opened'], 0, 10, -1);
-        $total      = gc_int($payload['total_chests'], 1, 10, -1);
-        $battlesWon = gc_int($payload['monster_battles_won'], 0, 100, -1);
+        $chests     = gc_int($payload['chests_opened'], 0, 5, -1);
+        $total      = gc_int($payload['total_chests'], 1, 5, -1);
+        $battlesWon = gc_int($payload['monster_battles_won'], 0, 6, -1);  // max 6 врагов на карте
         $battlesAll = gc_int($payload['monster_battles_total'], 0, 100, -1);
-        $hp         = gc_int($payload['hp_remaining'], 0, 5, -1);
+        $hp         = gc_int($payload['hp_remaining'], 1, 5, -1);
         $elapsed    = gc_int($payload['elapsed_ms'], 0, 7200_000, -1);
         $directPts  = gc_int($payload['direct_pts'], 0, 99999, -1);
         $completed  = $payload['completed'] === true;
@@ -194,15 +194,17 @@ function gc_compute_score(string $gameId, array $payload): array {
         // Очки только за победу: уровень пройден, все сундуки собраны, игрок жив
         if (!$completed) return ['ok' => false, 'error' => 'Not a win'];
         if ($chests !== $total) return ['ok' => false, 'error' => 'Chests mismatch'];
-        if ($hp < 1) return ['ok' => false, 'error' => 'Not a win'];
         if ($battlesWon > $battlesAll) return ['ok' => false, 'error' => 'Battles mismatch'];
-        // Анти-спидран
-        $minMs = max(15000, $total * 4000 + $battlesAll * 2000);
-        if ($elapsed < $minMs) return ['ok' => false, 'error' => 'Too fast'];
 
-        // Максимально возможные очки: 5 сундуков × 20 + N монстров × 15
-        // Используем direct_pts от клиента, но ограничиваем сверху для защиты
-        $maxPossible = ($total * 20) + ($battlesAll * 15);
+        // Анти-спидран: используем серверное время, а не клиентское elapsed_ms
+        // Клиент может подделать elapsed_ms — сервер знает реальное время старта
+        $serverElapsed = $startedAt > 0 ? (int)((time() - $startedAt) * 1000) : $elapsed;
+        $minMs = max(15000, $total * 4000 + $battlesAll * 2000);
+        if ($serverElapsed < $minMs) return ['ok' => false, 'error' => 'Too fast'];
+
+        // Cap очков: только победные битвы дают очки (battlesWon, не battlesAll)
+        // Это закрывает вектор: накрутить battlesAll чтобы раздуть разрешённый максимум
+        $maxPossible = ($total * 20) + ($battlesWon * 15);
         $score = max(0, min($directPts, $maxPossible));
 
         return ['ok' => true, 'score' => $score, 'meta' => [
@@ -212,7 +214,7 @@ function gc_compute_score(string $gameId, array $payload): array {
             'monster_battles_won' => $battlesWon,
             'monster_battles_total' => $battlesAll,
             'hp_remaining' => $hp,
-            'elapsed_ms' => $elapsed,
+            'elapsed_ms' => $serverElapsed,
             'direct_pts' => $directPts,
         ]];
     }
@@ -220,7 +222,7 @@ function gc_compute_score(string $gameId, array $payload): array {
     return ['ok' => false, 'error' => 'Unsupported game'];
 }
 
-$computed = gc_compute_score($gameId, $payload);
+$computed = gc_compute_score($gameId, $payload, $startedAt);
 if (empty($computed['ok'])) {
     http_response_code(400);
     echo json_encode(['ok' => false, 'error' => $computed['error'] ?? 'Invalid score payload']);

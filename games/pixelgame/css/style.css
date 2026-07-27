@@ -64,11 +64,7 @@ body {
 ======================================== */
 .menu-bg {
   width: 100%; height: 100%;
-  background:
-    radial-gradient(ellipse at 15% 40%, rgba(0,229,255,0.08) 0%, transparent 55%),
-    radial-gradient(ellipse at 85% 60%, rgba(178,75,255,0.1) 0%, transparent 55%),
-    radial-gradient(ellipse at 50% 95%, rgba(57,255,20,0.06) 0%, transparent 45%),
-    #050a14;
+  background: transparent;
   display: flex; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
 }
@@ -104,7 +100,7 @@ body {
 
 /* ����� ���� */
 .menu-center {
-  position: relative; z-index: 2;
+  position: relative; z-index: 3;
   display: flex; flex-direction: column; align-items: center;
   gap: 24px; width: 100%; max-width: 820px; padding: 24px 20px;
 }
@@ -123,15 +119,15 @@ body {
   font-family: var(--font);
   font-size: clamp(28px, 5.5vw, 52px);
   color: var(--cyan);
-  text-shadow: 0 0 28px rgba(0,229,255,0.9), 0 0 56px rgba(0,229,255,0.4);
-  animation: logo-pulse 2.5s ease-in-out infinite;
+  text-shadow: 3px 3px 0 #003a5a, 0 0 28px rgba(0,229,255,0.9), 0 0 56px rgba(0,229,255,0.4);
+  animation: logo-pulse 2.5s ease-in-out infinite, glitch-code 5s infinite;
 }
 .ml-quest {
   font-family: var(--font);
   font-size: clamp(28px, 5.5vw, 52px);
   color: var(--green);
-  text-shadow: 0 0 28px rgba(57,255,20,0.9), 0 0 56px rgba(57,255,20,0.4);
-  animation: logo-pulse 2.5s ease-in-out infinite 0.4s;
+  text-shadow: 3px 3px 0 #1a3a00, 0 0 28px rgba(57,255,20,0.9), 0 0 56px rgba(57,255,20,0.4);
+  animation: logo-pulse 2.5s ease-in-out infinite 0.4s, glitch-quest 5s infinite 0.2s;
 }
 .menu-logo-sub {
   font-size: 8px; letter-spacing: 6px;
@@ -140,6 +136,18 @@ body {
 @keyframes logo-pulse {
   0%,100% { filter: brightness(1); }
   50%      { filter: brightness(1.35); }
+}
+@keyframes glitch-code {
+  0%,90%,100% { text-shadow:3px 3px 0 #003a5a,0 0 28px rgba(0,229,255,0.9),0 0 56px rgba(0,229,255,0.4); transform:none; }
+  91% { text-shadow:-3px 3px 0 var(--pink),0 0 20px #ff336660; transform:translateX(2px); }
+  92% { text-shadow:3px -3px 0 var(--purple),0 0 20px #9b72ff60; transform:translateX(-2px); }
+  93% { text-shadow:3px 3px 0 #003a5a,0 0 28px rgba(0,229,255,0.9),0 0 56px rgba(0,229,255,0.4); transform:none; }
+}
+@keyframes glitch-quest {
+  0%,90%,100% { text-shadow:3px 3px 0 #1a3a00,0 0 28px rgba(57,255,20,0.9),0 0 56px rgba(57,255,20,0.4); transform:none; }
+  91% { text-shadow:-3px 3px 0 var(--pink),0 0 20px #ff336660; transform:translateX(2px); }
+  92% { text-shadow:3px -3px 0 var(--cyan),0 0 20px rgba(0,229,255,0.6); transform:translateX(-2px); }
+  93% { text-shadow:3px 3px 0 #1a3a00,0 0 28px rgba(57,255,20,0.9),0 0 56px rgba(57,255,20,0.4); transform:none; }
 }
 
 /* ����� VS */
@@ -852,6 +860,10 @@ body {
 /* ========================================
    GAME OVER
 ======================================== */
+#screen-game, #screen-levels, #screen-how, #screen-final {
+  background: var(--bg);
+}
+
 #screen-gameover {
   background: radial-gradient(ellipse at center, rgba(255,77,109,0.15) 0%, var(--bg) 70%);
 }
@@ -903,29 +915,35 @@ body {
     -webkit-user-select: none;
   }
   #joystick-base {
-    width: 110px;
-    height: 110px;
+    width: 112px;
+    height: 112px;
     border-radius: 50%;
-    background: rgba(0,229,255,0.07);
-    border: 2px solid rgba(0,229,255,0.28);
+    background: rgba(0,10,20,0.55);
+    border: none;
+    box-shadow:
+      0 0 0 3px rgba(0,229,255,0.6),
+      0 0 0 6px rgba(0,0,0,0.65),
+      0 0 0 8px rgba(0,229,255,0.18),
+      3px 3px 0 8px rgba(0,0,0,0.45);
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 18px rgba(0,229,255,0.10);
   }
   #joystick-knob {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: radial-gradient(circle at 38% 38%, rgba(0,229,255,0.55), rgba(0,229,255,0.18));
-    border: 2px solid rgba(0,229,255,0.6);
-    box-shadow: 0 0 12px rgba(0,229,255,0.35);
+    background: rgba(0,229,255,0.15);
+    border: none;
+    box-shadow:
+      0 0 0 3px rgba(0,229,255,0.8),
+      0 0 0 5px rgba(0,0,0,0.55),
+      2px 2px 0 5px rgba(0,0,0,0.5);
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    transition: box-shadow 0.1s;
     pointer-events: none;
   }
 }

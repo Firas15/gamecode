@@ -395,7 +395,7 @@ const state = {
   // Туман войны — Set видимых клеток
   explored: new Set(),
   // ── Метрики для серверного подсчёта очков (api/score.php) ──
-  wrongChestAnswers:0,      // неверные ответы на вопросы сундуков
+  pts:0,                    // накопленные очки (считаются в JS)
   monsterBattlesWon:0,      // выигранные бои с вирусами
   monsterBattlesTotal:0,    // всего начатых боёв
   startedAtMs:0,            // Date.now() на старте уровня
@@ -714,54 +714,8 @@ function buildTextures() {
   texFloorB= buildFloorTex(true);
 }
 
-function buildWallTex() {
-  const cv=document.createElement('canvas'); cv.width=TILE; cv.height=TILE;
-  const x=cv.getContext('2d');
-  // Основа
-  x.fillStyle='#0e1928'; x.fillRect(0,0,TILE,TILE);
-  // Кирпичи
-  const bH=11, bW=TILE/2+1;
-  for (let row=0;row<Math.ceil(TILE/bH)+1;row++) {
-    const off=(row%2)*bW/2;
-    for (let col=-1;col<3;col++) {
-      const bx=col*bW+off, by=row*bH;
-      const lum=13+(row*3+col*2)%6;
-      x.fillStyle=`hsl(220,42%,${lum}%)`;
-      x.fillRect(bx+1,by+1,bW-2,bH-2);
-      // Шов
-      x.fillStyle='#050c18'; x.fillRect(bx,by,bW,1); x.fillRect(bx,by,1,bH);
-      // Блик
-      x.fillStyle='rgba(255,255,255,0.04)'; x.fillRect(bx+2,by+2,4,2);
-    }
-  }
-  // Верхний свет
-  const g=x.createLinearGradient(0,0,0,9);
-  g.addColorStop(0,'rgba(0,229,255,0.2)'); g.addColorStop(1,'rgba(0,229,255,0)');
-  x.fillStyle=g; x.fillRect(0,0,TILE,9);
-  // Контур
-  x.strokeStyle='rgba(0,229,255,0.08)'; x.lineWidth=1; x.strokeRect(0,0,TILE,TILE);
-  return cv;
-}
-
-function buildFloorTex(alt) {
-  const cv=document.createElement('canvas'); cv.width=TILE; cv.height=TILE;
-  const x=cv.getContext('2d');
-  x.fillStyle=alt?'#080f1a':'#0a1422'; x.fillRect(0,0,TILE,TILE);
-  // Рамка плитки
-  x.strokeStyle='rgba(0,229,255,0.08)'; x.lineWidth=1; x.strokeRect(2,2,TILE-4,TILE-4);
-  // Углы
-  const corner=(bx,by)=>{ x.fillStyle='rgba(0,229,255,0.14)'; x.fillRect(bx,by,3,3); };
-  corner(3,3); corner(TILE-6,3); corner(3,TILE-6); corner(TILE-6,TILE-6);
-  if (!alt) {
-    // Диагональный узор
-    x.strokeStyle='rgba(0,229,255,0.04)'; x.lineWidth=1;
-    x.beginPath(); x.moveTo(0,TILE); x.lineTo(TILE,0); x.stroke();
-    x.beginPath(); x.moveTo(TILE/2,0); x.lineTo(TILE,TILE/2); x.stroke();
-  }
-  x.fillStyle=alt?'rgba(178,75,255,0.07)':'rgba(0,229,255,0.06)';
-  x.beginPath(); x.arc(TILE/2,TILE/2,2,0,Math.PI*2); x.fill();
-  return cv;
-}
+function buildWallTex() { return true; } // процедурная отрисовка в drawMap
+function buildFloorTex() { return true; }
 
 // ═══ ТУМАН ВОЙНЫ / ОСВЕЩЕНИЕ ═══
 const LIGHT_RADIUS = 5; // радиус в тайлах, который хорошо видно
@@ -832,28 +786,96 @@ function drawLighting(cam) {
 }
 
 // ═══ ОТРИСОВКА КАРТЫ ═══
+// Вспомогательная — rgba из hex + alpha
+function _hexA(hex, a) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;
+}
+// Детерминированный псевдо-random по координатам (не мигает при перерисовке)
+function _hash(r, c) { return ((r * 2371 + c * 1747 + r * c * 53) >>> 0) % 100; }
+
 function drawMap(cam) {
-  if (!texWall) buildTextures();
-  ctx.imageSmoothingEnabled=false;
-  for (let row=0;row<MAP.length;row++) {
-    for (let col=0;col<MAP[row].length;col++) {
-      const sx=col*TILE-cam.x, sy=row*TILE-cam.y;
-      if (sx<-TILE||sy<-TILE||sx>canvas.width+TILE||sy>canvas.height+TILE) continue;
-      const ch=MAP[row][col];
-      if (ch==='W') {
-        ctx.drawImage(texWall,sx,sy);
-        ctx.fillStyle='rgba(0,0,0,0.28)'; ctx.fillRect(sx,sy+TILE-5,TILE,5);
-      } else {
-        ctx.drawImage((row+col)%2===0?texFloor:texFloorB,sx,sy);
+  const ROWS = MAP.length, COLS = MAP[0].length;
+  const WALL_H = Math.max(2, Math.round(TILE * 5 / 16));
+  const PURPLE = '#b24bff';
+  ctx.imageSmoothingEnabled = false;
+
+  // ── 1) ПОЛ — весь видимый, до стен ──
+  for (let row = 0; row < ROWS; row++) {
+    for (let col = 0; col < COLS; col++) {
+      if (MAP[row][col] === 'W') continue;
+      const sx = col*TILE - cam.x, sy = row*TILE - cam.y;
+      if (sx < -TILE || sy < -TILE || sx > canvas.width+TILE || sy > canvas.height+TILE) continue;
+      ctx.fillStyle = '#0a1119'; ctx.fillRect(sx, sy, TILE, TILE);
+      const h = _hash(row, col);
+      if (h < 50) {                               // печатная дорожка
+        ctx.fillStyle = _hexA(PURPLE, 0.10);
+        if (h < 25) ctx.fillRect(sx, sy + (TILE>>1), TILE, 1);
+        else        ctx.fillRect(sx + (TILE>>1), sy, 1, TILE);
+      }
+      if (_hash(row+7, col+3) < 14) {             // контактная площадка
+        ctx.fillStyle = _hexA(PURPLE, 0.38);
+        ctx.fillRect(sx + (TILE>>1) - 1, sy + (TILE>>1) - 1, 2, 2);
       }
     }
   }
-  // Тонкая сетка
-  ctx.strokeStyle='rgba(0,229,255,0.025)'; ctx.lineWidth=1;
-  const sc=Math.floor(cam.x/TILE), ec=sc+Math.ceil(canvas.width/TILE)+2;
-  const sr=Math.floor(cam.y/TILE), er=sr+Math.ceil(canvas.height/TILE)+2;
-  for (let c=sc;c<ec;c++) { ctx.beginPath(); ctx.moveTo(c*TILE-cam.x,0); ctx.lineTo(c*TILE-cam.x,canvas.height); ctx.stroke(); }
-  for (let r=sr;r<er;r++) { ctx.beginPath(); ctx.moveTo(0,r*TILE-cam.y); ctx.lineTo(canvas.width,r*TILE-cam.y); ctx.stroke(); }
+
+  // ── 2) СТЕНЫ — строго сверху вниз ──
+  const inset = Math.max(2, Math.round(TILE * 4 / 16));
+  for (let row = 0; row < ROWS; row++) {
+    for (let col = 0; col < COLS; col++) {
+      if (MAP[row][col] !== 'W') continue;
+      const sx = col*TILE - cam.x, sy = row*TILE - cam.y;
+      if (sx < -TILE || sy < -TILE - WALL_H || sx > canvas.width+TILE || sy > canvas.height+TILE+WALL_H) continue;
+      const d = 0.30 + 0.70 * (row / (ROWS - 1));
+      const up = row > 0       && MAP[row-1][col] !== 'W';
+      const dn = row < ROWS-1  && MAP[row+1][col] !== 'W';
+      const lf = col > 0       && MAP[row][col-1] !== 'W';
+      const rt = col < COLS-1  && MAP[row][col+1] !== 'W';
+
+      // Передняя грань (рисуем первой, её затрут объекты снизу)
+      if (dn) {
+        ctx.fillStyle = '#080e18';
+        ctx.fillRect(sx, sy + TILE, TILE, WALL_H);
+        ctx.fillStyle = _hexA(PURPLE, 0.10 * d);
+        ctx.fillRect(sx + Math.round(TILE*3/16), sy+TILE+1, 1, WALL_H-1);
+        ctx.fillRect(sx + Math.round(TILE*11/16), sy+TILE+1, 1, WALL_H-1);
+      }
+      // Верхняя грань — тёмный блок с внутренним свечением
+      ctx.fillStyle = '#0c1420'; ctx.fillRect(sx, sy, TILE, TILE);
+      ctx.fillStyle = _hexA(PURPLE, 0.07 * d);
+      ctx.fillRect(sx + inset, sy + inset, TILE - inset*2, TILE - inset*2);
+      // Неоновые рёбра — только там где граничит с полом
+      ctx.fillStyle = _hexA(PURPLE, 0.95 * d);
+      if (up) ctx.fillRect(sx,        sy,          TILE, 1);
+      if (dn) ctx.fillRect(sx,        sy+TILE-1,   TILE, 1);
+      if (lf) ctx.fillRect(sx,        sy,           1, TILE);
+      if (rt) ctx.fillRect(sx+TILE-1, sy,           1, TILE);
+      // Верхний край передней грани
+      if (dn) {
+        ctx.fillStyle = _hexA(PURPLE, 0.55 * d);
+        ctx.fillRect(sx, sy+TILE, TILE, 1);
+      }
+    }
+  }
+}
+
+// Bloom — накладывается сразу после drawMap
+const _bloomCanvas = document.createElement('canvas');
+function applyMapBloom() {
+  const bw = canvas.width >> 1, bh = canvas.height >> 1;
+  if (_bloomCanvas.width !== bw) _bloomCanvas.width = bw;
+  if (_bloomCanvas.height !== bh) _bloomCanvas.height = bh;
+  const bc = _bloomCanvas.getContext('2d');
+  bc.imageSmoothingEnabled = true;
+  bc.drawImage(canvas, 0, 0, bw, bh);
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.imageSmoothingEnabled = true;
+  ctx.globalAlpha = 0.30;
+  ctx.drawImage(_bloomCanvas, 0, 0, canvas.width, canvas.height);
+  ctx.globalAlpha = 1;
+  ctx.imageSmoothingEnabled = false;
+  ctx.globalCompositeOperation = 'source-over';
 }
 
 // ═══ СУНДУКИ ═══
@@ -1307,6 +1329,8 @@ function openChest(chest) {
   document.getElementById('q-hint').textContent='Ответь правильно — получишь часть кода!';
   const opts=document.getElementById('q-options'); opts.innerHTML='';
   const shuffled=shuffleOptions(options, correctIndex);
+  const CHEST_PTS=[20,10,5,0];
+  let chestAttempts=0;
   shuffled.options.forEach((opt,i)=>{
     const btn=document.createElement('button'); btn.className='q-opt'; btn.textContent=opt;
     btn.addEventListener('click',()=>{
@@ -1314,7 +1338,9 @@ function openChest(chest) {
       if(i===shuffled.correct){
         Audio.correct();
         btn.classList.add('correct');
-        document.getElementById('q-hint').textContent='Верно!';
+        const earned=CHEST_PTS[Math.min(chestAttempts,3)];
+        state.pts+=earned;
+        document.getElementById('q-hint').textContent=earned>0?`Верно! +${earned} очков`:'Верно!';
         setTimeout(()=>{
           chest.open=true; state.openedChests.add(chest.id); state.score++;
           state.inventory.push({...data.reward,idx:chest.qIdx});
@@ -1323,14 +1349,14 @@ function openChest(chest) {
         },700);
       } else {
         Audio.wrong();
-        state.wrongChestAnswers++;
+        chestAttempts++;
         loseHP(1);
         btn.classList.add('wrong');
-        document.getElementById('q-hint').textContent='Неверно. Попробуй еще.';
         if(state.hp<=0){
           hideDialog('dialog-question');
           return;
         }
+        document.getElementById('q-hint').textContent='Неверно. −1 HP. Попробуй ещё раз.';
         setTimeout(()=>{
           btn.classList.add('gone');
           opts.querySelectorAll('.q-opt').forEach(b=>b.style.pointerEvents='auto');
@@ -1392,6 +1418,8 @@ startBattle = function(enemy) {
   const opts=document.getElementById('b-options');
   opts.innerHTML='';
 
+  const BATTLE_PTS=[15,10,5,0];
+  let battleAttempts=0;
   const shuffledB=shuffleOptions(q.options, q.correct);
   shuffledB.options.forEach((opt,i)=>{
     const btn=document.createElement('button');
@@ -1405,7 +1433,10 @@ startBattle = function(enemy) {
         btn.classList.add('correct');
         Audio.correct();
         state.monsterBattlesWon++;
-        document.getElementById('b-hint').textContent='Победа!';
+        const earned=BATTLE_PTS[Math.min(battleAttempts,3)];
+        state.pts+=earned;
+        updateHUD();
+        document.getElementById('b-hint').textContent=earned>0?`Победа! +${earned} очков`:'Победа!';
 
         setTimeout(()=>{
           enemy.defeated=true;
@@ -1420,9 +1451,10 @@ startBattle = function(enemy) {
       }
 
       Audio.wrong();
+      battleAttempts++;
       loseHP(1);
       btn.classList.add('wrong');
-      document.getElementById('b-hint').textContent='Неверно. Попробуй еще.';
+      document.getElementById('b-hint').textContent='Неверно. −1 HP. Попробуй ещё раз.';
 
       if(state.hp<=0){
         hideDialog('dialog-battle');
@@ -1499,10 +1531,7 @@ function updateHUD() {
   });
   document.getElementById('score-count').textContent=`${state.score}/${state.totalChests}`;
   document.getElementById('hud-level').textContent=`УРОВЕНЬ ${state.currentLevel}`;
-  const mult=[1.0,1.2,1.4,1.6][Math.min(state.currentLevel-1,3)];
-  const damageTaken=state.maxHp-state.hp;
-  const base=Math.max(0,state.score*20+state.monsterBattlesWon*15-damageTaken*15-state.wrongChestAnswers*15);
-  document.getElementById('pts-count').textContent=Math.round(base*mult);
+  document.getElementById('pts-count').textContent=state.pts;
 }
 const SCROLL_ICON_SVG = `
 <svg viewBox="0 0 32 24" xmlns="http://www.w3.org/2000/svg">
@@ -1797,11 +1826,11 @@ function submitPixelgameScore() {
     level: state.currentLevel,
     chests_opened: state.score,
     total_chests: state.totalChests,
-    wrong_chest_answers: state.wrongChestAnswers,
     monster_battles_won: state.monsterBattlesWon,
     monster_battles_total: state.monsterBattlesTotal,
     hp_remaining: state.hp,
     elapsed_ms: elapsedMs,
+    direct_pts: state.pts,
     completed: true,
   }).then(res => {
     if (!res) return;
@@ -1843,6 +1872,7 @@ function gameLoop(ts) {
   ctx.clearRect(0,0,canvas.width,canvas.height);
   const cam={x:state.camX,y:state.camY};
   drawMap(cam);
+  applyMapBloom();
   drawTraps(cam);
   drawChests(cam);
   drawFinish(cam);
@@ -1871,8 +1901,8 @@ async function startGame() {
   resetBattleQuestionSession();
   state.hp=state.maxHp; state.score=0; state.inventory=[];
   state.keys={}; state.invincible=0; state.player.slow=0;
-  // Сброс метрик для серверного подсчёта очков
-  state.wrongChestAnswers=0;
+  // Сброс метрик
+  state.pts=0;
   state.monsterBattlesWon=0;
   state.monsterBattlesTotal=0;
   state.startedAtMs=Date.now();

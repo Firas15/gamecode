@@ -119,7 +119,8 @@ body {
   color: var(--text-bright);
   letter-spacing: 3px;
   line-height: 1.8;
-  text-shadow: 0 0 30px rgba(0,229,255,0.4);
+  text-shadow: 3px 3px 0 #002240, 0 0 30px rgba(0,229,255,0.4);
+  animation: title-glitch 5s infinite;
 }
 .menu-title .accent {
   text-shadow: 0 0 20px rgba(178,75,255,0.8);
@@ -1048,4 +1049,11 @@ body {
   object-position: center top;
   z-index: 0;
   display: block;
+}
+
+@keyframes title-glitch {
+  0%,90%,100% { text-shadow:3px 3px 0 #002240,0 0 30px rgba(0,229,255,0.4); transform:none; }
+  91% { text-shadow:-3px 3px 0 var(--pink),0 0 20px #ff336660; transform:translateX(2px); }
+  92% { text-shadow:3px -3px 0 var(--yellow),0 0 20px #f5d80060; transform:translateX(-2px); }
+  93% { text-shadow:3px 3px 0 #002240,0 0 30px rgba(0,229,255,0.4); transform:none; }
 }

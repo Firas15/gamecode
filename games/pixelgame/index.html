@@ -31,6 +31,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 </head>
 <body>
+<div id="bg-root" style="position:fixed;inset:0;z-index:0"></div>
 
 <!-- МЕНЮ -->
 <div id="screen-menu" class="screen active">
@@ -45,30 +46,12 @@
         </div>
         <div class="menu-logo-sub pixel-text">ВНУТРИ КОМПЬЮТЕРА</div>
       </div>
-      <div class="menu-scene">
-        <div class="ms-char">
-          <div class="ms-hero-wrap">
-            <img id="menu-hero-img" src="assets/player/hero.png" class="ms-hero-img" alt="hero">
-          </div>
-          <div class="ms-label pixel-text">ПИКСЕЛЬ</div>
-        </div>
-        <div class="ms-char">
-          <canvas id="menu-villain-canvas" width="72" height="72" class="ms-canvas"></canvas>
-          <div class="ms-label pixel-text" style="color:var(--pink)">ГЛЮК</div>
-        </div>
-      </div>
-      <div class="menu-mission">
-        <div class="mm-line pixel-text"><span class="mm-bullet c">▶</span> Исследуй лабиринт — открывай сундуки с кодом</div>
-        <div class="mm-line pixel-text"><span class="mm-bullet y">▶</span> Решай задачи Go чтобы получить часть программы</div>
-        <div class="mm-line pixel-text"><span class="mm-bullet p">▶</span> Победи вирусы, доберись до финала и запусти код!</div>
-      </div>
       <div class="menu-btns">
         <button class="pixel-btn menu-btn-start" id="btn-start">▶ НАЧАТЬ ИГРУ</button>
         <button class="pixel-btn secondary" id="btn-how">? КАК ИГРАТЬ</button>
       </div>
       <div class="lb-widget" id="lb-pixelgame"></div>
     </div>
-    <div class="corner corner-tl"></div>
     <div class="corner corner-tr"></div>
     <div class="corner corner-bl"></div>
     <div class="corner corner-br"></div>
@@ -305,6 +288,13 @@
   </div>
 </div>
 
+<script>document.write('<script src="' + window.__assetUrl('js/codequest-bg.js') + '"><\/script>')</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var bgRoot = document.getElementById('bg-root');
+  if (bgRoot && typeof CodeQuestBG !== 'undefined') CodeQuestBG.mount(bgRoot);
+});
+</script>
 <script>document.write('<script src="' + window.__assetUrl('../../js/wip-guard.js') + '"><\/script>')</script>
 <script>
 window.addEventListener('DOMContentLoaded', function() {
@@ -316,60 +306,13 @@ window.addEventListener('DOMContentLoaded', function() {
 <script>document.write('<script src="' + window.__assetUrl('../../js/leaderboard.js') + '"><\/script>')</script>
 <script>document.write('<script src="' + window.__assetUrl('js/game.js') + '"><\/script>')</script>
 <script>
-// Глитч-призрак в меню — запускается после полной загрузки страницы
-window.addEventListener('load', function() {
-  function startGlitch() {
-    var vc = document.getElementById('menu-villain-canvas');
-    if (!vc) return;
-    var ctx = vc.getContext('2d');
-    vc.width = 72; vc.height = 72;
-    var start = null;
-    function draw(ts) {
-      if (!start) start = ts;
-      var t = ts - start;
-      ctx.clearRect(0, 0, 72, 72);
-      var bob = Math.sin(t / 320) * 4;
-      var rot = Math.sin(t / 640) * 0.06;
-      // тень
-      ctx.fillStyle = 'rgba(0,0,0,0.3)';
-      ctx.beginPath(); ctx.ellipse(36, 70, 12, 4, 0, 0, Math.PI*2); ctx.fill();
-      // масштаб 48→72
-      ctx.save();
-      ctx.translate(36, 36 + bob);
-      ctx.rotate(rot);
-      ctx.scale(1.5, 1.5);
-      ctx.translate(-24, -24);
-      // тело тёмное
-      ctx.fillStyle = '#003a18'; ctx.fillRect(8, 6, 24, 26);
-      // тело светлое
-      ctx.fillStyle = '#005530'; ctx.fillRect(10, 4, 20, 24);
-      // зубцы внизу
-      var gw = Math.sin(t / 200) > 0 ? 1 : -1;
-      ctx.fillStyle = '#005530';
-      ctx.fillRect(8,  28, 8, 6 + gw*3);
-      ctx.fillRect(20, 28, 8, 6 - gw*3);
-      ctx.fillRect(32, 28, 8, 6 + gw*3);
-      ctx.fillStyle = '#003a18';
-      ctx.fillRect(16, 28, 4, 4);
-      ctx.fillRect(28, 28, 4, 4);
-      // глаза-крестики
-      ctx.fillStyle = '#00ff88';
-      ctx.fillRect(13, 10, 2, 6); ctx.fillRect(11, 12, 6, 2);
-      ctx.fillRect(23, 10, 2, 6); ctx.fillRect(21, 12, 6, 2);
-      // мерцание
-      if (Math.sin(t/150) > 0.6) {
-        ctx.fillStyle = 'rgba(0,255,100,0.35)';
-        ctx.fillRect(8, 4, 24, 3);
-      }
-      // помехи
-      ctx.fillStyle = 'rgba(0,220,100,0.15)';
-      ctx.fillRect(8, 14, 24, 2); ctx.fillRect(8, 20, 24, 2);
-      ctx.restore();
-      requestAnimationFrame(draw);
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    var menu = document.getElementById('screen-menu');
+    if (menu && menu.classList.contains('active')) {
+      window.location.href = '../../index.html';
     }
-    requestAnimationFrame(draw);
   }
-  startGlitch();
 });
 </script>
 </body>

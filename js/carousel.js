@@ -42,7 +42,8 @@ const GAME_VISUALS = {
     tags: ["Python", "C++", "Викторина"],
   },
   pixelgame: {
-    img: "img/сундук.PNG",
+    img: "img/virus.png",
+    imgScale: 1.25,
     accentColor: "#b24bff",
     gradientFrom: "#14092e",
     gradientTo: "#1e0f3f",
@@ -85,6 +86,7 @@ function normalizeGame(game) {
     desc: normalizedDesc,
     link: game.link || "#",
     preview: game.preview || visual.img || "",
+    imgScale: visual.imgScale || 1,
     stars: Math.max(0, Math.min(3, visual.stars != null ? Number(visual.stars) : (Number(game.stars) || 0))),
     tags: Array.isArray(game.tags) && game.tags.length ? game.tags : visual.tags,
     wip: Boolean(game.wip),
@@ -113,7 +115,7 @@ function buildSlide(game) {
       <div class="cs-visual" style="background: linear-gradient(135deg, ${game.gradientFrom}, ${game.gradientTo});">
         <div class="cs-emoji">
           ${game.preview
-            ? `<img src="${escapeHtml(game.preview)}" alt="${escapeHtml(game.title)}" style="width:300px; height:300px; object-fit:contain; image-rendering:pixelated;">`
+            ? `<img src="${escapeHtml(game.preview)}" alt="${escapeHtml(game.title)}" style="width:300px; height:300px; object-fit:contain; image-rendering:pixelated; transform:scale(${game.imgScale});">`
             : `<span>🎮</span>`}
         </div>
         <div class="cs-scanlines"></div>

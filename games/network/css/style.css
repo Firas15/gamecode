@@ -146,7 +146,8 @@ body {
   letter-spacing: 4px;
   text-align: center;
   line-height: 1.6;
-  text-shadow: 0 0 20px rgba(0,229,255,0.4);
+  text-shadow: 3px 3px 0 #003a5a, 0 0 20px rgba(0,229,255,0.5);
+  animation: title-glitch 5s infinite;
 }
 .menu-title .accent {
   text-shadow: 0 0 20px rgba(178,75,255,0.7);
@@ -958,4 +959,11 @@ kbd {
   80%     { transform: translateX(4px); }
 }
 .do-shake { animation: shake-px .3s steps(6); }
+
+@keyframes title-glitch {
+  0%,90%,100% { text-shadow:3px 3px 0 #003a5a,0 0 20px rgba(0,229,255,0.5); transform:none; }
+  91% { text-shadow:-3px 3px 0 var(--pink),0 0 20px #ff336660; transform:translateX(2px); }
+  92% { text-shadow:3px -3px 0 var(--purple),0 0 20px #9b72ff60; transform:translateX(-2px); }
+  93% { text-shadow:3px 3px 0 #003a5a,0 0 20px rgba(0,229,255,0.5); transform:none; }
+}
 

@@ -170,9 +170,9 @@ function gc_compute_score(string $gameId, array $payload): array {
 
     if ($gameId === 'pixelgame') {
         if (!gc_require_keys($payload, [
-            'level', 'chests_opened', 'total_chests', 'wrong_chest_answers',
+            'level', 'chests_opened', 'total_chests',
             'monster_battles_won', 'monster_battles_total', 'hp_remaining',
-            'elapsed_ms', 'completed',
+            'elapsed_ms', 'direct_pts', 'completed',
         ])) {
             return ['ok' => false, 'error' => 'Invalid payload'];
         }
@@ -180,45 +180,40 @@ function gc_compute_score(string $gameId, array $payload): array {
         $level      = gc_int($payload['level'], 1, 4, -1);
         $chests     = gc_int($payload['chests_opened'], 0, 10, -1);
         $total      = gc_int($payload['total_chests'], 1, 10, -1);
-        $wrong      = gc_int($payload['wrong_chest_answers'], 0, 100, -1);
         $battlesWon = gc_int($payload['monster_battles_won'], 0, 100, -1);
         $battlesAll = gc_int($payload['monster_battles_total'], 0, 100, -1);
         $hp         = gc_int($payload['hp_remaining'], 0, 5, -1);
         $elapsed    = gc_int($payload['elapsed_ms'], 0, 7200_000, -1);
+        $directPts  = gc_int($payload['direct_pts'], 0, 99999, -1);
         $completed  = $payload['completed'] === true;
 
-        if ($level < 0 || $chests < 0 || $total < 0 || $wrong < 0
-            || $battlesWon < 0 || $battlesAll < 0 || $hp < 0 || $elapsed < 0) {
+        if ($level < 0 || $chests < 0 || $total < 0
+            || $battlesWon < 0 || $battlesAll < 0 || $hp < 0 || $elapsed < 0 || $directPts < 0) {
             return ['ok' => false, 'error' => 'Invalid stats'];
         }
         // Очки только за победу: уровень пройден, все сундуки собраны, игрок жив
         if (!$completed) return ['ok' => false, 'error' => 'Not a win'];
         if ($chests !== $total) return ['ok' => false, 'error' => 'Chests mismatch'];
         if ($hp < 1) return ['ok' => false, 'error' => 'Not a win'];
-        // Логическая согласованность
         if ($battlesWon > $battlesAll) return ['ok' => false, 'error' => 'Battles mismatch'];
-        // Анти-спидран: минимум времени на прохождение лабиринта и вопросы
+        // Анти-спидран
         $minMs = max(15000, $total * 4000 + $battlesAll * 2000);
         if ($elapsed < $minMs) return ['ok' => false, 'error' => 'Too fast'];
 
-        // Базовая формула + множитель сложности уровня
-        // Старт с нуля: HP не бонус, а штраф за каждый полученный урон (-15)
-        $damageTaken = 5 - $hp; // maxHp всегда 5
-        $base = ($chests * 20) + ($battlesWon * 15) - ($damageTaken * 15) - ($wrong * 15);
-        if ($base < 0) $base = 0;
-        $multipliers = [1 => 1.0, 2 => 1.2, 3 => 1.4, 4 => 1.6];
-        $score = (int)round($base * $multipliers[$level]);
+        // Максимально возможные очки: 5 сундуков × 20 + N монстров × 15
+        // Используем direct_pts от клиента, но ограничиваем сверху для защиты
+        $maxPossible = ($total * 20) + ($battlesAll * 15);
+        $score = max(0, min($directPts, $maxPossible));
 
         return ['ok' => true, 'score' => $score, 'meta' => [
             'level' => $level,
             'chests_opened' => $chests,
             'total_chests' => $total,
-            'wrong_chest_answers' => $wrong,
             'monster_battles_won' => $battlesWon,
             'monster_battles_total' => $battlesAll,
             'hp_remaining' => $hp,
             'elapsed_ms' => $elapsed,
-            'level_multiplier' => $multipliers[$level],
+            'direct_pts' => $directPts,
         ]];
     }
 

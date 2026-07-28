@@ -10,7 +10,7 @@
       "correct": 0,
       "hint": "Условие hp <= 0 истинно.",
       "reward": {
-        "label": "📄 Часть 1: Уровень игрока",
+        "label": "Уровень игрока",
         "code": "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tlevel := 12"
       }
     },
@@ -22,7 +22,7 @@
       "correct": 1,
       "hint": "Скобки вокруг условия не обязательны.",
       "reward": {
-        "label": "📄 Часть 2: Условие if",
+        "label": "Условие if",
         "code": "\tif level >= 10 {\n\t\tfmt.Println(\"Открыт новый навык\")\n\t}"
       }
     },
@@ -34,7 +34,7 @@
       "correct": 1,
       "hint": "Проверки выполняются сверху вниз.",
       "reward": {
-        "label": "📄 Часть 3: Ранг игрока",
+        "label": "Ранг игрока",
         "code": "\trank := \"silver\""
       }
     },
@@ -46,7 +46,7 @@
       "correct": 1,
       "hint": "В Go break внутри case обычно не нужен.",
       "reward": {
-        "label": "📄 Часть 4: Switch",
+        "label": "Switch",
         "code": "\tswitch rank {\n\tcase \"bronze\":\n\t\tfmt.Println(\"Бронза\")"
       }
     },
@@ -58,7 +58,7 @@
       "correct": 1,
       "hint": "Оператор ! инвертирует логическое значение.",
       "reward": {
-        "label": "📄 Часть 5: Ветки switch",
+        "label": "Ветки switch",
         "code": "\tcase \"silver\":\n\t\tfmt.Println(\"Серебро\")\n\tdefault:\n\t\tfmt.Println(\"Неизвестный ранг\")\n\t}\n}"
       }
     }

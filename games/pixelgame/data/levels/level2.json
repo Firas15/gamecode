@@ -10,7 +10,7 @@
       "correct": 1,
       "hint": "При коротком объявлении целочисленный литерал получает тип int.",
       "reward": {
-        "label": "📄 Часть 1: Объявление переменных",
+        "label": "Объявление переменных",
         "code": "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tvar gold int = 100"
       }
     },
@@ -22,7 +22,7 @@
       "correct": 2,
       "hint": "Все переменные в Go получают нулевое значение по умолчанию.",
       "reward": {
-        "label": "📄 Часть 2: Строки и вывод",
+        "label": "Строки и вывод",
         "code": "\tvar playerName string = \"Knight\"\n\tfmt.Println(\"Игрок:\", playerName)"
       }
     },
@@ -34,7 +34,7 @@
       "correct": 3,
       "hint": "Оператор := используется без ключевого слова var.",
       "reward": {
-        "label": "📄 Часть 3: Константа",
+        "label": "Константа",
         "code": "\tconst maxLevel = 100"
       }
     },
@@ -46,7 +46,7 @@
       "correct": 2,
       "hint": "Константы нельзя изменять после объявления.",
       "reward": {
-        "label": "📄 Часть 4: Числа с плавающей точкой",
+        "label": "Числа с плавающей точкой",
         "code": "\tvar mana float64 = 75.5"
       }
     },
@@ -58,7 +58,7 @@
       "correct": 2,
       "hint": "В Go нет неявного преобразования между числовыми типами.",
       "reward": {
-        "label": "📄 Часть 5: Финальный вывод",
+        "label": "Финальный вывод",
         "code": "\tfmt.Printf(\"Gold: %d\\n\", gold)\n\tfmt.Printf(\"Mana: %.1f\\n\", mana)\n}"
       }
     }

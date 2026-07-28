@@ -10,7 +10,7 @@
       "correct": 1,
       "hint": "Оператор % возвращает остаток от деления.",
       "reward": {
-        "label": "📄 Часть 1: Переменная атаки",
+        "label": "Переменная атаки",
         "code": "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tvar attack int"
       }
     },
@@ -22,7 +22,7 @@
       "correct": 1,
       "hint": "Scan используется для ввода через консоль.",
       "reward": {
-        "label": "📄 Часть 2: Ввод от игрока",
+        "label": "Ввод от игрока",
         "code": "\tfmt.Print(\"Введите силу атаки: \")\n\tfmt.Scan(&attack)"
       }
     },
@@ -34,7 +34,7 @@
       "correct": 1,
       "hint": "Обе части условия должны быть истинны.",
       "reward": {
-        "label": "📄 Часть 3: Критический урон",
+        "label": "Критический урон",
         "code": "\tcritical := attack * 2"
       }
     },
@@ -46,7 +46,7 @@
       "correct": 0,
       "hint": "Оператор == сравнивает значения.",
       "reward": {
-        "label": "📄 Часть 4: Базовый урон",
+        "label": "Базовый урон",
         "code": "\tdamage := attack + 10"
       }
     },
@@ -58,7 +58,7 @@
       "correct": 1,
       "hint": "Scan должен изменять значение переменной.",
       "reward": {
-        "label": "📄 Часть 5: Вывод урона",
+        "label": "Вывод урона",
         "code": "\tfmt.Printf(\"Урон игрока: %d\\n\", damage)\n\tfmt.Printf(\"Критический урон: %d\\n\", critical)\n}"
       }
     }

@@ -1,16 +1,11 @@
-/* ============================================
-   SORTER GAME — MOBILE.CSS
-   GameCode — Mobile & Tablet adaptations
-   ============================================ */
-
-/* ── TABLET (max-width: 1024px) ── */
+/* TABLET (max-width: 1024px) */
 @media (max-width: 1024px) {
   .baskets { gap: 12px; padding: 10px 12px; }
   .basket { min-height: 90px; }
   .hud { padding: 0 14px; }
 }
 
-/* ── PHABLET (max-width: 900px) ── */
+/* PHABLET (max-width: 900px) */
 @media (max-width: 900px) {
   .hud {
     display: grid;
@@ -83,10 +78,8 @@
   .btn-esc { grid-area: menu; }
   .btn-pause { grid-area: pause; }
 
-  /* Item falls more gently */
   .falling-item { font-size: clamp(18px, 5vw, 28px); }
 
-  /* Baskets */
   .baskets {
     padding: 8px 8px;
     gap: 8px;
@@ -117,7 +110,7 @@
   .menu-title { font-size: clamp(11px, 3.2vw, 17px); }
 }
 
-/* ── MOBILE (max-width: 640px) ── already in style.css, extend ── */
+/* MOBILE (max-width: 640px) */
 @media (max-width: 640px) {
   .hud {
     grid-template-columns: 1fr;
@@ -220,7 +213,7 @@
   }
 }
 
-/* ── SMALL PHONE (max-width: 480px) ── */
+/* SMALL PHONE (max-width: 480px) */
 @media (max-width: 480px) {
   #toasts {
     top: 162px;
@@ -246,14 +239,14 @@
   #s-menu { gap: 14px; padding: 10px; padding-top: 52px; }
 }
 
-/* ── TOUCH TARGETS ── */
+/* TOUCH TARGETS */
 @media (hover: none) and (pointer: coarse) {
   .basket { min-height: 70px; cursor: pointer; }
   .lvl-card { min-height: 80px; }
   .back-btn { min-height: 40px; }
 }
 
-/* ── LANDSCAPE PHONE ── */
+/* LANDSCAPE PHONE */
 @media (max-height: 500px) and (max-width: 900px) {
   .hud { padding: 4px 8px; }
   .baskets { padding: 4px; }

@@ -14,9 +14,7 @@ playerSprites.down.src = 'assets/player/down.png';
 const finishIcon = new Image();
 finishIcon.src = 'assets/icons/computer.png';
 
-// ═══════════════════════════════════════════════════
 //   НАСТРОЙКИ АНИМАЦИИ ПЕРСОНАЖА
-// ═══════════════════════════════════════════════════
 const animState = {
   currentFrame: 0,       // Текущий кадр (0, 1, 2 или 3)
   frameTimer: 0,         // Счётчик времени для смены кадров
@@ -30,26 +28,22 @@ function updatePlayerAnimation() {
   animState.lastDirection = state.player.dir || 'down';
 
   // 2. Проверяем, движется ли персонаж в этот самый момент.
-  // В твоем игровом объекте за это отвечает флаг state.player.moving
   if (state.player.moving) {
     // Наращиваем таймер кадров
     animState.frameTimer++;
 
     if (animState.frameTimer >= animState.frameSpeed) {
       animState.frameTimer = 0;
-      // Переключаем кадры по кругу: 0 -> 1 -> 2 -> 3 -> 0
+      // Переключаем кадры по кругу
       animState.currentFrame = (animState.currentFrame + 1) % animState.frameCount;
     }
   } else {
-    // Если остановился — строго первый кадр покоя
+    // Если остановился — первый кадр покоя
     animState.currentFrame = 0;
     animState.frameTimer = 0;
   }
 }
 
-// ═══════════════════════════════════════════════════
-//   ЗВУКОВАЯ СИСТЕМА (Web Audio API)
-// ═══════════════════════════════════════════════════
 const Audio = (() => {
   let ctx = null;
   function getCtx() {
@@ -119,9 +113,7 @@ const Audio = (() => {
   };
 })();
 
-// ═══════════════════════════════════════════════════
 //   АНИМАЦИЯ МЕНЮ (пиксельная карта на фоне)
-// ═══════════════════════════════════════════════════
 function initMenuAnimation() {
   const mc = document.getElementById('menu-canvas');
   if (!mc) return;
@@ -129,7 +121,7 @@ function initMenuAnimation() {
   mc.height = window.innerHeight;
   const mx = mc.getContext('2d');
 
-  // Рисуем мини-лабиринт на фоне
+  // мини-лабиринт на фоне
   const tsize = 24;
   const cols = Math.ceil(mc.width / tsize) + 1;
   const rows = Math.ceil(mc.height / tsize) + 1;
@@ -141,17 +133,15 @@ function initMenuAnimation() {
   }
   menuLoop();
 
-  // ── Герой: рисуем из PNG-спрайта ──────────────────────────────────
+  // Герой из PNG-спрайта
   const villainCanvas = document.getElementById('menu-villain-canvas');
   let villainAnimFrame;
 
-  // ── Злодей: Глитч-призрак тип 0 (зелёный) ─────────────────────────
-  // Запускаем сразу через setTimeout чтобы гарантировать что DOM готов
+  // Глитч-призрак тип 0 (зелёный)
   setTimeout(function() {
     const vc = document.getElementById('menu-villain-canvas');
     if (!vc) return;
     const vCtx = vc.getContext('2d');
-    // Убеждаемся что canvas имеет правильный размер
     vc.width = 72; vc.height = 72;
     let startTime = null;
 
@@ -163,7 +153,7 @@ function initMenuAnimation() {
       const bob = Math.sin(t / 320) * 4;
       const rotate = Math.sin(t / 640) * 0.06;
 
-      // Тень (в screen-space, до transform)
+      // Тень
       vCtx.fillStyle = 'rgba(0,0,0,0.3)';
       vCtx.beginPath();
       vCtx.ellipse(36, 70, 12, 4, 0, 0, Math.PI * 2);
@@ -263,7 +253,7 @@ HP босса: -2
 <b>Финальная проверка</b> после цикла выводит, кто победил.`
 };
 
-// ═══ КАРТА 33x23 (все объекты достижимы, BFS ✓) ═══
+// КАРТА 33x23
 const FINAL_EXPLAIN_BLOCKS = [
   {
     title: '1. Подготовка игры',
@@ -293,7 +283,7 @@ let MAP = [
   'WWWWWWWWWWWWWWWWWWWWW',
   'WP..W.......W.....W.W',
   'W.W.W.WWWWW.W.W.W.W.W',
-  'W.W.W.W.E.W.C.W.W...W', // Вот он, верхний сундук на месте!
+  'W.W.W.W.E.W.C.W.W...W',
   'W.W...W.W.W.WWW.WWW.W',
   'W.WWWWW.W.W...W...W.W',
   'W.....W.W.WWW.W.W.W.W',
@@ -313,11 +303,10 @@ let MAP = [
   'WWWWWWWWWWWWWWWWWWWWW',
 ];
 
-// Сохраняем дефолтную карту чтобы можно было откатиться
 const MAP_DEFAULT = MAP.slice();
 
 const TILE = 48;
-const TOTAL_CHESTS = 5; // используем первые 5 вопросов
+const TOTAL_CHESTS = 5;
 
 const DEFAULT_LEVEL_CARDS = [
   { level: 1, name: 'УРОВЕНЬ 1', title: 'Основы Go — вывод и пакеты' },
@@ -379,7 +368,7 @@ function handleLevelLoadError(levelNumber, error) {
   showScreen('levels');
 }
 
-// ═══ СОСТОЯНИЕ ═══
+// СОСТОЯНИЕ
 const state = {
   hp:5, maxHp:5, score:0, totalChests:0,
   currentLevel:1, levelData:null, monsterQuestions:null,
@@ -392,9 +381,9 @@ const state = {
   openedChests:new Set(), defeatedEnemies:new Set(),
   animFrame:null, lastTime:0, invincible:0,
   camX:0, camY:0,
-  // Туман войны — Set видимых клеток
+  // Туман войны
   explored: new Set(),
-  // ── Метрики для серверного подсчёта очков (api/score.php) ──
+  // Метрики для серверного подсчёта очков (api/score.php)
   pts:0,                    // накопленные очки (считаются в JS)
   monsterBattlesWon:0,      // выигранные бои с вирусами
   monsterBattlesTotal:0,    // всего начатых боёв
@@ -404,11 +393,6 @@ const state = {
 
 let noticeCallback = null;
 
-/**
- * Применяет карту уровня из данных (если есть) или дефолтную.
- * Поддерживает два формата: массив строк ('W','.','P','F','E','C','X')
- * и числовые массивы из редактора (0..7).
- */
 function applyLevelMap(mapData) {
   try {
     if (Array.isArray(mapData) && mapData.length) {
@@ -439,9 +423,8 @@ function applyLevelMap(mapData) {
   MAP = MAP_DEFAULT.slice();
 }
 
-/**
- * Загружает уровень: сначала через API сайта (Postgres + Redis-кэш),
- * при недоступности API — фолбэк на статический JSON рядом с игрой.
+/** Загружает уровень: сначала через API сайта (Postgres + Redis-кэш),
+ * при недоступности API — фолбэк на статический JSON рядом с игрой
  */
 async function loadLevel(levelNumber) {
   let fileData = null;
@@ -483,7 +466,7 @@ async function loadLevel(levelNumber) {
 }
 
 /**
- * Загружает вопросы для боёв: API сайта → фолбэк на статический JSON.
+ * Загружает вопросы для боёв: API сайта → фолбэк на статический JSON
  */
 async function loadMonsterQuestions() {
   let questionData = null;
@@ -577,7 +560,7 @@ function showNotice(message, header='УВЕДОМЛЕНИЕ', onClose=null) {
 }
 
 function hideNotice() {
-  // remove any dynamic action buttons added by showLoadError
+  
   const actions = document.querySelector('#dialog-notice .dialog-actions');
   if (actions) {
     const dyn = actions.querySelectorAll('.dynamic-action');
@@ -654,7 +637,7 @@ function resizeCanvas() {
   lightCanvas.height = canvas.height;
 }
 
-// ═══ ЭКРАНЫ ═══
+// ЭКРАНЫ
 const screens = {
   menu:document.getElementById('screen-menu'),
   levels:document.getElementById('screen-levels'),
@@ -668,7 +651,7 @@ function showScreen(n) {
   if(screens[n]) screens[n].classList.add('active');
 }
 
-// ═══ INIT MAP ═══
+// INIT MAP 
 function initMap() {
   state.enemies=[]; state.chests=[]; state.traps=[];
   state.openedChests.clear(); state.defeatedEnemies.clear();
@@ -697,7 +680,7 @@ function initMap() {
   state.camY = state.player.y - canvas.height/2 + TILE/2;
 }
 
-// ═══ КАМЕРА (плавная) ═══
+// КАМЕРА
 function updateCamera() {
   const tx=state.player.x-canvas.width/2+TILE/2;
   const ty=state.player.y-canvas.height/2+TILE/2;
@@ -705,7 +688,7 @@ function updateCamera() {
   state.camY += (ty-state.camY)*0.09;
 }
 
-// ═══ ТЕКСТУРЫ ═══
+// ТЕКСТУРЫ 
 let texWall=null, texFloor=null, texFloorB=null;
 
 function buildTextures() {
@@ -714,11 +697,11 @@ function buildTextures() {
   texFloorB= buildFloorTex(true);
 }
 
-function buildWallTex() { return true; } // процедурная отрисовка в drawMap
+function buildWallTex() { return true; }
 function buildFloorTex() { return true; }
 
-// ═══ ТУМАН ВОЙНЫ / ОСВЕЩЕНИЕ ═══
-const LIGHT_RADIUS = 5; // радиус в тайлах, который хорошо видно
+// ТУМАН ВОЙНЫ 
+const LIGHT_RADIUS = 5; // радиус в тайлах
 
 function updateFog() {
   const pr = Math.floor((state.player.y+TILE/2)/TILE);
@@ -774,7 +757,7 @@ function drawLighting(cam) {
   // Рисуем lighting-слой на основной канвас
   ctx.drawImage(lightCanvas,0,0);
 
-  // Свечение вокруг игрока (тёплое)
+  // Свечение вокруг игрока
   ctx.globalCompositeOperation='screen';
   const glow=ctx.createRadialGradient(px,py,0,px,py,lightPx*0.5);
   glow.addColorStop(0,'rgba(0,229,255,0.06)');
@@ -785,13 +768,11 @@ function drawLighting(cam) {
   ctx.globalCompositeOperation='source-over';
 }
 
-// ═══ ОТРИСОВКА КАРТЫ ═══
-// Вспомогательная — rgba из hex + alpha
+// ОТРИСОВКА КАРТЫ 
 function _hexA(hex, a) {
   const n = parseInt(hex.slice(1), 16);
   return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;
 }
-// Детерминированный псевдо-random по координатам (не мигает при перерисовке)
 function _hash(r, c) { return ((r * 2371 + c * 1747 + r * c * 53) >>> 0) % 100; }
 
 function drawMap(cam) {
@@ -800,7 +781,6 @@ function drawMap(cam) {
   const PURPLE = '#b24bff';
   ctx.imageSmoothingEnabled = false;
 
-  // ── 1) ПОЛ — весь видимый, до стен ──
   for (let row = 0; row < ROWS; row++) {
     for (let col = 0; col < COLS; col++) {
       if (MAP[row][col] === 'W') continue;
@@ -808,19 +788,19 @@ function drawMap(cam) {
       if (sx < -TILE || sy < -TILE || sx > canvas.width+TILE || sy > canvas.height+TILE) continue;
       ctx.fillStyle = '#0a1119'; ctx.fillRect(sx, sy, TILE, TILE);
       const h = _hash(row, col);
-      if (h < 50) {                               // печатная дорожка
+      if (h < 50) {                               
         ctx.fillStyle = _hexA(PURPLE, 0.10);
         if (h < 25) ctx.fillRect(sx, sy + (TILE>>1), TILE, 1);
         else        ctx.fillRect(sx + (TILE>>1), sy, 1, TILE);
       }
-      if (_hash(row+7, col+3) < 14) {             // контактная площадка
+      if (_hash(row+7, col+3) < 14) {             
         ctx.fillStyle = _hexA(PURPLE, 0.38);
         ctx.fillRect(sx + (TILE>>1) - 1, sy + (TILE>>1) - 1, 2, 2);
       }
     }
   }
 
-  // ── 2) СТЕНЫ — строго сверху вниз ──
+  // СТЕНЫ 
   const inset = Math.max(2, Math.round(TILE * 4 / 16));
   for (let row = 0; row < ROWS; row++) {
     for (let col = 0; col < COLS; col++) {
@@ -833,7 +813,6 @@ function drawMap(cam) {
       const lf = col > 0       && MAP[row][col-1] !== 'W';
       const rt = col < COLS-1  && MAP[row][col+1] !== 'W';
 
-      // Передняя грань (рисуем первой, её затрут объекты снизу)
       if (dn) {
         ctx.fillStyle = '#080e18';
         ctx.fillRect(sx, sy + TILE, TILE, WALL_H);
@@ -841,7 +820,6 @@ function drawMap(cam) {
         ctx.fillRect(sx + Math.round(TILE*3/16), sy+TILE+1, 1, WALL_H-1);
         ctx.fillRect(sx + Math.round(TILE*11/16), sy+TILE+1, 1, WALL_H-1);
       }
-      // Верхняя грань — тёмный блок с внутренним свечением
       ctx.fillStyle = '#0c1420'; ctx.fillRect(sx, sy, TILE, TILE);
       ctx.fillStyle = _hexA(PURPLE, 0.07 * d);
       ctx.fillRect(sx + inset, sy + inset, TILE - inset*2, TILE - inset*2);
@@ -851,7 +829,6 @@ function drawMap(cam) {
       if (dn) ctx.fillRect(sx,        sy+TILE-1,   TILE, 1);
       if (lf) ctx.fillRect(sx,        sy,           1, TILE);
       if (rt) ctx.fillRect(sx+TILE-1, sy,           1, TILE);
-      // Верхний край передней грани
       if (dn) {
         ctx.fillStyle = _hexA(PURPLE, 0.55 * d);
         ctx.fillRect(sx, sy+TILE, TILE, 1);
@@ -860,7 +837,6 @@ function drawMap(cam) {
   }
 }
 
-// Bloom — накладывается сразу после drawMap
 const _bloomCanvas = document.createElement('canvas');
 function applyMapBloom() {
   const bw = canvas.width >> 1, bh = canvas.height >> 1;
@@ -878,7 +854,7 @@ function applyMapBloom() {
   ctx.globalCompositeOperation = 'source-over';
 }
 
-// ═══ СУНДУКИ ═══
+// СУНДУКИ
 function drawChests(cam) {
   state.chests.forEach(ch=>{
     if (ch.open) return;
@@ -903,7 +879,6 @@ function drawChests(cam) {
   });
 }
 
-// Перемешивает варианты ответов (Fisher-Yates), возвращает новый массив и новый индекс правильного
 function shuffleOptions(options, correctIndex) {
   const indexed = options.map((opt, i) => ({ opt, correct: i === correctIndex }));
   for (let i = indexed.length - 1; i > 0; i--) {
@@ -916,7 +891,7 @@ function shuffleOptions(options, correctIndex) {
   };
 }
 
-// ═══ ВРАГИ — ПИКСЕЛЬНЫЕ ПЕРСОНАЖИ С АГРЕССИЕЙ ═══
+// ВРАГИ
 const AGGRO_RANGE   = TILE * 4.5;  // дистанция агра
 const DEAGGRO_RANGE = TILE * 7;    // дистанция сброса агра
 const ENEMY_SPEED   = 120;         // скорость при преследовании
@@ -964,7 +939,7 @@ function updateEnemyAI(e, dt) {
     if (!collides(nx,e.y)) e.x=nx; else { e.dx=0; }
     if (!collides(e.x,ny)) e.y=ny; else { e.dy=0; }
   } else {
-    // Патруль — всегда двигается, меняет направление по таймеру или при ударе о стену
+    // Патруль всегда двигается, меняет направление по таймеру или при ударе о стену
     e.moveTimer += dt;
     const period = 700 + (e.id.charCodeAt(1) % 6) * 90; // 700–1150 мс, у каждого монстра своё
     if (e.moveTimer > period) {
@@ -996,12 +971,11 @@ function updateEnemyAI(e, dt) {
   e.frameTimer+=dt; if(e.frameTimer>280){e.frame=(e.frame+1)%2;e.frameTimer=0;}
 }
 
-// Рисует одного монстра-вируса (тип 0,1,2 — разный дизайн)
+// Рисует одного монстра-вируса
 function drawMonster(ctx, sx, sy, type, walk, aggroed, showAlert, t) {
   if (type === 0) {
-    // ═══ ТИП 0: ГЛИТЧ-ПРИЗРАК (зелёный) ═══
 
-    // Пиксельный распад (случайные квадраты)
+    // Пиксельный распад 
     ctx.fillStyle='rgba(0,255,100,0.15)';
     const seed=Math.floor(t/300);
     for(let i=0;i<6;i++){
@@ -1015,7 +989,7 @@ function drawMonster(ctx, sx, sy, type, walk, aggroed, showAlert, t) {
     ctx.fillRect(sx+8,sy+6,24,26);
     ctx.fillStyle='#005530';
     ctx.fillRect(sx+10,sy+4,20,24);
-    // Волнистый низ (3 «зубца»)
+    // Волнистый низ 
     const ghostWobble0 = walk*3;
     ctx.fillStyle='#005530';
     ctx.fillRect(sx+8, sy+28, 8, 6+ghostWobble0);
@@ -1025,7 +999,7 @@ function drawMonster(ctx, sx, sy, type, walk, aggroed, showAlert, t) {
     ctx.fillRect(sx+16,sy+28,4,4);
     ctx.fillRect(sx+28,sy+28,4,4);
 
-    // Глаза — крестики
+    // Глаза
     ctx.fillStyle='#00ff88';
     [[sx+13,sy+10],[sx+23,sy+10]].forEach(([ex,ey])=>{
       ctx.fillRect(ex,ey,2,6); ctx.fillRect(ex-2,ey+2,6,2);
@@ -1042,9 +1016,9 @@ function drawMonster(ctx, sx, sy, type, walk, aggroed, showAlert, t) {
     ctx.fillRect(sx+8,sy+20,24,2);
 
   } else if (type === 1) {
-    // ═══ ТИП 1: ГЛИТЧ-ПРИЗРАК (розовый) ═══
+    // ГЛИТЧ-ПРИЗРАК (розовый)
 
-    // Пиксельный распад (случайные квадраты)
+    // Пиксельный распад 
     ctx.fillStyle='rgba(255,100,180,0.15)';
     const seed1=Math.floor(t/300);
     for(let i=0;i<6;i++){
@@ -1058,7 +1032,7 @@ function drawMonster(ctx, sx, sy, type, walk, aggroed, showAlert, t) {
     ctx.fillRect(sx+8,sy+6,24,26);
     ctx.fillStyle='#660040';
     ctx.fillRect(sx+10,sy+4,20,24);
-    // Волнистый низ (3 «зубца»)
+    // Волнистый низ 
     const ghostWobble1 = walk*3;
     ctx.fillStyle='#660040';
     ctx.fillRect(sx+8, sy+28, 8, 6+ghostWobble1);
@@ -1068,7 +1042,7 @@ function drawMonster(ctx, sx, sy, type, walk, aggroed, showAlert, t) {
     ctx.fillRect(sx+16,sy+28,4,4);
     ctx.fillRect(sx+28,sy+28,4,4);
 
-    // Глаза — крестики
+    // Глаза
     ctx.fillStyle='#ff69b4';
     [[sx+13,sy+10],[sx+23,sy+10]].forEach(([ex,ey])=>{
       ctx.fillRect(ex,ey,2,6); ctx.fillRect(ex-2,ey+2,6,2);
@@ -1085,9 +1059,9 @@ function drawMonster(ctx, sx, sy, type, walk, aggroed, showAlert, t) {
     ctx.fillRect(sx+8,sy+20,24,2);
 
   } else {
-    // ═══ ТИП 2: ГЛИТЧ-ПРИЗРАК (голубой, оригинал) ═══
+    // ГЛИТЧ-ПРИЗРАК (голубой)
 
-    // Пиксельный распад (случайные квадраты)
+    // Пиксельный распад 
     ctx.fillStyle='rgba(0,229,255,0.15)';
     const seed=Math.floor(t/300);
     for(let i=0;i<6;i++){
@@ -1101,7 +1075,7 @@ function drawMonster(ctx, sx, sy, type, walk, aggroed, showAlert, t) {
     ctx.fillRect(sx+8,sy+6,24,26);
     ctx.fillStyle='#005566';
     ctx.fillRect(sx+10,sy+4,20,24);
-    // Волнистый низ (3 «зубца»)
+    // Волнистый низ 
     const ghostWobble = walk*3;
     ctx.fillStyle='#005566';
     ctx.fillRect(sx+8, sy+28, 8, 6+ghostWobble);
@@ -1111,7 +1085,7 @@ function drawMonster(ctx, sx, sy, type, walk, aggroed, showAlert, t) {
     ctx.fillRect(sx+16,sy+28,4,4);
     ctx.fillRect(sx+28,sy+28,4,4);
 
-    // Глаза — крестики
+    // Глаза
     ctx.fillStyle='#00ffff';
     [[sx+13,sy+10],[sx+23,sy+10]].forEach(([ex,ey])=>{
       ctx.fillRect(ex,ey,2,6); ctx.fillRect(ex-2,ey+2,6,2); // крест
@@ -1157,7 +1131,7 @@ function drawEnemies(cam) {
   });
 }
 
-// ═══ ЛОВУШКИ ═══
+// ЛОВУШКИ
 function drawTraps(cam) {
   state.traps.forEach(t=>{
     const sx=t.x-cam.x,sy=t.y-cam.y;
@@ -1172,7 +1146,7 @@ function drawTraps(cam) {
   });
 }
 
-// ═══ ФИНИШ ═══
+// ФИНИШ 
 function drawFinish(cam) {
   const sx=state.finish.x-cam.x,sy=state.finish.y-cam.y;
   const iconSize=TILE+7;
@@ -1185,7 +1159,7 @@ function drawFinish(cam) {
   ctx.fillText(ready?'ФИНАЛ!':`${state.score}/${state.totalChests}`,sx+TILE/2,sy-8);
 }
 
-// ═══ ИГРОК ═══
+// ИГРОК
 function drawPlayer(cam) {
   const currentImg = playerSprites[animState.lastDirection];
   
@@ -1197,10 +1171,7 @@ function drawPlayer(cam) {
 
   if (sx < -TILE || sy < -TILE || sx > canvas.width + TILE || sy > canvas.height + TILE) return;
 
-  // ═══════════════════════════════════════════════════
   // АВТОМАТИЧЕСКИЙ РАСЧЕТ РАЗМЕРА КАДРА ИЗ ТВОЕЙ КАРТИНКИ
-  // ═══════════════════════════════════════════════════
-  // Делим полную ширину файла на 4 кадра, чтобы узнать точную ширину одного кадра в png
   const spriteWidth = currentImg.width / animState.frameCount; 
   const spriteHeight = currentImg.height; // Высота файла — это и есть высота кадра
 
@@ -1215,13 +1186,13 @@ function drawPlayer(cam) {
   ctx.drawImage(
     currentImg,
     sourceX, sourceY,            // Координаты начала кадра в файле png
-    spriteWidth, spriteHeight,    // Реальный размер кадра в файле png (авто-расчет)
+    spriteWidth, spriteHeight,    // Реальный размер кадра в файле png
     sx, sy,                       // Координаты рисования на экране
     TILE, TILE                    // Финальный размер персонажа в игре (48х48)
   );
 }
 
-// ═══ МИНИ-КАРТА ═══
+// МИНИ-КАРТА
 function drawMinimap() {
   const mw=130,mh=80,mx=canvas.width-mw-10,my=10;
   const scX=mw/(MAP[0].length*TILE), scY=mh/(MAP.length*TILE);
@@ -1255,7 +1226,7 @@ function drawMinimap() {
   ctx.fillStyle='#00e5ff'; ctx.beginPath(); ctx.arc(ppx,ppy,3,0,Math.PI*2); ctx.fill();
 }
 
-// ═══ КОЛЛИЗИИ ═══
+// КОЛЛИЗИИ
 function isWall(px,py) {
   const col=Math.floor(px/TILE), row=Math.floor(py/TILE);
   if(row<0||row>=MAP.length||col<0||col>=MAP[0].length) return true;
@@ -1266,7 +1237,7 @@ function collides(nx,ny) {
   return isWall(nx+m,ny+m)||isWall(nx+TILE-m,ny+m)||isWall(nx+m,ny+TILE-m)||isWall(nx+TILE-m,ny+TILE-m);
 }
 
-// ═══ ДВИЖЕНИЕ ИГРОКА ═══
+// ДВИЖЕНИЕ ИГРОКА
 function movePlayer(dt) {
   const p=state.player, speed=p.slow>0?100:210, dist=speed*dt/1000;
   let dx=0,dy=0;
@@ -1285,7 +1256,7 @@ function movePlayer(dt) {
   if(p.slow>0) p.slow-=dt;
 }
 
-// ═══ ВЗАИМОДЕЙСТВИЯ ═══
+// ВЗАИМОДЕЙСТВИЯ
 function checkInteractions() {
   const p=state.player,cx=p.x+TILE/2,cy=p.y+TILE/2;
   state.chests.forEach(ch=>{
@@ -1304,7 +1275,7 @@ function checkInteractions() {
   if(state.score>=state.totalChests&&Math.hypot(cx-(state.finish.x+TILE/2),cy-(state.finish.y+TILE/2))<TILE) triggerFinish();
 }
 
-// ═══ СУНДУК ═══
+// СУНДУК
 function openChest(chest) {
   if(state.openedChests.has(chest.id)) return;
   state.gameActive=false;
@@ -1367,7 +1338,7 @@ function openChest(chest) {
   Audio.chest(); document.getElementById('dialog-question').classList.remove('hidden');
 }
 
-// ═══ БИТВА ═══
+// БИТВА
 function startBattle(enemy) {
   if(state.defeatedEnemies.has(enemy.id)) return;
   state.gameActive=false; state.invincible=1000;
@@ -1473,7 +1444,7 @@ startBattle = function(enemy) {
   document.getElementById('dialog-battle').classList.remove('hidden');
 };
 
-// ═══ ЛОВУШКА ═══
+// ЛОВУШКА
 function triggerTrap() {
   state.invincible=2500;
   Audio.damage(); const ov=document.createElement('div'); ov.className='trap-overlay'; document.body.appendChild(ov); setTimeout(()=>ov.remove(),400);
@@ -1571,7 +1542,7 @@ function setStatus(msg) {
 }
 function hideDialog(id){document.getElementById(id).classList.add('hidden');}
 
-// ═══ ФИНАЛ ═══
+// ФИНАЛ
 function ensureFinalAssemblyLayout() {
   const finalAssembly=document.querySelector('.final-assembly');
   const title=finalAssembly?.querySelector('.assembly-title');
@@ -1813,8 +1784,7 @@ function runProgram(){
 }
 
 /**
- * Отправка результата на сервер (очки считает api/score.php).
- * Payload — сырые игровые метрики, а не готовый счёт.
+ * Отправка результата на сервер (очки считает api/score.php)
  */
 function submitPixelgameScore() {
   if (state.scoreSubmitted) return;
@@ -1841,21 +1811,21 @@ function submitPixelgameScore() {
       note.className = 'result-title';
       note.style.marginTop = '18px';
       note.textContent = typeof res.total_game_score === 'number'
-        ? `[ 🏆 ОЧКИ СОХРАНЕНЫ: +${res.score} — ВСЕГО В ИГРЕ: ${res.total_game_score} ]`
-        : '[ 🏆 ОЧКИ СОХРАНЕНЫ ]';
+        ? `[ ОЧКИ СОХРАНЕНЫ: +${res.score} — ВСЕГО В ИГРЕ: ${res.total_game_score} ]`
+        : '[ ОЧКИ СОХРАНЕНЫ ]';
       resultBox.appendChild(note);
     }
     refreshPixelgameLeaderboard();
   });
 }
 
-/** Виджет топа игроков в главном меню (общий js/leaderboard.js). */
+/** Виджет топа игроков в главном меню (общий js/leaderboard.js) */
 function refreshPixelgameLeaderboard() {
   const lbEl = document.getElementById('lb-pixelgame');
   if (lbEl && typeof renderLeaderboard === 'function') renderLeaderboard(lbEl, 'pixelgame', 5);
 }
 
-// ═══ ИГРОВОЙ ЦИКЛ ═══
+// ИГРОВОЙ ЦИКЛ
 function gameLoop(ts) {
   const dt=Math.min(ts-state.lastTime,50); state.lastTime=ts;
   if(state.invincible>0) state.invincible-=dt;
@@ -1884,7 +1854,7 @@ function gameLoop(ts) {
   state.animFrame=requestAnimationFrame(gameLoop);
 }
 
-// ═══ СТАРТ ═══
+// СТАРТ
 async function startLevel(levelNumber) {
   state.currentLevel = levelNumber;
   state.levelData = null;
@@ -1923,22 +1893,22 @@ document.addEventListener('keydown',e=>{state.keys[e.code]=true;e.preventDefault
 document.addEventListener('keyup',  e=>{state.keys[e.code]=false;});
 window.addEventListener('resize',()=>{if(screens.game.classList.contains('active')){resizeCanvas();buildTextures();}});
 
-// ═══ HUD TOGGLE (мобильный) ═══
+// HUD TOGGLE (мобильный)
 document.getElementById('hud-toggle')?.addEventListener('click', () => {
   const hud = document.getElementById('hud');
   hud.classList.toggle('hud-open');
   resizeCanvas();
 });
 
-// ═══ ПЛАВАЮЩИЙ ДЖОЙСТИК (мобильные устройства) ═══
+// ПЛАВАЮЩИЙ ДЖОЙСТИК (мобильные устройства)
 (function(){
   const zone  = document.getElementById('joystick-zone');
   const base  = document.getElementById('joystick-base');
   const knob  = document.getElementById('joystick-knob');
   if (!zone) return;
 
-  const RADIUS = 55;   // макс. смещение стика (px)
-  const DEAD   = 0.25; // мёртвая зона (доля от RADIUS)
+  const RADIUS = 55;  
+  const DEAD   = 0.25; 
   let active = false;
   let originX = 0, originY = 0;
 

@@ -1,7 +1,4 @@
 /*
-   КТО ХОЧЕТ СТАТЬ ПРОГРАММИСТОМ — game.js
-   
-
    СТРУКТУРА:
    1.  ЗВУКИ          — Web Audio API
    2.  ЗВЁЗДНЫЙ ФОН   — canvas анимация
@@ -20,7 +17,6 @@
   15.  КНОПКИ И КЛАВИШИ
   16.  ЗАПУСК         — init()
  */
-
 
 /* 
    1. ЗВУКИ
@@ -43,7 +39,7 @@ function beep(freq, dur, shape = 'square', vol = 0.15) {
 function soundClick()   { beep(440, 0.05, 'square', 0.08); }
 function soundSelect()  { beep(660, 0.06); setTimeout(() => beep(880, 0.08), 80); }
 function soundThink()   {
-  // Нарастающая драматическая нота при выборе ответа
+
   [330, 392, 494].forEach((n,i) => setTimeout(() => beep(n, 0.06, 'sine', 0.1), i * 120));
 }
 function soundCorrect() {
@@ -1089,7 +1085,7 @@ function buildQuestionSet() {
       const j = Math.floor(Math.random() * (i + 1));
       [arr[i], arr[j]] = [arr[j], arr[i]];
     }
-    // Если вопросов меньше нужного — берём все доступные (не повторяем)
+    // Если вопросов меньше нужного - берём все доступные (не повторяем)
     return arr.slice(0, Math.min(count, arr.length));
   };
 
@@ -1097,7 +1093,7 @@ function buildQuestionSet() {
   const medium = pick('medium', 5);
   const hard   = pick('hard',   5);
 
-  // Порядок: easy → medium → hard (как в оригинальной игре)
+  // Порядок: easy - medium - hard 
   state.questions = [...easy, ...medium, ...hard];
 }
 
@@ -1147,7 +1143,7 @@ function startQuestionTimer() {
   }, 1000);
 }
 
-/** Время вышло — засчитывается как ошибка (иммунитет не спасает). */
+/** Время вышло — засчитывается как ошибка (иммунитет не спасает) */
 function handleTimeUp() {
   if (!screens.game.classList.contains('active')) return;
   if (state.busy || state.selectedAnswer !== null) return;
@@ -1357,7 +1353,7 @@ function loadQuestion() {
    10. ПОДСКАЗКИ
  */
 
-// ── 🛡 ПРАВО НА ОШИБКУ ──
+// ПРАВО НА ОШИБКУ
 function useImmunity() {
   if (state.hints.immunity || state.busy || state.selectedAnswer !== null) return;
   soundHint();
@@ -1367,7 +1363,7 @@ function useImmunity() {
   showToast('🛡 ПРАВО НА ОШИБКУ АКТИВНО — следующая ошибка не засчитается!', 'cyan');
 }
 
-// ── ⚡ 50:50 ──
+// 50:50
 function useFiftyFifty() {
   if (state.hints.fiveOfifty || state.busy || state.selectedAnswer !== null) return;
   soundHint();
@@ -1395,7 +1391,7 @@ function useFiftyFifty() {
   showToast('⚡ 50:50 — два неверных ответа убраны!', 'cyan');
 }
 
-// ── 👥 ПОМОЩЬ ЗАЛА ──
+// ПОМОЩЬ ЗАЛА
 function useAudience() {
   if (state.hints.audience || state.busy || state.selectedAnswer !== null) return;
   soundHint();
@@ -1458,7 +1454,7 @@ function useAudience() {
   }, 100);
 }
 
-// ── 🔄 ЗАМЕНИТЬ ВОПРОС ──
+// ЗАМЕНИТЬ ВОПРОС
 function useSwap() {
   if (state.hints.swap || state.busy || state.selectedAnswer !== null) return;
 
@@ -1511,7 +1507,6 @@ function handleAnswer(chosenIdx) {
   btn.classList.add('selected');
   soundThink();
 
-  // Драматическая пауза перед раскрытием
   setTimeout(() => {
     // Заблокировать все кнопки
     [0,1,2,3].forEach(i => {
@@ -1519,7 +1514,7 @@ function handleAnswer(chosenIdx) {
     });
 
     if (chosenIdx === correct) {
-      // ✅ ПРАВИЛЬНО
+      // ПРАВИЛЬНО
       btn.classList.remove('selected');
       btn.classList.add('correct');
       state.correctCount++;
@@ -1533,23 +1528,22 @@ function handleAnswer(chosenIdx) {
         soundCorrect();
       }
 
-      // Зал реагирует на правильный ответ — тёплый золотой свет
+      // Зал реагирует на правильный ответ
       if (AudienceSystem && AudienceSystem.setCorrect) AudienceSystem.setCorrect();
 
       showExplanation(true, q);
 
     } else {
-      // ❌ НЕВЕРНО
+      // НЕВЕРНО
 
-      // Проверяем: активна ли защита?
+      // Проверяем активна ли защита
       if (state.hints.immunity_active) {
-        // Иммунитет спасает!
+        // Иммунитет спасает
         soundHint();
         state.hints.immunity_active = false;
         btn.classList.remove('selected');
         btn.classList.add('wrong');
-        // При праве на ошибку НЕ показываем правильный ответ.
-        // Просто убираем неверный вариант и даем выбрать снова.
+        // При праве на ошибку НЕ показываем правильный ответ
         setTimeout(() => {
           const wrongBtn = document.getElementById(`ans-${chosenIdx}`);
           const wrongText = document.getElementById(`ans-text-${chosenIdx}`);
@@ -1594,7 +1588,7 @@ function handleAnswer(chosenIdx) {
         document.getElementById(`ans-${correct}`).classList.add('correct');
         state.wrongCount++;
         soundWrong();
-        // Зал реагирует на неправильный ответ — холодный тёмный свет с флicker
+        // Зал реагирует на неправильный ответ
         if (AudienceSystem && AudienceSystem.setWrong) AudienceSystem.setWrong();
         showExplanation(false, q);
       }
@@ -1719,7 +1713,6 @@ function endGame(won) {
    ТОСТ
  */
 function showToast(msg, type = 'info', duration = 2500) {
-  // Используем простой div поверх всего
   const el = document.createElement('div');
   el.style.cssText = `
     position:fixed; bottom:24px; left:50%; transform:translateX(-50%);

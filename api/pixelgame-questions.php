@@ -1,6 +1,6 @@
 <?php
 /**
- * GAME CODE — Pixelgame Monster Questions API
+ * Pixelgame Monster Questions API
  * GET /api/pixelgame-questions.php
  *
  * Отдаёт блок вопросов для боёв в том же формате, что и статический

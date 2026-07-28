@@ -1,8 +1,3 @@
-// ============================================
-//  GAME CODE — PIXELS-BG.JS
-//  Фоновая canvas-анимация: летящие пиксели
-// ============================================
-
 (function () {
   const COLORS = [
     '#39ff14', // green
@@ -42,7 +37,7 @@
       this.type = TYPES[Math.floor(Math.random() * TYPES.length)];
       this.color = weightedColor();
       this.size = Math.random() < 0.6
-        ? Math.floor(Math.random() * 2 + 1) * 2   // 2px или 4px — чёткий пиксель
+        ? Math.floor(Math.random() * 2 + 1) * 2  
         : Math.floor(Math.random() * 3 + 1) * 2;
 
       if (this.type === 'drift') {
@@ -66,7 +61,7 @@
         this.alpha = Math.random() * 0.5 + 0.2;
         this.alphaDecay = 0.002;
         this.life = 1;
-        this.size = Math.ceil(this.size / 2) * 2; // чуть меньше
+        this.size = Math.ceil(this.size / 2) * 2;
 
       } else {
         // Мигает на месте
@@ -129,7 +124,7 @@
     }
   }
 
-  // === INIT CANVAS ===
+  // INIT CANVAS
   function init() {
     const canvas = document.createElement('canvas');
     canvas.id = 'pixelsBgCanvas';

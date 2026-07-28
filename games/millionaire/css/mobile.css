@@ -1,6 +1,6 @@
 /*  КТО ХОЧЕТ СТАТЬ ПРОГРАММИСТОМ — MOBILE.CSS */
 
-/* ── TABLET (max-width: 1024px) ── */
+/* TABLET (max-width: 1024px) */
 @media (max-width: 1024px) {
 
   .prize-ladder-col {
@@ -12,9 +12,9 @@
   .cs-info { padding: 36px 28px; }
 }
 
-/* ── PHABLET (max-width: 900px) ── */
+/* PHABLET (max-width: 900px) */
 @media (max-width: 900px) {
-  /* Hide the right prize ladder; show a compact floating indicator */
+  
   .prize-ladder-col { display: none; }
 
   .game-content {
@@ -111,7 +111,7 @@
   }
 }
 
-/* ── MOBILE (max-width: 700px) ── already in style.css, we extend ── */
+/* MOBILE (max-width: 700px) */
 @media (max-width: 700px) {
   .game-header {
     grid-template-columns: minmax(0, 1fr) auto;
@@ -250,7 +250,7 @@
   }
 }
 
-/* ── SMALL PHONE (max-width: 480px) ── */
+/* SMALL PHONE (max-width: 480px) */
 @media (max-width: 480px) {
   .game-header {
     grid-template-columns: 1fr;
@@ -297,7 +297,7 @@
   }
 }
 
-/* ── LANDSCAPE PHONE ── */
+/* LANDSCAPE PHONE */
 @media (max-height: 500px) and (max-width: 900px) {
   .game-bottom { max-height: 68vh; }
   .question-box { padding: 10px 12px; }
@@ -312,7 +312,7 @@
   .menu-prize-ladder { max-width: 300px; }
 }
 
-/* ── TOUCH TARGETS ── */
+/* TOUCH TARGETS */
 @media (hover: none) and (pointer: coarse) {
   .answer-btn, .hint-btn, .btn-play, .back-btn {
     min-height: 44px;

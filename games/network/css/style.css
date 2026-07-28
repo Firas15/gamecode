@@ -1,10 +1,4 @@
-/* =====================================================
-   СЕТЕВОЙ МАРШРУТ — CSS
-   Pixel / Retro-Futuristic Gaming Aesthetic
-   Совместим с GameCode Design System
-===================================================== */
-
-/* ── CSS ПЕРЕМЕННЫЕ ── */
+/* CSS ПЕРЕМЕННЫЕ */
 :root {
   --bg-dark:     #080c14;
   --bg-card:     #0d1626;
@@ -27,7 +21,7 @@
   --font-ui:     'Rajdhani', sans-serif;
 }
 
-/* ── СБРОС И БАЗА ── */
+/* СБРОС И БАЗА */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 100%; height: 100%; overflow: hidden; }
 
@@ -47,7 +41,7 @@ body {
   pointer-events: none;
 }
 
-/* ── УТИЛИТЫ ── */
+/* УТИЛИТЫ */
 .pixel-text { font-family: var(--font-pixel); }
 .accent  { color: var(--accent); }
 .green   { color: var(--green); }
@@ -56,7 +50,7 @@ body {
 .yellow  { color: var(--yellow); }
 .hidden  { display: none !important; }
 
-/* ── ЭКРАНЫ ── */
+/* ЭКРАНЫ */
 .screen {
   position: fixed;
   inset: 0;
@@ -74,9 +68,7 @@ body {
   pointer-events: all;
 }
 
-/* ═══════════════════════════════
-   МЕНЮ
-═══════════════════════════════ */
+/* МЕНЮ */
 #s-menu { gap: 32px; }
 
 .back-btn {
@@ -257,9 +249,7 @@ kbd {
   letter-spacing: 1px;
 }
 
-/* ═══════════════════════════════
-   ВСТУПЛЕНИЕ К УРОВНЮ
-═══════════════════════════════ */
+/* ВСТУПЛЕНИЕ К УРОВНЮ */
 .intro-box {
   background: var(--bg-card);
   border: 1px solid var(--border-glow);
@@ -368,9 +358,7 @@ kbd {
   50%       { box-shadow: 0 0 0 8px rgba(245,216,0,0); }
 }
 
-/* ═══════════════════════════════
-   HUD
-═══════════════════════════════ */
+/* HUD */
 
 .hud {
   position: fixed;
@@ -472,9 +460,7 @@ kbd {
   border-color: var(--pink);
 }
 
-/* ═══════════════════════════════
-   TASK PANEL
-═══════════════════════════════ */
+/* TASK PANEL */
 .task-panel {
   position: fixed;
   top: 60px; left: 0; right: 0;
@@ -518,9 +504,7 @@ kbd {
   line-height: 1.5;
 }
 
-/* ═══════════════════════════════
-   ИГРОВОЕ ПОЛЕ
-═══════════════════════════════ */
+/* ИГРОВОЕ ПОЛЕ */
 .game-field {
   position: fixed;
   top: 120px; /* hud + task panel */
@@ -735,9 +719,7 @@ kbd {
   box-shadow: 0 0 30px var(--pink);
 }
 
-/* ═══════════════════════════════
-   ТОСТЫ
-═══════════════════════════════ */
+/* ТОСТЫ */
 #toasts {
   position: fixed;
   bottom: 24px;
@@ -780,9 +762,7 @@ kbd {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ═══════════════════════════════
-   РЕЗУЛЬТАТ
-═══════════════════════════════ */
+/* РЕЗУЛЬТАТ */
 .result-box {
   background: var(--bg-card);
   border: 1px solid var(--border-glow);
@@ -908,9 +888,7 @@ kbd {
   border-color: var(--text-dim);
 }
 
-/* ═══════════════════════════════
-   АДАПТИВ
-═══════════════════════════════ */
+/* АДАПТИВ */
 @media (max-width: 700px) {
   .task-panel-inner { flex-direction: column; gap: 8px; }
   .task-data-row    { flex-wrap: wrap; gap: 16px; }

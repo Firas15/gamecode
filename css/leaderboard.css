@@ -85,7 +85,7 @@
 }
 
 
-/* ── Страница /pages/leaderboard.html ───────────────────── */
+/* Страница /pages/leaderboard.html */
 
 .lb-page {
     min-height: 100vh;
@@ -342,7 +342,7 @@
     }
 }
 
-/* Карточки вместо широкой таблицы — портретный телефон */
+/* Карточки */
 @media (max-width: 520px) {
     #lb-content {
         overflow-x: visible;

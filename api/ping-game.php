@@ -1,6 +1,6 @@
 <?php
 /**
- * GAME CODE — Game Session Ping
+ * Game Session Ping
  * POST /api/ping-game.php
  * Body: { game_id: "sorter"|"network"|"millionaire" }
  *

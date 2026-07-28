@@ -1,14 +1,9 @@
 /*
- * CodeQuest — процедурный пиксель-арт фон «цифровое подземелье».
  * Использование:
  *   <div id="bg-root"></div>
  *   <script src="codequest-bg.js"></script>
  *   <script>CodeQuestBG.mount(document.getElementById('bg-root'));</script>
- *
- * Контейнер должен быть position:relative (или fixed/absolute) и иметь размер.
- * Весь UI меню кладите ПОВЕРХ, с position:relative; z-index:3.
- *
- * Опции mount(el, opts):
+ * Опции:
  *   seed     (int)    7      — раскладка лабиринта
  *   chests   (int)    6      — сундуков
  *   monsters (int)    5      — глитч-призраков
@@ -19,7 +14,6 @@
  *   cyan     (hex)  '#00e5ff' — цвет части стен/тумана
  *   dim      (float)  0.42   — ровное затемнение поверх фона
  *
- * Возвращает { destroy(), exportPng(scale) }.
  */
 (function (root) {
   var W = 400, H = 304, CELL = 16, COLS = 25, ROWS = 19;
@@ -73,14 +67,14 @@
       'image-rendering:pixelated;display:block';
     host.appendChild(cv);
 
-    // Скан-линии (multiply) — как на CRT
+    // Скан-линии
     var scan = document.createElement('div');
     scan.style.cssText = 'position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;' +
       'background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 2px,' +
       'rgba(0,0,0,0.22) 3px,rgba(0,0,0,0.22) 4px)';
     host.appendChild(scan);
 
-    // Виньетка + ровное затемнение — чтобы текст не сливался с фоном
+    // Виньетка + ровное затемнение
     var vig = document.createElement('div');
     vig.style.cssText = 'position:absolute;inset:0;pointer-events:none;' +
       'background:radial-gradient(ellipse 70% 60% at 50% 45%,rgba(8,12,20,0.5) 0%,' +
@@ -154,7 +148,7 @@
       x2.fillStyle = '#070b12'; x2.fillRect(0, 0, W, H);
       var r, c, x, y, col;
 
-      // Пол: платы, тонкие дорожки и контактные площадки
+      // Пол
       for (r = 0; r < ROWS; r++) for (c = 0; c < COLS; c++) {
         if (g[r][c]) continue;
         x = c * CELL; y = r * CELL; col = accent();
@@ -166,7 +160,7 @@
         if (R() < 0.14) { x2.fillStyle = hexA(col, 0.38); x2.fillRect(x + 7, y + 7, 2, 2); }
       }
 
-      // Стены: 2.5D-плиты, неон только на рёбрах, что смотрят в коридор
+      // Стены
       for (r = 0; r < ROWS; r++) for (c = 0; c < COLS; c++) {
         if (!g[r][c]) continue;
         x = c * CELL; y = r * CELL; col = accent();
@@ -217,7 +211,7 @@
       c2.fillStyle = gd; c2.fillRect(x - r, y - r, r * 2, r * 2);
     }
 
-    // Глитч-призрак 12x12: волнистые «зубцы», крестовые глаза, скан-полосы, распад
+    // Глитч-призрак 12x12
     function ghost(c2, x, y, t, v) {
       var T = GT[v.ty || 0], cx, ry;
       for (cx = 1; cx <= 10; cx++) {

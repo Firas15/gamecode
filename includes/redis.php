@@ -1,10 +1,5 @@
 <?php
 /**
- * =============================================================================
- * GAME CODE — Redis Cache Layer
- * Файл: includes/redis.php
- * =============================================================================
- *
  * Подключить в includes/db.php одной строкой:
  *   require_once __DIR__ . '/redis.php';
  *
@@ -22,31 +17,22 @@
  *   gamecode:lb:{game}      — лидерборд по игре    TTL: 5 мин
  *   gamecode:user:{id}      — профиль пользователя TTL: 10 мин
  *   gamecode:user:nick:{lc} — поиск по нику        TTL: 10 мин
- * =============================================================================
  */
 
 declare(strict_types=1);
 
-// =============================================================================
 // ПОДКЛЮЧЕНИЕ К REDIS
-// =============================================================================
 
-/**
- * Возвращает соединение с Redis или null если Redis недоступен.
- * Используем static чтобы подключаться только один раз за запрос.
- * Если Redis упал — приложение продолжает работать через PostgreSQL.
- */
 function gamecode_redis(): ?\Redis {
     static $redis = null;
     static $attempted = false;
 
     if ($attempted) {
-        return $redis; // уже пробовали, возвращаем результат
+        return $redis;
     }
     $attempted = true;
 
     if (!class_exists('Redis')) {
-        // Расширение phpredis не установлено — работаем без кэша
         return null;
     }
 
@@ -57,7 +43,6 @@ function gamecode_redis(): ?\Redis {
 
     try {
         $r = new \Redis();
-        // connect с таймаутом 1 сек — чтобы не тормозить если Redis недоступен
         if (!$r->connect($host, $port, 1.0)) {
             error_log('[GameCode Redis] connect() returned false for ' . $host . ':' . $port);
             return null;
@@ -88,11 +73,8 @@ function gamecode_redis(): ?\Redis {
     return $redis;
 }
 
-// =============================================================================
-// НИЗКОУРОВНЕВЫЕ ХЕЛПЕРЫ
-// =============================================================================
 
-/** Получить значение из Redis, декодировать JSON → array. Возвращает null если нет. */
+// НИЗКОУРОВНЕВЫЕ ХЕЛПЕРЫ
 function cache_get(string $key): ?array {
     $r = gamecode_redis();
     if (!$r) return null;
@@ -107,7 +89,6 @@ function cache_get(string $key): ?array {
     }
 }
 
-/** Сохранить массив в Redis как JSON с TTL в секундах. */
 function cache_set(string $key, array $data, int $ttl): void {
     $r = gamecode_redis();
     if (!$r) return;
@@ -146,9 +127,7 @@ function cache_delete_pattern(string $pattern): void {
     }
 }
 
-// =============================================================================
 // TTL КОНСТАНТЫ
-// =============================================================================
 
 const CACHE_TTL_GAMES       = 3600;  // 1 час  — игры меняются редко
 const CACHE_TTL_NEWS        = 1800;  // 30 мин — новости обновляются редко
@@ -157,9 +136,7 @@ const CACHE_TTL_LEADERBOARD = 300;   // 5 мин  — лидерборд обн�
 const CACHE_TTL_USER        = 600;   // 10 мин — профиль может меняться
 const CACHE_TTL_PIXELGAME_CONTENT = 3600; // 1 час — контент уровней меняется редко (как games/faq)
 
-// =============================================================================
 // КЛЮЧИ REDIS
-// =============================================================================
 
 const CACHE_KEY_GAMES    = 'gamecode:games';
 const CACHE_KEY_NEWS     = 'gamecode:news';
@@ -180,9 +157,7 @@ function cache_key_user_nick(string $nickname): string {
     return 'gamecode:user:nick:' . strtolower($nickname);
 }
 
-// =============================================================================
 // КЭШИРОВАННЫЕ ФУНКЦИИ — ИГРЫ
-// =============================================================================
 
 /**
  * Читает список игр.
@@ -204,23 +179,13 @@ function cached_read_games(): array {
     return $games;
 }
 
-/**
- * Сохраняет игры и сбрасывает кэш.
- * Вызывается из admin/games.php при изменении.
- */
 function cached_write_games(array $games): void {
     writeGames($games);
     cache_delete(CACHE_KEY_GAMES);
 }
 
-// =============================================================================
 // КЭШИРОВАННЫЕ ФУНКЦИИ — PIXELGAME (контент уровней и вопросов)
-// Cache-Aside по образцу cached_read_games().
-// =============================================================================
 
-/**
- * Читает уровень Pixelgame: Redis → PostgreSQL (фолбэк JSON) → Redis.
- */
 function cached_read_pixelgame_level(int $levelNumber): ?array {
     $key = cache_key_pixelgame_level($levelNumber);
 
@@ -238,9 +203,6 @@ function cached_read_pixelgame_level(int $levelNumber): ?array {
     return $level;
 }
 
-/**
- * Читает вопросы монстров Pixelgame: Redis → PostgreSQL (фолбэк JSON) → Redis.
- */
 function cached_read_pixelgame_monster_questions(): ?array {
     $cached = cache_get(CACHE_KEY_PIXELGAME_QUESTIONS);
     if ($cached !== null) {
@@ -270,9 +232,7 @@ function cache_invalidate_pixelgame(int $levelNumber = 0): void {
     cache_delete(CACHE_KEY_PIXELGAME_QUESTIONS);
 }
 
-// =============================================================================
 // КЭШИРОВАННЫЕ ФУНКЦИИ — НОВОСТИ
-// =============================================================================
 
 function cached_read_news(): array {
     $cached = cache_get(CACHE_KEY_NEWS);
@@ -286,17 +246,14 @@ function cached_read_news(): array {
     return $news;
 }
 
-/**
- * Сохраняет новости и сбрасывает кэш.
- */
+
 function cached_write_news(array $news): void {
     writeNews($news);
     cache_delete(CACHE_KEY_NEWS);
 }
 
-// =============================================================================
+
 // КЭШИРОВАННЫЕ ФУНКЦИИ — FAQ
-// =============================================================================
 
 function cached_load_faq(): array {
     $cached = cache_get(CACHE_KEY_FAQ);
@@ -310,9 +267,6 @@ function cached_load_faq(): array {
     return $items;
 }
 
-/**
- * Сохраняет FAQ и сбрасывает кэш.
- */
 function cached_save_faq(array $items): bool {
     $ok = gamecode_chat_faq_save_items($items);
     if ($ok) {
@@ -321,9 +275,7 @@ function cached_save_faq(array $items): bool {
     return $ok;
 }
 
-// =============================================================================
 // КЭШИРОВАННЫЕ ФУНКЦИИ — ПОЛЬЗОВАТЕЛИ
-// =============================================================================
 
 /**
  * Поиск пользователя по id.
@@ -351,10 +303,6 @@ function cached_find_user_by_id(int $id): ?array {
     return $user;
 }
 
-/**
- * Поиск пользователя по нику.
- * Кэшируем id → потом берём профиль по id из кэша.
- */
 function cached_find_user_by_nick(string $nickname): ?array {
     $nickKey = cache_key_user_nick($nickname);
 
@@ -393,47 +341,25 @@ function cache_invalidate_user(int $id, string $nickname = ''): void {
     cache_delete(...$keys);
 }
 
-// =============================================================================
 // КЭШИРОВАННЫЕ ФУНКЦИИ — ЛИДЕРБОРД
-// =============================================================================
 
-/**
- * Самая важная функция — лидерборд.
- *
- * БЕЗ Redis: loadScores() загружает 9077 строк в PHP, потом readUsers()
- *            загружает 52 пользователей, потом PHP считает суммы.
- *            Это ~1.6 МБ данных на каждый запрос лидерборда.
- *
- * С Redis:   первый запрос считает и кладёт результат в кэш.
- *            Следующие 5 минут — мгновенный ответ из памяти.
- *
- * С Redis + SQL агрегацией: вместо loadScores() делаем один SQL запрос
- *                           с SUM + GROUP BY прямо в PostgreSQL.
- */
 function cached_leaderboard(string $game, int $limit = 10): array {
     $key = ($game === 'all') ? CACHE_KEY_LB_ALL : cache_key_lb($game);
 
-    // 1. Проверяем кэш
     $cached = cache_get($key);
     if ($cached !== null) {
-        // Применяем limit уже на закэшированный результат
-        // (кэшируем топ-50, отдаём нужное кол-во)
+    
         return array_slice($cached, 0, $limit);
     }
 
-    // 2. Считаем в PostgreSQL через агрегацию — не загружаем 9077 строк в PHP!
     $rows = build_leaderboard_from_db($game, 50); // кэшируем топ-50
 
-    // 3. Кладём в кэш
     cache_set($key, $rows, CACHE_TTL_LEADERBOARD);
 
     return array_slice($rows, 0, $limit);
 }
 
-/**
- * Считает лидерборд одним SQL-запросом с JOIN и SUM.
- * Намного эффективнее чем читать всё в PHP.
- */
+
 function build_leaderboard_from_db(string $game, int $limit): array {
     if ($game === 'all') {
         $sql = '

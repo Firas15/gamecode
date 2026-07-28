@@ -68,7 +68,7 @@ require_once dirname(__DIR__) . '/includes/assets.php';
       <div id="rp-error"   class="auth-error pixel-text"   style="display:none; margin:0 28px;"></div>
       <div id="rp-success" class="auth-success pixel-text" style="display:none; margin:0 28px;"></div>
 
-      <!-- ШАГ 1: Ввод никнейма -->
+      <!-- Ввод никнейма -->
       <div id="step1" class="auth-form" style="padding:28px; display:flex; flex-direction:column; gap:22px;">
 
         <div style="font-size:8px; color:var(--text-dim); letter-spacing:1px; line-height:1.8; font-family:var(--font-pixel);">
@@ -90,7 +90,7 @@ require_once dirname(__DIR__) . '/includes/assets.php';
         </div>
       </div>
 
-      <!-- ШАГ 2: Секретный вопрос + новый пароль -->
+      <!-- Секретный вопрос + новый пароль -->
       <div id="step2" style="display:none; padding:28px; flex-direction:column; gap:22px;">
 
         <div class="auth-field">
@@ -219,7 +219,7 @@ require_once dirname(__DIR__) . '/includes/assets.php';
       hideError();
     }
 
-    // ШАГ 1 — найти аккаунт
+    // Найти аккаунт
     document.getElementById('btn-check-nick').addEventListener('click', async () => {
       hideError();
       const nick = nickEl.value.trim();
@@ -290,7 +290,7 @@ require_once dirname(__DIR__) . '/includes/assets.php';
     eyeToggle('rp-newpass', 'rp-eye1');
     eyeToggle('rp-confirm',  'rp-eye2');
 
-    // ШАГ 2 — сбросить пароль
+    // Сбросить пароль
     document.getElementById('btn-reset').addEventListener('click', async () => {
       const answer  = ansEl.value.trim();
       const np      = newPass.value;

@@ -1,6 +1,6 @@
 <?php
 /**
- * GAME CODE — Score Submission API
+ * Score Submission API
  * POST /api/score.php
  */
 

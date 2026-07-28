@@ -1256,11 +1256,9 @@ function addScore(int $userId, string $gameId, int $score, array $meta = []): ar
     return $entry;
 }
 
-// =============================================================================
 // PIXELGAME — контент игры (уровни, вопросы монстров)
 // Postgres — источник истины, JSON-файлы в games/pixelgame/data/ — read-only
 // аварийный фолбэк (тот же паттерн, что games/news/chat_faq).
-// =============================================================================
 
 function gamecode_pixelgame_level_file(int $levelNumber): string {
     return __DIR__ . "/../games/pixelgame/data/levels/level{$levelNumber}.json";

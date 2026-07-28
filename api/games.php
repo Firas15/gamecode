@@ -1,6 +1,6 @@
 <?php
 /**
- * GAME CODE — Games API
+ * Games API
  * GET /api/games.php
  */
 

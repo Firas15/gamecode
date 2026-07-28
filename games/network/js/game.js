@@ -1,9 +1,5 @@
-/* ==========================================================
-   СЕТЕВОЙ МАРШРУТ — game.js
-   Обучающая игра по теме IP-адресов и масок подсети
-
-   КАК УСТРОЕН ФАЙЛ (читай сверху вниз):
-   1.  ЗВУКИ          — Web Audio API, без файлов
+/* 
+   1.  ЗВУКИ          — Web Audio API
    2.  ЗВЁЗДНЫЙ ФОН   — canvas анимация
    3.  ДАННЫЕ         — уровни и задания
    4.  ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ — IP-арифметика
@@ -18,12 +14,10 @@
   13.  РЕЗУЛЬТАТ      — итоговый экран
   14.  КЛАВИШИ        — ESC
   15.  ЗАПУСК         — init
-========================================================== */
+*/
 
 
-/* ==========================================================
-   1. ЗВУКИ
-========================================================== */
+/*  1. ЗВУКИ */
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 function playBeep(freq, dur, shape = 'square', vol = 0.15) {
@@ -66,9 +60,7 @@ function soundClick() {
 }
 
 
-/* ==========================================================
-   2. ЗВЁЗДНЫЙ ФОН
-========================================================== */
+/* 2. ЗВЁЗДНЫЙ ФОН */
 (function initStars() {
   const canvas = document.getElementById('stars-canvas');
   const ctx    = canvas.getContext('2d');
@@ -105,9 +97,7 @@ function soundClick() {
 })();
 
 
-/* ==========================================================
-   3. ДАННЫЕ — УРОВНИ И ЗАДАНИЯ
-========================================================== */
+/* 3. ДАННЫЕ — УРОВНИ И ЗАДАНИЯ */
 
 /*
   Задание содержит:
@@ -124,10 +114,10 @@ function soundClick() {
 */
 
 const LEVELS = [
-  /* ─────────────────────────────
+  /*
      УРОВЕНЬ 1 — НОВИЧОК
      Маска /24 (255.255.255.0)
-  ───────────────────────────── */
+ */
   {
     id:     'level1',
     name:   'НОВИЧОК',
@@ -173,10 +163,10 @@ const LEVELS = [
     ],
   },
 
-  /* ─────────────────────────────
+  /* 
      УРОВЕНЬ 2 — ПРАКТИК
      Маски /16 и /8
-  ───────────────────────────── */
+  */
   {
     id:     'level2',
     name:   'ПРАКТИК',
@@ -222,10 +212,10 @@ const LEVELS = [
     ],
   },
 
-  /* ─────────────────────────────
+  /* 
      УРОВЕНЬ 3 — ЭКСПЕРТ
      Маски /25, /26, /28 — нестандартные
-  ───────────────────────────── */
+  */
   {
     id:     'level3',
     name:   'ЭКСПЕРТ',
@@ -273,9 +263,7 @@ const LEVELS = [
 ];
 
 
-/* ==========================================================
-   4. ВСПОМОГАТЕЛЬНЫЕ IP-ФУНКЦИИ
-========================================================== */
+/* 4. ВСПОМОГАТЕЛЬНЫЕ IP-ФУНКЦИИ */
 
 // Разбить IP на массив чисел: '192.168.1.10' → [192, 168, 1, 10]
 function parseIP(ip) {
@@ -301,7 +289,7 @@ function subnetDisplay(senderIP, mask) {
   return `${net}/${bits}`;
 }
 
-// Случайный порядок вариантов (устройств) на поле — Fisher–Yates
+// Случайный порядок вариантов (устройств) на поле
 function shuffleDevicesCopy(devices) {
   const arr = devices.map(d => ({ ...d }));
   for (let i = arr.length - 1; i > 0; i--) {
@@ -312,9 +300,7 @@ function shuffleDevicesCopy(devices) {
 }
 
 
-/* ==========================================================
-   5. ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ
-========================================================== */
+/* 5. ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ */
 const screens = {
   menu:   document.getElementById('s-menu'),
   intro:  document.getElementById('s-intro'),
@@ -329,9 +315,7 @@ function showScreen(name) {
 }
 
 
-/* ==========================================================
-   6. СОСТОЯНИЕ ИГРЫ
-========================================================== */
+/* 6. СОСТОЯНИЕ ИГРЫ */
 const state = {
   currentLevel:    null,   // объект уровня из LEVELS
   currentRoundIdx: 0,      // индекс текущего раунда
@@ -347,9 +331,7 @@ const state = {
 const IS_FIREFOX = /firefox/i.test(navigator.userAgent);
 
 
-/* ==========================================================
-   3б. ПИКСЕЛЬНЫЕ СЕРДЕЧКИ (как в сортировщике)
-========================================================== */
+/* ПИКСЕЛЬНЫЕ СЕРДЕЧКИ (как в сортировщике) */
 const HEART_GRID = [
   [0, 1, 1, 0, 0, 0, 1, 1, 0],
   [1, 1, 1, 1, 0, 1, 1, 1, 1],
@@ -411,9 +393,7 @@ function animateHeartLoss(newLives, maxLives) {
   updateHearts(newLives, maxLives);
 }
 
-/* ==========================================================
-   7. HUD
-========================================================== */
+/* 7. HUD */
 function updateHUD() {
   const total = state.currentLevel.rounds.length;
 
@@ -428,9 +408,7 @@ function updateHUD() {
 }
 
 
-/* ==========================================================
-   8. ТОСТЫ
-========================================================== */
+/* 8. ТОСТЫ */
 function showToast(msg, type = 'info', duration = 2200) {
   const el = document.createElement('div');
   el.className = `toast ${type}`;
@@ -444,9 +422,7 @@ function showToast(msg, type = 'info', duration = 2200) {
 }
 
 
-/* ==========================================================
-   9. МЕНЮ
-========================================================== */
+/* 9. МЕНЮ */
 function buildMenu() {
   const container = document.getElementById('level-cards');
   container.innerHTML = '';
@@ -470,9 +446,7 @@ function buildMenu() {
 }
 
 
-/* ==========================================================
-   10. ВСТУПЛЕНИЕ К УРОВНЮ
-========================================================== */
+/* 10. ВСТУПЛЕНИЕ К УРОВНЮ */
 function showIntro(round, levelName) {
   const subnet = subnetDisplay(round.senderIP, round.mask);
 
@@ -487,9 +461,7 @@ function showIntro(round, levelName) {
 }
 
 
-/* ==========================================================
-   11. ИГРОВОЕ ПОЛЕ
-========================================================== */
+/* 11. ИГРОВОЕ ПОЛЕ */
 
 // Позиции для устройств на поле (правая часть экрана)
 // Возвращает [x%, y%] от размеров game-field
@@ -530,7 +502,7 @@ function buildGameField(round) {
   // Позиции устройств
   const positions = getDevicePositions(devices.length);
 
-  // Создаём устройства
+  // Создание устройства
   devices.forEach((dev, i) => {
     const [xPct, yPct] = positions[i];
 
@@ -572,7 +544,7 @@ function buildGameField(round) {
   document.getElementById('t-question').textContent = round.task;
 }
 
-// Рисуем SVG-линию от отправителя к i-му устройству
+// SVG-линия от отправителя к i-му устройству
 function drawLine(svg, devIdx, [xPct, yPct], count) {
   const field  = document.getElementById('game-field');
   const sender = document.getElementById('sender-node');
@@ -600,9 +572,7 @@ function drawLine(svg, devIdx, [xPct, yPct], count) {
 }
 
 
-/* ==========================================================
-   12. МЕХАНИКА — КЛИК ПО УСТРОЙСТВУ
-========================================================== */
+/* 12. МЕХАНИКА — КЛИК ПО УСТРОЙСТВУ */
 function handleDeviceClick(devIdx, round) {
   if (state.busy) return;
   state.busy = true;
@@ -614,7 +584,7 @@ function handleDeviceClick(devIdx, round) {
   const line     = document.getElementById(`line-${devIdx}`);
 
   if (dev.correct) {
-    // ✅ ПРАВИЛЬНО
+    // ПРАВИЛЬНО
     soundPacketFly();
     animatePacket(devIdx, () => {
       soundCorrect();
@@ -628,7 +598,7 @@ function handleDeviceClick(devIdx, round) {
     });
 
   } else {
-    // ❌ НЕВЕРНО
+    // НЕВЕРНО
     soundWrong();
     state.lives--;
     state.errorCount++;
@@ -641,22 +611,19 @@ function handleDeviceClick(devIdx, round) {
     const correctNode = nodes[correctIdx];
     const correctLine = document.getElementById(`line-${correctIdx}`);
 
-    // В Firefox у части пользователей анимация пакета выглядит как "перепрыгивание".
-    // Делаем предсказуемый фолбэк: сначала явно неверный, затем правильный.
     if (IS_FIREFOX) {
       setTimeout(() => {
         correctNode.classList.add('correct');
         correctLine.classList.add('correct-final');
       }, 650);
     } else {
-      // Анимируем пакет до правильного
+
       animatePacketWrong(devIdx, correctIdx, () => {
         correctNode.classList.add('correct');
         correctLine.classList.add('correct-final');
       });
     }
 
-    // Записываем ошибку
     state.errors.push({
       question:    `Раунд: ${round.senderIP} / ${round.mask}`,
       yourAnswer:  dev.ip,
@@ -676,9 +643,7 @@ function handleDeviceClick(devIdx, round) {
 }
 
 
-/* ==========================================================
-   13. АНИМАЦИЯ ПАКЕТА
-========================================================== */
+/* 13. АНИМАЦИЯ ПАКЕТА */
 function getSenderCenter() {
   const field  = document.getElementById('game-field');
   const sender = document.getElementById('sender-node');
@@ -747,9 +712,7 @@ function animatePacketWrong(wrongIdx, correctIdx, onShowCorrect) {
 }
 
 
-/* ==========================================================
-   14. УПРАВЛЕНИЕ РАУНДАМИ
-========================================================== */
+/* 14. УПРАВЛЕНИЕ РАУНДАМИ */
 function startLevel(level) {
   state.currentLevel    = level;
   state.currentRoundIdx = 0;
@@ -769,7 +732,7 @@ function startRound() {
   const round = state.currentLevel.rounds[state.currentRoundIdx];
   state.busy  = false;
 
-  // Показываем вступление, затем через секунду (кнопка) — игру
+  // Показываем вступление, затем через секунду игру
   showIntro(round, state.currentLevel.name);
 }
 
@@ -778,7 +741,7 @@ function beginRound() {
   state.displayDevices = shuffleDevicesCopy(round.devices);
   showScreen('game');
 
-  // Строим поле с небольшой задержкой (нужен layout)
+  // Строим поле с небольшой задержкой
   setTimeout(() => {
     buildGameField(round);
     updateHUD();
@@ -800,9 +763,7 @@ function nextRound() {
 }
 
 
-/* ==========================================================
-   15. КОНЕЦ ИГРЫ
-========================================================== */
+/* 15. КОНЕЦ ИГРЫ */
 function endGame(won) {
   if (won) soundWin(); else soundLose();
 
@@ -870,9 +831,7 @@ function endGame(won) {
 }
 
 
-/* ==========================================================
-   16. КНОПКИ
-========================================================== */
+/* 16. КНОПКИ */
 // Кнопка старта раунда (на экране intro)
 document.getElementById('btn-start-level').addEventListener('click', () => {
   soundClick();
@@ -908,9 +867,7 @@ document.getElementById('btn-menu-res').addEventListener('click', () => {
 });
 
 
-/* ==========================================================
-   17. ЗАПУСК
-========================================================== */
+/* 17. ЗАПУСК */
 function init() {
   buildMenu();
   showScreen('menu');

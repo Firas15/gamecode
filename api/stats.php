@@ -1,6 +1,6 @@
 <?php
 /**
- * GAME CODE — Stats API
+ * Stats API
  * GET /api/stats.php — возвращает кол-во зарегистрированных пользователей
  */
 

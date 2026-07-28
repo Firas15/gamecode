@@ -1,10 +1,4 @@
-// ============================================
-//  GAME CODE — APP.JS
-//  Главный скрипт сайта
-// ============================================
-
-// === SIDEBAR ===
-
+// SIDEBAR
 const sidebar      = document.getElementById('sidebar');
 const overlay      = document.getElementById('overlay');
 const menuBtn      = document.getElementById('menuBtn');
@@ -34,7 +28,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeSidebar();
 });
 
-// === SCROLL REVEAL ===
+// SCROLL REVEAL 
 
 const observer = new IntersectionObserver(
   entries => {

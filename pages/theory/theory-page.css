@@ -1,5 +1,3 @@
-
-
 /* Пиксельный шрифт для основного текста теории */
 .theory-page-content .section-text,
 .theory-page-content .block-text,
@@ -26,7 +24,6 @@
   max-width: 860px;
 }
 
-/* Hero эмодзи */
 .theory-hero-emoji {
   font-size: 64px;
   margin-bottom: 16px;
@@ -268,7 +265,7 @@
   color: var(--text-main);
 }
 
-/* ── Портретные телефоны и узкие экраны ── */
+/* Портретные телефоны и узкие экраны */
 @media (max-width: 640px) {
   .theory-page-content {
     padding: 28px 12px 48px;
@@ -460,9 +457,7 @@
   }
 }
 
-/* ════════════
-   PREVENT HORIZONTAL OVERFLOW
-   ════════════ */
+/* PREVENT HORIZONTAL OVERFLOW */
 @media (max-width: 640px) {
   .theory-page-content {
     max-width: 100%;

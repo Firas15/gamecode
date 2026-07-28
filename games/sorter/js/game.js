@@ -1,9 +1,6 @@
-/* ==========================================================
-   СОРТИРОВЩИК — game.js
-   Вся игровая логика в одном файле.
+/* 
 
-   КАК УСТРОЕН ФАЙЛ (читай сверху вниз):
-   1. ЗВУКИ         — функции для воспроизведения звуков
+   1. ЗВУКИ         — WEB Audio API
    2. ЗВЁЗДНЫЙ ФОН  — анимация мерцающих звёзд на canvas
    3. СЕРДЕЧКИ      — рисуем пиксельные сердечки
    4. ДАННЫЕ        — все категории, уровни и понятия Python
@@ -20,23 +17,10 @@
   15. ПАУЗА         — пауза и возобновление
   16. КНОПКИ И КЛАВИШИ — обработчики событий
   17. СТАРТ         — запуск приложения
-========================================================== */
+ */
 
-
-/* ==========================================================
-   1. ЗВУКИ
-   Используем Web Audio API — встроенный синтезатор браузера.
-   Он не требует файлов .mp3, генерирует звук «на лету».
-========================================================== */
-
-// Создаём один общий «микшер» для всего приложения
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-// Базовая функция: играет один звуковой сигнал
-// freq  — частота в Гц (выше = пищит выше)
-// dur   — длительность в секундах
-// shape — форма волны: 'square' (пиксельный), 'sawtooth' (жёсткий)
-// vol   — громкость от 0 до 1
 function playBeep(freq, dur, shape = 'square', vol = 0.18) {
   const oscillator = audioContext.createOscillator(); // генератор тона
   const gainNode   = audioContext.createGain();       // регулятор громкости
@@ -58,43 +42,36 @@ function playBeep(freq, dur, shape = 'square', vol = 0.18) {
 // Наборы звуков для разных игровых событий:
 
 function playSoundCorrect() {
-  // Мажорный аккорд вверх — до, ми, соль
   playBeep(523, 0.06);
   setTimeout(() => playBeep(659, 0.06), 70);
   setTimeout(() => playBeep(784, 0.12), 140);
 }
 
 function playSoundWrong() {
-  // Два нисходящих тона — сигнал ошибки
   playBeep(220, 0.06);
   setTimeout(() => playBeep(180, 0.12), 70);
 }
 
 function playSoundPickUp() {
-  // Короткий пик при подхвате блока
   playBeep(440, 0.04, 'square', 0.08);
 }
 
 function playSoundMissed() {
-  // Глухой звук — блок упал мимо
   playBeep(150, 0.08, 'sawtooth', 0.15);
   setTimeout(() => playBeep(120, 0.15, 'sawtooth', 0.12), 80);
 }
 
 function playSoundWin() {
-  // Победная мелодия из 4 нот
   const notes = [523, 659, 784, 1047];
   notes.forEach((note, i) => setTimeout(() => playBeep(note, 0.1), i * 90));
 }
 
 function playSoundGameOver() {
-  // Нисходящая мелодия — проигрыш
   const notes = [300, 250, 200, 150];
   notes.forEach((note, i) => setTimeout(() => playBeep(note, 0.12, 'sawtooth', 0.18), i * 100));
 }
 
 function playSoundStart() {
-  // Три ноты вверх при старте уровня
   playBeep(330, 0.06);
   setTimeout(() => playBeep(392, 0.06), 70);
   setTimeout(() => playBeep(523, 0.10), 140);
@@ -103,15 +80,11 @@ function playSoundStart() {
 function playSoundPause()   { playBeep(440, 0.05); setTimeout(() => playBeep(330, 0.08), 60); }
 function playSoundUnpause() { playBeep(330, 0.05); setTimeout(() => playBeep(440, 0.08), 60); }
 
-// AudioContext нельзя запустить без действия пользователя — разблокируем при первом касании
 document.addEventListener('pointerdown', () => audioContext.resume(), { once: true });
 document.addEventListener('keydown',     () => audioContext.resume(), { once: true });
 
 
-/* ==========================================================
-   2. ЗВЁЗДНЫЙ ФОН
-   Рисуем мерцающие точки-звёзды на <canvas> позади игры.
-========================================================== */
+/* 2. ЗВЁЗДНЫЙ ФОН */
 
 function initStarfield() {
   const canvas = document.getElementById('stars-canvas');
@@ -128,7 +101,7 @@ function initStarfield() {
       stars.push({
         x:         Math.random() * canvas.width,
         y:         Math.random() * canvas.height,
-        size:      Math.random() < 0.2 ? 2 : 1,   // большинство мелкие
+        size:      Math.random() < 0.2 ? 2 : 1,   
         phase:     Math.random(),                   // фаза мерцания
         speed:     0.2 + Math.random() * 0.4,      // скорость мерцания
       });
@@ -146,7 +119,6 @@ function initStarfield() {
       star.phase += 0.01 * star.speed;
       if (star.phase > 1) star.phase = 0;
 
-      // Math.abs(Math.sin(...)) даёт значение от 0 до 1 — эффект мерцания
       const brightness = Math.abs(Math.sin(star.phase * Math.PI));
       ctx.fillStyle = `rgba(0, 232, 213, ${brightness * 0.6})`;
       ctx.fillRect(Math.floor(star.x), Math.floor(star.y), star.size, star.size);
@@ -159,13 +131,8 @@ function initStarfield() {
 }
 
 
-/* ==========================================================
-   3. ПИКСЕЛЬНЫЕ СЕРДЕЧКИ
-   Рисуем сердечки из пикселей на маленьком <canvas>.
-   HEART_GRID — это как трафарет: 1 = закрашенный пиксель.
-========================================================== */
+/* 3. ПИКСЕЛЬНЫЕ СЕРДЕЧКИ */
 
-// Сетка формы сердца (9 столбцов × 8 строк)
 const HEART_GRID = [
   [0, 1, 1, 0, 0, 0, 1, 1, 0],
   [1, 1, 1, 1, 0, 1, 1, 1, 1],
@@ -177,11 +144,8 @@ const HEART_GRID = [
   [0, 0, 0, 0, 1, 0, 0, 0, 0],
 ];
 
-// Рисует одно сердечко на canvas
-// canvas  — элемент <canvas>
-// isEmpty — true = серое (потеряно), false = красное (живое)
 function drawHeart(canvas, isEmpty) {
-  const PIXEL_SIZE   = 3; // каждый «пиксель» = 3×3 реальных пикселя
+  const PIXEL_SIZE   = 3; 
   const COLS         = HEART_GRID[0].length;
   const ROWS         = HEART_GRID.length;
 
@@ -193,12 +157,11 @@ function drawHeart(canvas, isEmpty) {
 
   for (let row = 0; row < ROWS; row++) {
     for (let col = 0; col < COLS; col++) {
-      if (HEART_GRID[row][col] === 0) continue; // пропускаем пустые клетки
+      if (HEART_GRID[row][col] === 0) continue; 
 
       ctx.fillStyle = isEmpty ? '#2a3a5c' : '#ff3366';
       ctx.fillRect(col * PIXEL_SIZE, row * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE);
 
-      // Добавляем светлый «блик» на верхних пикселях для объёма
       if (!isEmpty && row === 0 && (col === 1 || col === 6)) {
         ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
         ctx.fillRect(col * PIXEL_SIZE, row * PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE);
@@ -207,9 +170,7 @@ function drawHeart(canvas, isEmpty) {
   }
 }
 
-// Обновляет все сердечки в HUD
-// currentLives — сколько жизней осталось
-// maxLives     — сколько было изначально
+// Обновляем все сердечки в HUD
 function updateHearts(currentLives, maxLives) {
   const container = document.getElementById('h-hearts');
   if (!container) return;
@@ -244,11 +205,7 @@ function animateHeartLoss(newLives, maxLives) {
 }
 
 
-/* ==========================================================
-   4. ДАННЫЕ
-   Все категории, уровни и понятия Python.
-   Чтобы добавить новое понятие — просто добавь строку в concepts.
-========================================================== */
+/* 4. ДАННЫЕ */
 
 const CATEGORIES = [
   { id: 'functions',  label: 'Функции',   icon: 'ƒ()' },
@@ -371,10 +328,7 @@ const CONCEPTS = [
 ];
 
 
-/* ==========================================================
-   5. ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ
-   Показывает нужный экран, скрывает остальные.
-========================================================== */
+/* 5. ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ */
 
 function showScreen(screenId) {
   const allScreens = ['s-menu', 's-game', 's-result'];
@@ -387,13 +341,8 @@ function showScreen(screenId) {
 }
 
 
-/* ==========================================================
-   6. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-   Тосты (всплывающие сообщения), частицы, встряска HUD.
-========================================================== */
+/* 6. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ */
 
-// Показывает всплывающее сообщение внизу экрана
-// type — 'ok' (зелёное) или 'err' (красное)
 function showToast(type, text, hint = '') {
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
@@ -401,11 +350,9 @@ function showToast(type, text, hint = '') {
 
   document.getElementById('toasts').appendChild(toast);
 
-  // Удаляем тост через 3.2 секунды
   setTimeout(() => toast.remove(), 3200);
 }
 
-// Показывает число очков, взлетающее с экрана (+15, -5 и т.д.)
 function showScoreBurst(text, isPositive) {
   const burst = document.createElement('div');
   burst.className  = `burst ${isPositive ? 'p' : 'm'}`;
@@ -451,10 +398,7 @@ function shakeElement(el) {
 }
 
 
-/* ==========================================================
-   7. МЕНЮ
-   Создаём кнопки выбора уровня и показываем главный экран.
-========================================================== */
+/* 7. МЕНЮ */
 
 function initMenu() {
   const container = document.getElementById('lvl-cards');
@@ -469,7 +413,6 @@ function initMenu() {
       <div class="desc">${level.desc}</div>
       <div class="stars">${level.stars}</div>
     `;
-    // При клике — звук и через 200мс старт уровня
     button.onclick = () => {
       playSoundStart();
       setTimeout(() => startLevel(level.id), 200);
@@ -481,13 +424,8 @@ function initMenu() {
 }
 
 
-/* ==========================================================
-   8. СОСТОЯНИЕ ИГРЫ И СТАРТ УРОВНЯ
-   Объект `game` хранит всё происходящее прямо сейчас.
-   startLevel() сбрасывает его и запускает игровой цикл.
-========================================================== */
+/* 8. СОСТОЯНИЕ ИГРЫ И СТАРТ УРОВНЯ */
 
-// Глобальное состояние игры — все данные «прямо сейчас»
 let game = {};
 
 function startLevel(levelId) {
@@ -536,10 +474,7 @@ function startLevel(levelId) {
 }
 
 
-/* ==========================================================
-   9. КОРЗИНЫ
-   Создаём корзины внизу экрана для каждой категории.
-========================================================== */
+/* 9. КОРЗИНЫ */
 
 function buildBaskets() {
   const area = document.getElementById('baskets');
@@ -569,12 +504,7 @@ function buildBaskets() {
 }
 
 
-/* ==========================================================
-  10. ПАДАЮЩИЙ БЛОК
-   Создаём блок, запускаем анимацию падения через RAF.
-   RAF = requestAnimationFrame — просим браузер вызвать функцию
-   перед следующим кадром (~60 раз в секунду).
-========================================================== */
+/* 10. ПАДАЮЩИЙ БЛОК */
 
 function spawnBlock() {
   // Не создаём блок если пауза или игра не идёт
@@ -609,8 +539,6 @@ function spawnBlock() {
   game.animFrameId = requestAnimationFrame(animateFall);
 }
 
-// Вызывается каждый кадр — двигает блок вниз
-// timestamp — время в миллисекундах, браузер передаёт автоматически
 function animateFall(timestamp) {
   // Останавливаем если пауза, блок тащат, или блок уже удалён
   if (game.paused || game.isDragging || !game.blockElement) return;
@@ -618,7 +546,7 @@ function animateFall(timestamp) {
   // Первый кадр — запоминаем время
   if (!game.lastTimestamp) game.lastTimestamp = timestamp;
 
-  // dt = сколько секунд прошло с прошлого кадра (обычно ~0.016 сек)
+  // dt = сколько секунд прошло с прошлого кадра
   const dt = (timestamp - game.lastTimestamp) / 1000;
   game.lastTimestamp = timestamp;
 
@@ -639,19 +567,11 @@ function animateFall(timestamp) {
 }
 
 
-/* ==========================================================
-  11. ПЕРЕТАСКИВАНИЕ
-   Поддерживаем два способа: HTML Drag&Drop (мышь) и
-   Pointer Events (тач на телефоне + мышь).
-========================================================== */
+/* 11. ПЕРЕТАСКИВАНИЕ */
 
 function attachDragListeners(block) {
-  // Firefox на draggable-элементах может уводить управление в native DnD,
-  // из-за чего блок "залипает" и не двигается свободно по полю.
-  // Отключаем native DnD и используем только Pointer Events.
   block.draggable = false;
 
-  // ── Тач и мышь: Pointer Events API ──────────────────
   block.addEventListener('pointerdown', e => {
     if (game.paused) return;
     playSoundPickUp();
@@ -718,10 +638,7 @@ function onPointerUp(e) {
 }
 
 
-/* ==========================================================
-  12. ПОПАДАНИЕ В КОРЗИНУ
-   Проверяем правильность и начисляем / снимаем очки.
-========================================================== */
+/* 12. ПОПАДАНИЕ В КОРЗИНУ */
 
 function handleDrop(categoryId, basketElement) {
   if (!game.currentConcept) return;
@@ -831,10 +748,7 @@ function removeCurrentBlock() {
 }
 
 
-/* ==========================================================
-  13. HUD (heads-up display) — панель сверху
-   Обновляем очки, прогресс-бар, название уровня и сердечки.
-========================================================== */
+/* 13. HUD */
 
 function refreshHUD() {
   document.getElementById('h-score').textContent = game.score;
@@ -849,10 +763,7 @@ function refreshHUD() {
 }
 
 
-/* ==========================================================
-  14. КОНЕЦ ИГРЫ
-   Останавливаем всё и показываем экран результатов.
-========================================================== */
+/* 14. КОНЕЦ ИГРЫ */
 
 function finishGame(result) {
   cancelAnimationFrame(game.animFrameId);
@@ -911,12 +822,7 @@ function finishGame(result) {
 }
 
 
-/* ==========================================================
-  15. ПАУЗА
-   Останавливаем падение и таймер спавна, возобновляем их обратно.
-========================================================== */
-
-
+/* 15. ПАУЗА */
 
 function togglePause() {
   game.paused = !game.paused;
@@ -940,10 +846,7 @@ function togglePause() {
 }
 
 
-/* ==========================================================
-  16. КНОПКИ И КЛАВИШИ
-   Привязываем обработчики к кнопкам интерфейса.
-========================================================== */
+/* 16. КНОПКИ И КЛАВИШИ */
 
 document.getElementById('btn-pause').onclick = () => togglePause();
 
@@ -985,20 +888,14 @@ document.addEventListener('keydown', e => {
 });
 
 
-/* ==========================================================
-  УТИЛИТЫ
-========================================================== */
+/* УТИЛИТЫ */
 
-// Перемешивает массив случайным образом (алгоритм Fisher–Yates)
 function shuffle(array) {
   return [...array].sort(() => Math.random() - 0.5);
 }
 
 
-/* ==========================================================
-  17. СТАРТ ПРИЛОЖЕНИЯ
-   Запускаем звёздный фон и показываем меню.
-========================================================== */
+/* 17. СТАРТ ПРИЛОЖЕНИЯ */
 
 initStarfield();
 initMenu();

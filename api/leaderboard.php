@@ -1,6 +1,6 @@
 <?php
 /**
- * GAME CODE — Leaderboard API
+ * Leaderboard API
  * GET /api/leaderboard.php?game=all
  */
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * GAME CODE — Pixelgame Level API
+ * Pixelgame Level API
  * GET /api/pixelgame-level.php?level=N
  *
  * Отдаёт данные уровня в том же формате, что и статический

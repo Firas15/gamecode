@@ -674,9 +674,8 @@ requireAdmin();
 <div id="notify">SAVED!</div>
 
 <script>
-// ─────────────────────────────────────────
+
 //  TILE DEFINITIONS
-// ─────────────────────────────────────────
 const TILES = {
   0: { name: 'FLOOR',   color: '#1e1e30', icon: '░', label: 'Floor (walkable)' },
   1: { name: 'WALL',    color: '#3d3d5c', icon: '█', label: 'Wall (solid)' },
@@ -699,9 +698,7 @@ const TOOLS = [
   { id: 6, name: 'ERASE',   tile: 6 },
 ];
 
-// ─────────────────────────────────────────
 //  DEFAULT MAPS (LEVELS)
-// ─────────────────────────────────────────
 // Карта 21×21 совпадает с MAP_DEFAULT в games/pixelgame/js/game.js
 // Формат: 0=пол, 1=стена, 2=игрок, 3=финиш, 4=враг, 5=сундук, 7=ловушка
 const GAME_MAP_21x21 = [
@@ -735,9 +732,7 @@ const DEFAULT_LEVELS = [
   { name: 'Level 4', map: GAME_MAP_21x21 },
 ];
 
-// ─────────────────────────────────────────
 //  STATE
-// ─────────────────────────────────────────
 const CELL = 32;
 let levels = [];
 let currentLevelIdx = 0;
@@ -749,9 +744,7 @@ let modifiedLevels = new Set();
 
 // Авторизация — через общую сессию админки (requireAdmin() в PHP).
 
-// ─────────────────────────────────────────
 //  INIT
-// ─────────────────────────────────────────
 async function initAdmin() {
   await loadLevels();
   buildToolGrid();
@@ -838,7 +831,6 @@ function buildLegend() {
     lg.appendChild(row);
   });
 
-  // Add developer note: triggerTrap skeleton for traps
   const note = document.createElement('div');
   note.style.marginTop = '10px';
   note.style.padding = '8px';
@@ -857,9 +849,7 @@ function selectTool(tileId, name) {
   }
 }
 
-// ─────────────────────────────────────────
 //  CANVAS & DRAWING
-// ─────────────────────────────────────────
 function setupCanvas() {
   const canvas = document.getElementById('map-canvas');
 
@@ -933,7 +923,7 @@ function paintAt(e) {
   }
 }
 
-// ── GAME-ACCURATE RENDERER (textures removed, restored to original) ──
+// GAME-ACCURATE RENDERER (textures removed, restored to original)
 const TS = 48;
 let edTexWall = null, edTexFloor = null, edTexFloorB = null;
 
@@ -958,7 +948,6 @@ function buildEdTextures() {
   wx.strokeStyle='rgba(0,229,255,0.08)'; wx.lineWidth=1; wx.strokeRect(0,0,TS,TS);
   edTexWall = wc;
 
-  // Пол — точная копия buildFloorTex() из игры
   function mkFloor(alt){
     const fc=document.createElement('canvas'); fc.width=TS; fc.height=TS;
     const fx=fc.getContext('2d');
@@ -1123,9 +1112,7 @@ function brightenHex(hex, factor) {
   return `rgb(${r},${g},${b})`;
 }
 
-// ─────────────────────────────────────────
 //  STATS
-// ─────────────────────────────────────────
 function updateStats() {
   const lv = levels[currentLevelIdx];
   if (!lv) return;
@@ -1445,9 +1432,7 @@ function deleteQuestion() {
   updateStats();
 }
 
-// ─────────────────────────────────────────
 //  LEVEL SELECT / MANAGEMENT
-// ─────────────────────────────────────────
 function updateLevelMetaForm() {
   const lv = levels[currentLevelIdx];
   if (!lv) return;
@@ -1553,9 +1538,7 @@ function resetLevel() {
   showNotify('LEVEL RESET');
 }
 
-// ─────────────────────────────────────────
 //  SAVE / EXPORT
-// ─────────────────────────────────────────
 function saveLevel() {
   syncQuestionFromForm();
   const lv = levels[currentLevelIdx];
@@ -1627,9 +1610,7 @@ function gotoGame() {
   if (result && typeof result.then === 'function') result.then(go); else go();
 }
 
-// ─────────────────────────────────────────
 //  NOTIFY
-// ─────────────────────────────────────────
 let notifyTimer;
 function showNotify(msg, isError=false) {
   const el = document.getElementById('notify');
@@ -1640,9 +1621,7 @@ function showNotify(msg, isError=false) {
   notifyTimer = setTimeout(() => el.classList.remove('show'), 2000);
 }
 
-// ─────────────────────────────────────────
 //  UTILS
-// ─────────────────────────────────────────
 function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
 
 // KEYBOARD SHORTCUTS

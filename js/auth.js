@@ -1,10 +1,3 @@
-/**
- * GAME CODE — Auth Widget
- * Подключается на всех страницах. Рендерит виджет входа/аккаунта в шапке.
- *
- * Ожидает window.AUTH_ROOT = '' (для root) или '../' (для pages/)
- */
-
 (function() {
   const ROOT    = (window.AUTH_ROOT || '').replace(/\/$/, '');
   const API_URL = ROOT + '/api/check-auth.php';

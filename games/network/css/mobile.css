@@ -1,9 +1,4 @@
-/* ============================================
-   NETWORK GAME — MOBILE.CSS
-   GameCode — Mobile & Tablet adaptations
-   ============================================ */
-
-/* ── TABLET (max-width: 1024px) ── */
+/* TABLET (max-width: 1024px) */
 @media (max-width: 1024px) {
   .hud { padding: 0 14px; }
   .task-panel-inner { gap: 12px; }
@@ -11,7 +6,7 @@
   .receiver-node { right: 30px; }
 }
 
-/* ── PHABLET (max-width: 900px) ── */
+/* PHABLET (max-width: 900px) */
 @media (max-width: 900px) {
   .hud {
     display: grid;
@@ -111,7 +106,7 @@
   .menu-title { font-size: clamp(11px, 3.2vw, 17px); }
 }
 
-/* ── MOBILE (max-width: 700px) ── already partially in style.css ── */
+/* MOBILE (max-width: 700px) */
 @media (max-width: 700px) {
   .hud {
     grid-template-columns: 1fr;
@@ -199,7 +194,7 @@
   }
 }
 
-/* ── SMALL PHONE (max-width: 520px) ── */
+/* SMALL PHONE (max-width: 520px) */
 @media (max-width: 520px) {
   .hud-col { gap: 8px; }
   .hud-val { font-size: clamp(9px, 3.2vw, 12px); }
@@ -225,7 +220,7 @@
   .back-btn { top: 6px; left: 6px; font-size: 7px; padding: 7px 10px; }
 }
 
-/* ── TOUCH TARGETS ── */
+/* TOUCH TARGETS */
 @media (hover: none) and (pointer: coarse) {
   .router {
     width: 52px;
@@ -236,7 +231,7 @@
   .back-btn { min-height: 40px; }
 }
 
-/* ── LANDSCAPE PHONE ── */
+/* LANDSCAPE PHONE */
 @media (max-height: 500px) and (max-width: 900px) {
   .hud { padding: 4px 8px; }
   .game-field { top: 130px; }

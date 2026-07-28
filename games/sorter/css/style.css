@@ -1,8 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-/* ══════════
-   RESET & VARIABLES
-══════════ */
+/* RESET & VARIABLES */
 *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; image-rendering:pixelated }
 :root {
   --bg:       #080d16;
@@ -30,9 +28,7 @@ html, body {
 }
 button { cursor:pointer; font-family:'Press Start 2P', monospace; }
 
-/* ══════════
-   SCREENS
-══════════ */
+/* SCREENS */
 .screen {
   position:fixed; inset:0;
   display:flex; flex-direction:column;
@@ -41,14 +37,10 @@ button { cursor:pointer; font-family:'Press Start 2P', monospace; }
 }
 .screen.out { opacity:0; pointer-events:none; }
 
-/* ══════════
-   STARFIELD CANVAS
-══════════ */
+/* STARFIELD CANVAS */
 #stars-canvas { position:fixed; inset:0; z-index:0; pointer-events:none; }
 
-/* ══════════
-   MENU
-══════════ */
+/* MENU */
 #s-menu { gap:32px; z-index:2; }
 
 .logo { text-align:center; position:relative; animation:blink-in .5s steps(1) both; }
@@ -106,12 +98,10 @@ button { cursor:pointer; font-family:'Press Start 2P', monospace; }
   box-shadow: 0 3px 0 0 var(--border2), -3px 0 0 0 var(--border2), 3px 0 0 0 var(--border2), 0 -2px 0 0 var(--border2);
 }
 
-/* ══════════
-   GAME SCREEN
-══════════ */
+/* GAME SCREEN */
 #s-game { justify-content:stretch; padding:0; z-index:2; }
 
-/* ── HUD — bigger ── */
+/* HUD */
 .hud {
   width:100%; padding:14px 24px;
   background:var(--bg2);
@@ -136,11 +126,10 @@ button { cursor:pointer; font-family:'Press Start 2P', monospace; }
   text-shadow:3px 3px 0 #005a54;
 }
 
-/* ── Pixel hearts container ── */
+/* Pixel hearts container */
 .hud-hearts {
   display:flex; gap:6px; align-items:center;
 }
-/* Each heart is an SVG drawn via CSS clip-path pixel grid */
 .px-heart {
   width:20px; height:18px;
   background:var(--pink);
@@ -151,12 +140,10 @@ button { cursor:pointer; font-family:'Press Start 2P', monospace; }
     0% 25%,
     0% 0%
   );
-  /* real pixel heart shape via box approach */
   position:relative;
   display:inline-block;
 }
 
-/* We'll render hearts as canvas-drawn SVGs — see JS */
 .px-heart-canvas {
   display:inline-block;
   image-rendering:pixelated;
@@ -188,7 +175,7 @@ button { cursor:pointer; font-family:'Press Start 2P', monospace; }
 .btn-pause:hover  { color:var(--cyan); transform:scale(1.05); }
 .btn-pause:active { transform:translateY(3px); box-shadow:0 -2px 0 0 var(--border2), 0 1px 0 0 var(--border2), -2px 0 0 0 var(--border2), 2px 0 0 0 var(--border2); }
 
-/* ── Field ── */
+/* Field */
 .field { flex:1; position:relative; overflow:hidden; width:100%; }
 .field::before {
   content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
@@ -198,7 +185,7 @@ button { cursor:pointer; font-family:'Press Start 2P', monospace; }
   background-size:8px 8px;
 }
 
-/* ── Falling block ── */
+/* Falling block */
 .block {
   position:absolute; top:-80px;
   padding:11px 18px; background:var(--bg2);
@@ -230,7 +217,7 @@ button { cursor:pointer; font-family:'Press Start 2P', monospace; }
 }
 .block.dragging::after { background:var(--yellow); }
 
-/* ── Baskets ── */
+/* Baskets */
 .baskets {
   width:100%; padding:10px 14px; background:var(--bg2);
   border-top:4px solid var(--border2);
@@ -285,9 +272,7 @@ button { cursor:pointer; font-family:'Press Start 2P', monospace; }
 .basket[data-cat="conditions"] .ico,.basket[data-cat="conditions"] .lbl { color:var(--c-cd); }
 .basket[data-cat="conditions"].over { background:rgba(155,114,255,.07); box-shadow:0 -3px 0 0 var(--c-cd), 0 3px 0 0 var(--c-cd), -3px 0 0 0 var(--c-cd), 3px 0 0 0 var(--c-cd); }
 
-/* ══════════
-   PIXEL PARTICLES
-══════════ */
+/* PIXEL PARTICLES */
 .px-particle {
   position:fixed; pointer-events:none; z-index:300;
   width:6px; height:6px; background:var(--cyan);
@@ -308,9 +293,7 @@ button { cursor:pointer; font-family:'Press Start 2P', monospace; }
   color: var(--pink);
   border-color: var(--pink);
 }
-/* ══════════
-   TOASTS
-══════════ */
+/* TOASTS */
 #toasts {
   position: fixed; 
   top: 96px; 
@@ -318,15 +301,15 @@ button { cursor:pointer; font-family:'Press Start 2P', monospace; }
   transform: translateX(-50%);
   z-index: 200; 
   pointer-events: none;
-  min-width: 1200px;   /* увеличено в 2 раза */
-  max-width: 100vw;    /* ограничение по экрану */
+  min-width: 1200px;  
+  max-width: 100vw;   
   display: flex; 
   flex-direction: column; 
   gap: 6px;
 }
 .toast {
-  padding: 20px 32px; /* вместо 10px 16px */
-  font-size: 1.04rem; /* вместо .52rem */
+  padding: 20px 32px; 
+  font-size: 1.04rem; 
   font-weight: 700; 
   line-height: 1.6;
   animation: toast-px .1s steps(2) both;
@@ -340,13 +323,11 @@ button { cursor:pointer; font-family:'Press Start 2P', monospace; }
   box-shadow:0 -2px 0 0 var(--pink),0 2px 0 0 var(--pink),-2px 0 0 0 var(--pink),2px 0 0 0 var(--pink);
 }
 .toast .hint {
-  font-size: .88rem; /* вместо .44rem */
+  font-size: .88rem; 
   margin-top: 4px;
 }
 
-/* ══════════
-   SCORE BURST
-══════════ */
+/* SCORE BURST */
 .burst {
   position:fixed; pointer-events:none; font-size:.9rem; z-index:300;
   animation:burst-px .6s steps(6) forwards;
@@ -354,9 +335,7 @@ button { cursor:pointer; font-family:'Press Start 2P', monospace; }
 .burst.p { color:var(--green); text-shadow:2px 2px 0 #0a4a22; }
 .burst.m { color:var(--pink);  text-shadow:2px 2px 0 #4a0018; }
 
-/* ══════════
-   RESULT SCREEN
-══════════ */
+/* RESULT SCREEN */
 #s-result { gap:20px; padding:24px 16px; z-index:2; }
 #s-result::before {
   content:''; position:absolute; inset:0; pointer-events:none;
@@ -399,9 +378,7 @@ button { cursor:pointer; font-family:'Press Start 2P', monospace; }
 .btn-sec:hover  { color:var(--txt); }
 .btn-sec:active { transform:translateY(4px); box-shadow:0 1px 0 0 var(--border),-2px 0 0 0 var(--border),2px 0 0 0 var(--border),0 -2px 0 0 var(--border2); }
 
-/* ══════════
-   ANIMATIONS
-══════════ */
+/* ANIMATIONS */
 @keyframes blink      { 0%,49%{opacity:1} 50%,100%{opacity:0} }
 @keyframes blink-in   { from{opacity:0} to{opacity:1} }
 @keyframes pulse-glow {
@@ -453,7 +430,7 @@ button { cursor:pointer; font-family:'Press Start 2P', monospace; }
   box-shadow: 0 0 20px rgba(0,229,255,0.5);
 }
 
-/* ── Телефон (портрет / узкий экран) ── */
+/* Телефон */
 @media (max-width: 640px) {
   #toasts {
     min-width: 0;

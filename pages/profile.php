@@ -44,7 +44,6 @@ $gameColors = [
     'pixelgame'   => '#bf5af2',
 ];
 
-// Грузим только записи текущего пользователя (не все 9000+ строк)
 $userScoreRows = gamecode_pg_query_all(
     'SELECT game_id, score, created_at, updated_at FROM scores
      WHERE user_id = $1 AND game_id = ANY($2)
@@ -142,8 +141,6 @@ function gc_rank_color(int $rank): string {
     return 'var(--cyan, #00e5ff)';
 }
 
-// Ранги через тот же SQL что и build_leaderboard_from_db в redis.php
-// JOIN users гарантирует что считаем только реальных пользователей
 $ranksByGame = [];
 foreach (array_keys($gameLabels) as $gid) {
     $rows = gamecode_pg_query_all(
@@ -161,7 +158,6 @@ foreach (array_keys($gameLabels) as $gid) {
     }
 }
 
-// Общий ранг — как leaderboard?game=all
 $rows = gamecode_pg_query_all(
     'SELECT rnk FROM (
         SELECT s.user_id, ROW_NUMBER() OVER (ORDER BY SUM(s.score) DESC) AS rnk
@@ -174,7 +170,7 @@ $rows = gamecode_pg_query_all(
 );
 $overallRank = !empty($rows[0]['rnk']) ? (int)$rows[0]['rnk'] : null;
 
-// ── История последних 10 попыток — SQL с сортировкой и лимитом ──
+// История последних 10 попыток 
 $recentRows = gamecode_pg_query_all(
     'SELECT game_id, score, created_at FROM scores
      WHERE user_id = $1 AND game_id = ANY($2)
@@ -491,7 +487,6 @@ $regDate  = date('d.m.Y', strtotime($user['created_at']));
       </form>
     </div>
 
-    <!-- Опасная зона: выход -->
     <div class="content-block" style="animation-delay:0.3s; border-color: rgba(255,77,109,0.3);">
       <h2 class="block-title pink">[ АККАУНТ ]</h2>
       <div class="profile-actions">

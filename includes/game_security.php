@@ -1,13 +1,6 @@
 <?php
 declare(strict_types=1);
 
-/**
- * GAME CODE — Minimal server-side anti-tamper helpers
- *
- * - Generates/stores an application secret locally (data/app_secret.key)
- * - Signs/verifies per-run tokens to prevent trivial replay/tampering
- */
-
 function gc_get_app_secret(): string {
     $path = dirname(__DIR__) . '/data/app_secret.key';
     $dir  = dirname($path);

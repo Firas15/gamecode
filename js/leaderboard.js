@@ -1,10 +1,3 @@
-/**
- * GAME CODE — Leaderboard Utilities
- * Подключается в каждой игре. Предоставляет:
- *   submitScore(gameId, payload)   — отправить результат на сервер (очки считает сервер)
- *   renderLeaderboard(el, gameId, limit) — отрисовать виджет топа в меню
- */
-
 // Определяем корень сайта относительно текущего файла (игры лежат в games/xxx/)
 const LB_ROOT = '../../';
 
@@ -30,7 +23,6 @@ async function pingGame(gameId) {
             started_at: data.started_at,
         }));
     } catch {
-        // тихо игнорируем
     }
 }
 

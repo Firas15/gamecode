@@ -1,0 +1,27 @@
+.git
+.gitignore
+.vscode
+.DS_Store
+**/.DS_Store
+Thumbs.db
+
+# Локальный конфиг с паролями — в контейнере конфиг берётся из переменных окружения
+config.php
+
+.env
+.env.*
+!.env.example
+
+docker-compose.yml
+docker-compose.*.yml
+Dockerfile
+.dockerignore
+DEPLOY.md
+db/*.sql
+*.log
+*.tar
+*.zip
+
+# Секрет античита — генерируется entrypoint-ом внутри тома, в образ не пакуем
+data/app_secret.key
+db/

@@ -2408,3 +2408,106 @@ kbd {
     height: 44px;
   }
 }
+
+/* ══════════════════════════════════════════════════════════
+   ПАРТНЁРСКИЙ ЗНАК — GameCode × ITGorky
+   Разметка в index.html и на внутренних страницах: .partner-mark
+   Чтобы поставить настоящий логотип партнёра — положите файл в
+   img/itgorky-logo.svg и раскомментируйте <img> в разметке;
+   текстовый знак .partner-name тогда можно убрать.
+   ══════════════════════════════════════════════════════════ */
+
+/* заголовок не растягивается, чтобы знак партнёра стоял вплотную */
+.header-left .site-title { flex: 0 1 auto; }
+
+.partner-mark {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  padding-left: 18px;
+  margin-left: 4px;
+  border-left: 1px solid var(--border-blue);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.partner-mark:hover { opacity: 1; }
+.partner-mark:hover .partner-name { color: var(--cyan); }
+.partner-mark:hover .partner-x    { color: var(--cyan); }
+
+/* знак «×» между брендами */
+.partner-x {
+  font-family: var(--font-ui);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-dim);
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.partner-name {
+  font-family: var(--font-pixel);
+  font-size: clamp(12px, 2.1vw, 16px);
+  letter-spacing: 2px;
+  color: var(--text-main);
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+.partner-name em { font-style: normal; color: var(--accent); }
+
+/* настоящий логотип партнёра, когда появится файл */
+.partner-logo {
+  height: 34px;
+  width: auto;
+  display: block;
+  /* логотип у партнёра тёмный — на тёмном фоне инвертируем */
+  filter: invert(1) brightness(1.6);
+}
+
+/* ── Планшет ── */
+@media (max-width: 1024px) {
+  .partner-mark { padding-left: 14px; gap: 8px; }
+}
+
+/* ── Телефон: знак уезжает из шапки под заголовок ──
+   В шапке на 360px рядом с логотипом и кнопкой входа места нет,
+   поэтому показываем компактную строку внутри .site-title.      */
+@media (max-width: 768px) {
+  .header-left .partner-mark { display: none; }
+
+  .site-title .partner-mark {
+    display: flex;
+    border-left: none;
+    padding-left: 0;
+    margin-left: 0;
+    margin-top: 3px;
+    gap: 6px;
+  }
+  .site-title .partner-x    { font-size: 15px; }
+  .site-title .partner-name { font-size: clamp(9px, 2.9vw, 12px); letter-spacing: 1px; }
+  .site-title .partner-logo { height: 18px; }
+}
+
+@media (min-width: 769px) {
+  .site-title .partner-mark { display: none; }
+}
+
+/* ── Совсем узкие экраны: только название партнёра ── */
+@media (max-width: 360px) {
+  .site-title .partner-name { font-size: 9px; letter-spacing: 0.5px; }
+  .site-title .partner-x    { font-size: 13px; }
+}
+
+/* ── Знак партнёра в боковом меню ── */
+.sidebar-partner {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-blue);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+.sidebar-partner .partner-name { font-size: 12px; }
+.sidebar-partner:hover .partner-name { color: var(--cyan); }

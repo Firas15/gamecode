@@ -33,6 +33,10 @@ require_once dirname(__DIR__) . '/includes/assets.php';
       <li><a href="theory.html"      class="sidebar-link">Теория</a></li>
       <li><a href="about.html"       class="sidebar-link">О нас</a></li>
     </ul>
+      <a class="sidebar-partner" href="https://itgorky.ru/" target="_blank" rel="noopener">
+        <span class="partner-x">×</span>
+        <span class="partner-name">IT<em>GORKY</em></span>
+      </a>
     <div class="sidebar-footer"><span>V2.0 — GameCode</span></div>
   </nav>
 
@@ -44,7 +48,21 @@ require_once dirname(__DIR__) . '/includes/assets.php';
       <div class="site-title">
         <a href="../index.html" class="logo pixel-text" style="text-decoration:none;">GAME<span class="accent">CODE</span></a>
         <p class="tagline pixel-text">Изучай программирование в играх</p>
+      
+        <a class="partner-mark" href="https://itgorky.ru/" target="_blank" rel="noopener">
+          <span class="partner-x">×</span>
+          <span class="partner-name">IT<em>GORKY</em></span>
+        </a>
       </div>
+      <a class="partner-mark" href="https://itgorky.ru/" target="_blank" rel="noopener"
+         title="ITGorky — ИТ-карта Нижнего Новгорода. Партнёр проекта">
+        <span class="partner-x">×</span>
+        <!-- Когда получите логотип от партнёров, положите файл в img/itgorky-logo.svg
+             и раскомментируйте строку ниже, а <span class="partner-name"> удалите.
+        <img class="partner-logo" src="../img/itgorky-logo.svg" alt="ITGorky" />
+        -->
+        <span class="partner-name">IT<em>GORKY</em></span>
+      </a>
     </div>
     <div class="header-right"><div id="auth-widget"></div></div>
   </header>

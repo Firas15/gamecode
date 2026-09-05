@@ -2500,15 +2500,33 @@ kbd {
   .site-title .partner-x    { font-size: 13px; }
 }
 
-/* ── Знак партнёра в боковом меню — строкой под GAMECODE ── */
+/* ── Знак партнёра внизу бокового меню: маскот, под ним название ── */
 .sidebar-partner {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 10px;
+  display: block;
+  text-align: center;
   text-decoration: none;
+  padding: 0 24px 4px;
+  /* поднимаем блок над подвалом меню */
+  margin-bottom: 730px;
 }
-.sidebar-partner .partner-x    { font-size: 18px; }
-.sidebar-partner .partner-name { font-size: 13px; letter-spacing: 1px; }
+.sidebar-partner-img {
+  display: block;
+  width: 128px;
+  max-width: 100%;
+  height: auto;
+  /* маскот прижат к разделительной линии */
+  margin: 0 auto;
+  /* маскот пиксельный — сглаживание превратило бы его в кашу */
+  image-rendering: pixelated;
+  transition: transform 0.25s;
+}
+.sidebar-partner:hover .sidebar-partner-img { transform: translateY(-2px); }
+
+.sidebar-partner .partner-name {
+  display: block;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-blue);
+  font-size: 15px;
+  letter-spacing: 2px;
+}
 .sidebar-partner:hover .partner-name { color: var(--cyan); }
-.sidebar-partner:hover .partner-x    { color: var(--cyan); }

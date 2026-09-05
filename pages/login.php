@@ -44,10 +44,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="sidebar-logo">
       <span class="pixel-text">GAME</span>
       <span class="pixel-text accent">CODE</span>
-      <a class="sidebar-partner" href="https://itgorky.ru/" target="_blank" rel="noopener">
-        <span class="partner-x">×</span>
-        <span class="partner-name">IT<em>GORKY</em></span>
-      </a>
     </div>
     <ul class="sidebar-nav">
       <li><a href="../index.html"    class="sidebar-link" >Все игры</a></li>
@@ -56,6 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <li><a href="theory.html"      class="sidebar-link" >Теория</a></li>
       <li><a href="about.html"       class="sidebar-link" >О нас</a></li>
     </ul>
+    <a class="sidebar-partner" href="https://itgorky.ru/" target="_blank" rel="noopener">
+      <img class="sidebar-partner-img" src="../img/itgorky-mascot.png" alt="ITGorky" />
+      <span class="partner-name">IT<em>GORKY</em></span>
+    </a>
     <div class="sidebar-footer"><span>V2.0 — GameCode</span></div>
   </nav>
 

@@ -256,7 +256,8 @@ a { text-decoration: none; color: inherit; }
   color: var(--text-bright);
   letter-spacing: 3px;
   line-height: 1.2;
-  text-shadow: 0 0 20px rgba(0,229,255,0.5);
+  /* без text-shadow: на пиксельном шрифте большой радиус размытия
+     заливает промежутки между пикселями и читается как прямоугольник */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

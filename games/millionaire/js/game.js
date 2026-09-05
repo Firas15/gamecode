@@ -1598,6 +1598,24 @@ function handleAnswer(chosenIdx) {
 
 
 /* 
+   ИКОНКИ ИНТЕРФЕЙСА
+   Файлы лежат рядом с index.html. Имена намеренно латиницей:
+   кириллица в путях ломается при переносе Windows -> сервер.
+ */
+const UI_ICONS = {
+  correct: 'icon-correct.png',
+  wrong:   'icon-wrong.png',
+  sad:     'icon-sad.png',
+  trophy:  'icon-trophy.png',
+  smug:    'icon-smug.png',
+  cool:    'icon-cool.png',
+};
+
+function uiIcon(name, alt) {
+  return '<img class="ui-icon" src="' + UI_ICONS[name] + '" alt="' + alt + '">';
+}
+
+/* 
    12. ПОЯСНЕНИЕ
  */
 function showExplanation(isCorrect, q) {
@@ -1612,11 +1630,11 @@ function showExplanation(isCorrect, q) {
 
   if (isCorrect) {
     const isLast = state.currentIdx === 14;
-    icon.textContent  = isLast ? '🏆' : '✅';
+    icon.innerHTML    = isLast ? uiIcon('trophy', 'Победа') : uiIcon('correct', 'Верно');
     title.textContent = isLast ? '[ ПОБЕДА! 1000 ОЧКОВ! ]' : '[ ВЕРНО! ]';
     title.style.color = 'var(--green)';
   } else {
-    icon.textContent  = '❌';
+    icon.innerHTML    = uiIcon('wrong', 'Неверно');
     title.textContent = '[ НЕВЕРНО ]';
     title.style.color = 'var(--pink)';
   }
@@ -1692,12 +1710,12 @@ function endGame(won) {
   const lbEl = document.getElementById('lb-millionaire');
   if (lbEl) renderLeaderboard(lbEl, 'millionaire', 5);
 
-  const emoji   = won           ? '🏆'
-                : reached <= 5  ? '😢'
-                : reached <= 10 ? '😤'
-                : '😎';
+  const emoji   = won           ? uiIcon('trophy', 'Победа')
+                : reached <= 5  ? uiIcon('sad', 'Мало очков')
+                : reached <= 10 ? uiIcon('smug', 'Неплохо')
+                : uiIcon('cool', 'Отличный результат');
 
-  document.getElementById('r-emoji').textContent   = emoji;
+  document.getElementById('r-emoji').innerHTML     = emoji;
   document.getElementById('r-title').textContent   = won ? '[ ПОБЕДИТЕЛЬ! ]' : '[ ИГРА ОКОНЧЕНА ]';
   document.getElementById('r-title').style.color   = won ? 'var(--yellow)' : 'var(--pink)';
   document.getElementById('r-prize').textContent   = finalPrize + ' pts';

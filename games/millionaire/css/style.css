@@ -796,6 +796,17 @@ body {
 }
 
 .explanation-icon { font-size: 48px; margin-bottom: 12px; }
+
+/* Растровые иконки вместо эмодзи. Файлы 64x64, показываем меньше —
+   браузер сглаживает при уменьшении, отдельных настроек не нужно. */
+.ui-icon {
+  display: block;
+  margin: 0 auto;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+.explanation-icon .ui-icon { width: 48px; height: 48px; }
 .explanation-title {
   font-size: 13px;
   letter-spacing: 2px;
@@ -854,6 +865,7 @@ body {
   background: linear-gradient(90deg, var(--yellow), var(--cyan));
 }
 .result-emoji { font-size: 56px; margin-bottom: 16px; }
+.result-emoji .ui-icon { width: 56px; height: 56px; }
 .result-title {
   font-size: clamp(12px, 2.5vw, 18px);
   color: var(--text-bright);
@@ -996,6 +1008,8 @@ body {
     font-size: 34px;
     margin-bottom: 8px;
   }
+  .explanation-icon .ui-icon { width: 34px; height: 34px; }
+  .result-emoji .ui-icon     { width: 40px; height: 40px; }
   .explanation-title {
     font-size: 10px;
     line-height: 1.6;

@@ -142,7 +142,9 @@ a { text-decoration: none; color: inherit; }
   white-space: nowrap;
 }
 .sidebar-logo .pixel-text { display: inline; color: var(--text-bright); }
-.sidebar-logo .accent { color: var(--accent); font-size: 20px; margin-left: -4px; }
+/* font-size: inherit — иначе на мобильных GAME уменьшается,
+   а CODE остаётся 20px и выглядит крупнее */
+.sidebar-logo .accent { color: var(--accent); font-size: inherit; margin-left: 3px; }
 
 .sidebar-nav { list-style: none; flex: 1; padding: 8px 0; }
 .sidebar-nav li { padding: 0 16px; }
@@ -824,7 +826,7 @@ kbd {
     max-width: 52vw;
   }
   .site-title .tagline { display: none; }
-  .sidebar-link { font-size: 12px; line-height: 1.5; }
+  .sidebar-link { font-size: 13px; line-height: 1.5; }
 
   .search-input { width: 140px; }
   .search-input:focus { width: 160px; }
@@ -2507,7 +2509,7 @@ kbd {
   text-decoration: none;
   padding: 0 24px 4px;
   /* поднимаем блок над подвалом меню */
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 .sidebar-partner-img {
   display: block;

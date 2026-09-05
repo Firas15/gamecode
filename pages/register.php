@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <img class="sidebar-partner-img" src="../img/itgorky-mascot.png" alt="ITGorky" />
       <span class="partner-name">IT<em>GORKY</em></span>
     </a>
-    <div class="sidebar-footer"><span>V2.0 — GameCode</span></div>
+    <div class="sidebar-footer"><span>GameCode © 2026</span></div>
   </nav>
 
   <header class="header">

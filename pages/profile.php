@@ -220,7 +220,7 @@ $regDate  = date('d.m.Y', strtotime($user['created_at']));
       <span class="partner-name">IT<em>GORKY</em></span>
     </a>
     <div class="sidebar-footer">
-      <span>V2.0 — GameCode</span>
+      <span>GameCode © 2026</span>
     </div>
   </nav>
 

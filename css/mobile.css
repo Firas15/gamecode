@@ -36,8 +36,8 @@
 
   /* Sidebar nav links readable on tablet */
   .sidebar-link {
-    font-size: 12px;
-    padding: 12px 14px;
+    font-size: 13px;
+    padding: 13px 14px;
   }
 }
 
@@ -59,9 +59,9 @@
 
   /* Sidebar */
   .sidebar-link {
-    font-size: 11px;
+    font-size: 13px;
     letter-spacing: 0.5px;
-    padding: 11px 12px;
+    padding: 13px 12px;
   }
 
   /* Carousel goes single-column */
@@ -269,9 +269,9 @@
   /* Sidebar */
   .sidebar { width: 270px; }
   .sidebar-link {
-    font-size: 10px;
+    font-size: 12px;
     letter-spacing: 0.5px;
-    padding: 12px 14px;
+    padding: 13px 14px;
   }
   .sidebar-link::before {
     width: 14px;
@@ -383,7 +383,7 @@
   .card-desc  { font-size: 8px; min-height: 52px; }
 
   .sidebar { width: 260px; }
-  .sidebar-link { font-size: 9px; padding: 10px 12px; }
+  .sidebar-link { font-size: 11px; padding: 12px 12px; }
 
   .section-title { font-size: 10px; }
   .section-sub   { font-size: 12px; }

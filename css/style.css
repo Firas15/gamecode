@@ -2500,15 +2500,15 @@ kbd {
   .site-title .partner-x    { font-size: 13px; }
 }
 
-/* ── Знак партнёра в боковом меню ── */
+/* ── Знак партнёра в боковом меню — строкой под GAMECODE ── */
 .sidebar-partner {
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-blue);
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-top: 10px;
   text-decoration: none;
 }
-.sidebar-partner .partner-name { font-size: 12px; }
+.sidebar-partner .partner-x    { font-size: 18px; }
+.sidebar-partner .partner-name { font-size: 13px; letter-spacing: 1px; }
 .sidebar-partner:hover .partner-name { color: var(--cyan); }
+.sidebar-partner:hover .partner-x    { color: var(--cyan); }

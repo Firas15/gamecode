@@ -227,6 +227,7 @@ function gamecode_game_from_row(array $row): array {
         'wip' => gamecode_db_bool($row['wip'] ?? false),
         'link' => (string)($row['link'] ?? '#'),
         'created_at' => (string)($row['created_at'] ?? date('Y-m-d H:i:s')),
+        'sort_order' => (int)($row['sort_order'] ?? 0),
     ];
 }
 
@@ -812,11 +813,30 @@ function gamecode_secret_answer_matches(array $user, string $answer): bool {
     return $legacy !== '' && $legacy === strtolower($answer);
 }
 
+/**
+ * Колонка games.sort_order появилась позже самой таблицы.
+ * Проверяем её наличие, чтобы код работал и до применения миграции
+ * db/migrations/001-games-sort-order.sql — иначе запрос упал бы,
+ * readGames вернул бы пустой список и карусель на главной опустела.
+ */
+function gamecode_games_has_sort_order(): bool {
+    static $has = null;
+    if ($has === null) {
+        $has = in_array('sort_order', gamecode_pg_table_columns('games'), true);
+    }
+    return $has;
+}
+
 function gamecode_games_read_db(): array {
+    $hasSort = gamecode_games_has_sort_order();
     $rows = gamecode_pg_query_all(
-        'SELECT id, title, emoji, description, level, stars, wip, link, created_at
-         FROM games
-         ORDER BY created_at ASC, id ASC'
+        $hasSort
+            ? 'SELECT id, title, emoji, description, level, stars, wip, link, created_at, sort_order
+               FROM games
+               ORDER BY sort_order ASC, created_at ASC, id ASC'
+            : 'SELECT id, title, emoji, description, level, stars, wip, link, created_at
+               FROM games
+               ORDER BY created_at ASC, id ASC'
     );
 
     if (is_array($rows) && !empty($rows)) {
@@ -887,8 +907,26 @@ function writeGames(array $games): void {
             continue;
         }
 
+        // порядок игр = порядок в массиве: админка меняет местами элементы
         $row = gamecode_game_to_row($game, (int)$index);
-        $sql = '
+        $sql = gamecode_games_has_sort_order()
+            ? '
+            INSERT INTO games (
+                id, title, emoji, description, level, stars, wip, link, created_at, sort_order
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            ON CONFLICT (id) DO UPDATE SET
+                title = EXCLUDED.title,
+                emoji = EXCLUDED.emoji,
+                description = EXCLUDED.description,
+                level = EXCLUDED.level,
+                stars = EXCLUDED.stars,
+                wip = EXCLUDED.wip,
+                link = EXCLUDED.link,
+                created_at = EXCLUDED.created_at,
+                sort_order = EXCLUDED.sort_order
+        '
+            : '
             INSERT INTO games (
                 id, title, emoji, description, level, stars, wip, link, created_at
             )
@@ -915,6 +953,9 @@ function writeGames(array $games): void {
             $row['link'],
             $row['created_at'],
         ];
+        if (gamecode_games_has_sort_order()) {
+            $params[] = $row['sort_order'];
+        }
 
         if (gamecode_pg_exec($sql, $params) === false) {
             $ok = false;

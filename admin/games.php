@@ -63,6 +63,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } unset($g);
         cached_write_games($games);
     }
+
+    // Поменять местами с соседней игрой (порядок в карусели)
+    if ($action === 'move' && !empty($_POST['game_id'])) {
+        $gid       = (string)$_POST['game_id'];
+        $direction = ($_POST['direction'] ?? '') === 'up' ? 'up' : 'down';
+        $games     = array_values(readGames());
+
+        $index = -1;
+        foreach ($games as $i => $g) {
+            if ((string)($g['id'] ?? '') === $gid) { $index = (int)$i; break; }
+        }
+
+        if ($index >= 0) {
+            $swapIndex = $direction === 'up' ? $index - 1 : $index + 1;
+            if (isset($games[$swapIndex])) {
+                $moved              = $games[$index];
+                $games[$index]      = $games[$swapIndex];
+                $games[$swapIndex]  = $moved;
+                cached_write_games($games);
+                writeLog('Изменён порядок игр', (string)($moved['title'] ?? ''));
+                $msg = 'Порядок игр обновлён'; $msgType = 'success';
+            }
+        }
+    }
 }
 
 $games = readGames();
@@ -165,11 +189,12 @@ $games = readGames();
     </div>
     <table class="adm-table adm-table-full">
       <thead>
-        <tr><th>Эмодзи</th><th>ID</th><th>Название</th><th>Уровень</th><th>Звёзды</th><th>Статус</th><th>Добавлена</th><th>Действия</th></tr>
+        <tr><th>#</th><th>Эмодзи</th><th>ID</th><th>Название</th><th>Уровень</th><th>Звёзды</th><th>Статус</th><th>Добавлена</th><th>Действия</th></tr>
       </thead>
       <tbody>
-        <?php foreach ($games as $g): ?>
+        <?php foreach ($games as $index => $g): ?>
         <tr>
+          <td class="pixel dim"><?= (int)$index + 1 ?></td>
           <td style="font-size:22px"><?= htmlspecialchars($g['emoji']) ?></td>
           <td class="pixel dim"><?= htmlspecialchars($g['id']) ?></td>
           <td class="pixel"><a href="../<?= htmlspecialchars($g['link']) ?>" target="_blank" class="adm-link"><?= htmlspecialchars($g['title']) ?></a></td>
@@ -184,6 +209,18 @@ $games = readGames();
           </td>
           <td class="pixel dim"><?= htmlspecialchars(substr($g['created_at'] ?? '', 0, 10)) ?></td>
           <td class="adm-actions">
+            <form method="POST" style="display:inline">
+              <input type="hidden" name="action" value="move"/>
+              <input type="hidden" name="direction" value="up"/>
+              <input type="hidden" name="game_id" value="<?= htmlspecialchars($g['id'], ENT_QUOTES, 'UTF-8') ?>"/>
+              <button type="submit" class="adm-btn-sm adm-btn-warn pixel" <?= $index === 0 ? 'disabled' : '' ?> title="Поднять выше">↑</button>
+            </form>
+            <form method="POST" style="display:inline">
+              <input type="hidden" name="action" value="move"/>
+              <input type="hidden" name="direction" value="down"/>
+              <input type="hidden" name="game_id" value="<?= htmlspecialchars($g['id'], ENT_QUOTES, 'UTF-8') ?>"/>
+              <button type="submit" class="adm-btn-sm adm-btn-warn pixel" <?= $index === count($games) - 1 ? 'disabled' : '' ?> title="Опустить ниже">↓</button>
+            </form>
             <form method="POST" style="display:inline">
               <input type="hidden" name="action" value="toggle_wip"/>
               <input type="hidden" name="game_id" value="<?= htmlspecialchars($g['id']) ?>"/>

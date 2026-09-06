@@ -141,6 +141,7 @@ CREATE TABLE public.games (
     wip boolean DEFAULT false NOT NULL,
     link character varying(255) DEFAULT ''::character varying NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
+    sort_order integer DEFAULT 0 NOT NULL,
     CONSTRAINT games_stars_check CHECK (((stars >= 1) AND (stars <= 5)))
 );
 
@@ -714,3 +715,8 @@ GRANT ALL ON SCHEMA public TO gamecode_user;
 -- PostgreSQL database dump complete
 --
 
+--
+-- Name: idx_games_sort; Type: INDEX; Schema: public
+--
+
+CREATE INDEX IF NOT EXISTS idx_games_sort ON public.games USING btree (sort_order ASC);

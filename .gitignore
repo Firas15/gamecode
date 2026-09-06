@@ -26,6 +26,8 @@ deploy.ps1
 db/*
 !db/schema.sql
 !db/seed-demo.sql
+!db/migrations/
+!db/migrations/*.sql
 *.dump
 *.sql.gz
 

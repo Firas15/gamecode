@@ -25,6 +25,7 @@ deploy.ps1
 # без неё новый разработчик не поднимет проект локально.
 db/*
 !db/schema.sql
+!db/seed-demo.sql
 *.dump
 *.sql.gz
 

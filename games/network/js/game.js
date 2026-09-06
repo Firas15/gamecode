@@ -767,17 +767,20 @@ function nextRound() {
 function endGame(won) {
   if (won) soundWin(); else soundLose();
 
-  // Отправляем очки на сервер (только победа)
-  if (won) {
+  // Отправляем результат и при победе, и при проигрыше: попытка должна
+  // попасть в историю в любом случае. За полный проигрыш начисляется 0 очков —
+  // очки считает сервер, клиент лишь сообщает статистику раундов.
+  {
     const elapsedMs = Math.max(0, Date.now() - (state.startedAtMs || Date.now()));
     submitScore('network', {
       level_id: state.currentLevel?.id || 'level1',
+      result: won ? 'win' : 'lose',
       correct: state.correctCount,
       wrong: state.errorCount,
       elapsed_ms: elapsedMs,
     }).then(res => {
       if (!res) return;
-      if (typeof res.total_game_score === 'number') {
+      if (typeof res.total_game_score === 'number' && res.score > 0) {
         showToast(`🏆 Очки добавлены! Всего в игре: ${res.total_game_score}`, 'ok', 3000);
       } else if (res.is_record) {
         showToast('🏆 Новый рекорд сохранён!', 'ok', 3000);

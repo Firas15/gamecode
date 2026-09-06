@@ -1456,7 +1456,15 @@ function triggerTrap() {
 
 function loseHP(n) {
   state.hp=Math.max(0,state.hp-n); Audio.damage(); updateHUD();
-  if(state.hp<=0){state.gameActive=false;cancelAnimationFrame(state.animFrame);Audio.gameover();setTimeout(()=>showScreen('gameover'),400);}
+  if(state.hp<=0){
+    state.gameActive=false;
+    cancelAnimationFrame(state.animFrame);
+    Audio.gameover();
+    // Проигрыш тоже уходит на сервер: попытка должна попасть в историю
+    // с нулём очков, как в «Сортировщике».
+    submitPixelgameScore(false);
+    setTimeout(()=>showScreen('gameover'),400);
+  }
 }
 
 function triggerFinish() {
@@ -1786,7 +1794,7 @@ function runProgram(){
 /**
  * Отправка результата на сервер (очки считает api/score.php)
  */
-function submitPixelgameScore() {
+function submitPixelgameScore(completed = true) {
   if (state.scoreSubmitted) return;
   if (typeof submitScore !== 'function') return; // игра запущена вне сайта
   state.scoreSubmitted = true;
@@ -1798,12 +1806,16 @@ function submitPixelgameScore() {
     total_chests: state.totalChests,
     monster_battles_won: state.monsterBattlesWon,
     monster_battles_total: state.monsterBattlesTotal,
-    hp_remaining: state.hp,
+    hp_remaining: completed ? state.hp : 0,
     elapsed_ms: elapsedMs,
-    direct_pts: state.pts,
-    completed: true,
+    direct_pts: completed ? state.pts : 0,
+    completed: completed,
   }).then(res => {
     if (!res) return;
+    refreshPixelgameLeaderboard();
+    // Проигрыш пишется в историю с нулём очков — плашку «очки сохранены»
+    // на экране поражения показывать незачем.
+    if (!completed) return;
     const resultBox = document.getElementById('final-result');
     if (resultBox && !document.getElementById('score-saved-note')) {
       const note = document.createElement('div');
@@ -1815,7 +1827,6 @@ function submitPixelgameScore() {
         : '[ ОЧКИ СОХРАНЕНЫ ]';
       resultBox.appendChild(note);
     }
-    refreshPixelgameLeaderboard();
   });
 }
 

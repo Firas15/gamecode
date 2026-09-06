@@ -769,11 +769,13 @@ function finishGame(result) {
   cancelAnimationFrame(game.animFrameId);
   removeCurrentBlock();
 
-  // Отправляем очки на сервер (только победа)
-  if (result === 'win') {
+  // Отправляем результат и при победе, и при проигрыше:
+  // набранные очки засчитываются, даже если жизни кончились раньше цели.
+  {
     const elapsedMs = Math.max(0, Date.now() - (game.startedAtMs || Date.now()));
     submitScore('sorter', {
       level: game.level?.id || 1,
+      result: result === 'win' ? 'win' : 'lose',
       correct_total: game.correct,
       errors_total: game.errors,
       correct_by_level: game.correctByLevel || { 1: 0, 2: 0, 3: 0 },

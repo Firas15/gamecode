@@ -17,6 +17,53 @@ function getCurrentUser(): ?array {
     return findUserById((int)$_SESSION['user_id']);
 }
 
+
+/**
+ * Переносит отложенный результат гостя на аккаунт.
+ *
+ * Очки посчитаны и проверены сервером в score.php ещё до регистрации —
+ * здесь они только привязываются к пользователю. Клиент в этой цепочке
+ * не участвует, подделать сумму нельзя.
+ *
+ * Вызывается сразу после успешного входа и регистрации.
+ */
+function gc_attach_pending_score(int $userId): void {
+    $pending = $_SESSION['pending_score'] ?? null;
+    unset($_SESSION['pending_score']);
+
+    if (!is_array($pending) || $userId <= 0) {
+        return;
+    }
+
+    $gameId = (string)($pending['game_id'] ?? '');
+    $score  = (int)($pending['score'] ?? 0);
+    $meta   = is_array($pending['meta'] ?? null) ? $pending['meta'] : [];
+    $age    = time() - (int)($pending['created_at'] ?? 0);
+
+    // Протухшие результаты не переносим: сессия живёт сутки,
+    // но результат недельной давности присвоить новому аккаунту странно.
+    if ($gameId === '' || $score <= 0 || $age > 86400) {
+        return;
+    }
+
+    $meta['from_guest'] = true;
+
+    if (!addScore($userId, $gameId, $score, $meta)) {
+        return;
+    }
+
+    cache_invalidate_leaderboard($gameId);
+
+    $user = findUserById($userId);
+    if ($user) {
+        updateUser($userId, [
+            'games_played' => (int)($user['games_played'] ?? 0) + 1,
+            'best_score'   => (int)($user['best_score'] ?? 0) + $score,
+        ]);
+        cache_invalidate_user($userId, (string)($user['nickname'] ?? ''));
+    }
+}
+
 function registerUser(string $nickname, string $password, string $confirm, string $secretQuestion = '', string $secretAnswer = ''): array {
     $nickname = trim($nickname);
 
@@ -40,6 +87,7 @@ function registerUser(string $nickname, string $password, string $confirm, strin
 
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['nickname'] = $user['nickname'];
+    gc_attach_pending_score((int)$user['id']);
     return ['ok' => true];
 }
 
@@ -75,6 +123,7 @@ function loginUser(string $nickname, string $password): array {
 
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['nickname'] = $user['nickname'];
+    gc_attach_pending_score((int)$user['id']);
     return ['ok' => true];
 }
 

@@ -55,10 +55,127 @@ async function submitScore(gameId, payload) {
         if (!data || data.ok !== true) return null;
         // одноразовый run — очищаем
         sessionStorage.removeItem(`gc_run_${gameId}`);
+
+        // Гость: сервер отложил результат до регистрации. Показываем окно
+        // с задержкой, чтобы человек успел увидеть свой экран с очками.
+        // При нуле очков не показываем — предлагать сохранить 0 незачем.
+        if (data.pending === true && Number(data.score) > 0) {
+            setTimeout(() => showGuestSavePrompt(Number(data.score)), 1400);
+        }
+
         return data;
     } catch {
         return null;
     }
+}
+
+/* ============================================================
+   ОКНО «СОХРАНИ РЕЗУЛЬТАТ» ДЛЯ ГОСТЯ
+
+   Живёт здесь, а не в коде игр: leaderboard.js подключён во всех
+   четырёх играх, поэтому окно работает везде и на всех уровнях
+   без единой правки в их game.js.
+
+   Очки сюда приходят с сервера — он их посчитал и проверил.
+   Браузер только показывает число и никак на сохраняемое значение
+   не влияет.
+   ============================================================ */
+
+const GC_GUEST_MODAL_ID = 'gcGuestSaveModal';
+
+function gcInjectGuestModalStyles() {
+    if (document.getElementById('gcGuestSaveStyles')) return;
+    const css = document.createElement('style');
+    css.id = 'gcGuestSaveStyles';
+    css.textContent = `
+    .gc-guest-overlay{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;
+        justify-content:center;padding:20px;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);
+        opacity:0;transition:opacity .25s}
+    .gc-guest-overlay.is-open{opacity:1}
+    .gc-guest-box{position:relative;width:100%;max-width:440px;background:#0d1626;
+        border:1px solid #2a5fbf;padding:28px 24px;text-align:center;
+        transform:translateY(12px);transition:transform .25s}
+    .gc-guest-overlay.is-open .gc-guest-box{transform:none}
+    .gc-guest-box::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;
+        background:linear-gradient(90deg,#f5d800,#00e5ff)}
+    .gc-guest-title{font-family:'Press Start 2P',monospace;font-size:13px;letter-spacing:2px;
+        color:#fff;line-height:1.7;margin-bottom:18px}
+    .gc-guest-score{font-family:'Press Start 2P',monospace;font-size:30px;color:#f5d800;
+        text-shadow:0 0 18px rgba(245,216,0,.45);margin-bottom:6px}
+    .gc-guest-score-label{font-family:'Press Start 2P',monospace;font-size:8px;
+        letter-spacing:2px;color:#5a7a9a;margin-bottom:22px}
+    /* Пиксельный шрифт широкий и без строчных пропорций — кегль мельче,
+       межстрочный интервал больше, иначе текст не читается. */
+    .gc-guest-text{font-family:'Press Start 2P',monospace;font-size:10px;line-height:2;
+        color:#c8d8f0;margin-bottom:14px}
+    .gc-guest-warn{font-family:'Press Start 2P',monospace;font-size:9px;line-height:2;
+        color:#ff4d6d;margin-bottom:24px}
+    .gc-guest-actions{display:flex;flex-direction:column;gap:10px}
+    .gc-guest-btn{font-family:'Press Start 2P',monospace;font-size:10px;letter-spacing:1px;
+        padding:14px 12px;min-height:44px;cursor:pointer;transition:all .2s;
+        border:1px solid #2a5fbf;background:transparent;color:#c8d8f0}
+    .gc-guest-btn:hover{border-color:#00e5ff;color:#00e5ff}
+    .gc-guest-btn--main{background:rgba(57,255,20,.1);border-color:#39ff14;color:#39ff14}
+    .gc-guest-btn--main:hover{background:rgba(57,255,20,.2);border-color:#39ff14;color:#39ff14}
+    .gc-guest-btn--ghost{border-color:transparent;color:#5a7a9a;font-size:9px}
+    .gc-guest-btn--ghost:hover{color:#c8d8f0;border-color:transparent}
+    @media (max-width:480px){
+        .gc-guest-box{padding:22px 16px}
+        .gc-guest-title{font-size:10px}
+        .gc-guest-score{font-size:24px}
+        .gc-guest-score-label{font-size:7px}
+        .gc-guest-text{font-size:9px;line-height:1.9}
+        .gc-guest-warn{font-size:8px;line-height:1.9}
+        .gc-guest-btn{font-size:8px}
+    }`;
+    document.head.appendChild(css);
+}
+
+function gcCloseGuestModal() {
+    const el = document.getElementById(GC_GUEST_MODAL_ID);
+    if (!el) return;
+    el.classList.remove('is-open');
+    setTimeout(() => el.remove(), 250);
+}
+
+/**
+ * Показывает гостю предложение сохранить результат.
+ * @param {number} score — очки, посчитанные сервером
+ */
+function showGuestSavePrompt(score) {
+    if (document.getElementById(GC_GUEST_MODAL_ID)) return;
+    gcInjectGuestModalStyles();
+
+    const overlay = document.createElement('div');
+    overlay.id = GC_GUEST_MODAL_ID;
+    overlay.className = 'gc-guest-overlay';
+    overlay.innerHTML = `
+      <div class="gc-guest-box" role="dialog" aria-modal="true" aria-labelledby="gcGuestTitle">
+        <div class="gc-guest-title" id="gcGuestTitle">[ РЕЗУЛЬТАТ НЕ СОХРАНЁН ]</div>
+        <div class="gc-guest-score">${Number(score).toLocaleString('ru-RU')}</div>
+        <div class="gc-guest-score-label">очков за эту игру</div>
+        <div class="gc-guest-text">Заведи аккаунт — очки запишутся на него, и ты попадёшь в таблицу лидеров.</div>
+        <div class="gc-guest-warn">Откажешься — очки пропадут.</div>
+        <div class="gc-guest-actions">
+          <button type="button" class="gc-guest-btn gc-guest-btn--main" id="gcGuestRegister">[ ЗАРЕГИСТРИРОВАТЬСЯ ]</button>
+          <button type="button" class="gc-guest-btn" id="gcGuestLogin">[ У МЕНЯ УЖЕ ЕСТЬ АККАУНТ ]</button>
+          <button type="button" class="gc-guest-btn gc-guest-btn--ghost" id="gcGuestLater">не сейчас</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.classList.add('is-open'));
+
+    overlay.querySelector('#gcGuestRegister').addEventListener('click', () => {
+        window.location.href = LB_ROOT + 'pages/register.php';
+    });
+    overlay.querySelector('#gcGuestLogin').addEventListener('click', () => {
+        window.location.href = LB_ROOT + 'pages/login.php';
+    });
+    overlay.querySelector('#gcGuestLater').addEventListener('click', gcCloseGuestModal);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) gcCloseGuestModal(); });
+    document.addEventListener('keydown', function esc(e) {
+        if (e.key === 'Escape') { gcCloseGuestModal(); document.removeEventListener('keydown', esc); }
+    });
 }
 
 /**

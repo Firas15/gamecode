@@ -21,10 +21,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-if (!isLoggedIn()) {
-    echo json_encode(['ok' => true, 'skipped' => true]);
-    exit;
-}
+// Гость тоже получает подписанный run: иначе его результат нечем проверить,
+// а «сохраню очки после регистрации» превратилось бы в доверие к браузеру.
+$isGuest = !isLoggedIn();
 
 $body   = json_decode(file_get_contents('php://input'), true);
 $gameId = isset($body['game_id']) ? trim($body['game_id']) : '';
@@ -36,16 +35,18 @@ if (!in_array($gameId, $allowedGames, true)) {
     exit;
 }
 
-$userId = (int)$_SESSION['user_id'];
-$user   = findUserById($userId);
+$userId   = $isGuest ? 0 : (int)$_SESSION['user_id'];
+$newCount = 0;
 
-if (!$user) {
-    echo json_encode(['error' => 'User not found']);
-    exit;
+if (!$isGuest) {
+    $user = findUserById($userId);
+    if (!$user) {
+        echo json_encode(['error' => 'User not found']);
+        exit;
+    }
+    $newCount = (int)($user['games_played'] ?? 0) + 1;
+    updateUser($userId, ['games_played' => $newCount]);
 }
-
-$newCount = (int)($user['games_played'] ?? 0) + 1;
-updateUser($userId, ['games_played' => $newCount]);
 
 $runId = bin2hex(random_bytes(16));
 $startedAt = time();
@@ -67,6 +68,7 @@ $token = gc_sign_run_token($userId, $runId, $gameId, $startedAt);
 
 echo json_encode([
     'ok' => true,
+    'guest' => $isGuest,
     'games_played' => $newCount,
     'run_id' => $runId,
     'run_token' => $token,

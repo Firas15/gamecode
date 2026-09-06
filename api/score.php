@@ -16,11 +16,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-if (!isLoggedIn()) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Not authenticated']);
-    exit;
-}
+// Гость проходит ровно те же проверки, что и авторизованный.
+// Разница только в финале: его результат не пишется в таблицу очков,
+// а откладывается в серверной сессии до регистрации или входа.
+$isGuest = !isLoggedIn();
 
 $body = json_decode(file_get_contents('php://input'), true);
 $gameId = isset($body['game_id']) ? trim($body['game_id']) : '';
@@ -35,7 +34,7 @@ if (!in_array($gameId, $allowedGames, true)) {
     exit;
 }
 
-$userId = (int)$_SESSION['user_id'];
+$userId = $isGuest ? 0 : (int)$_SESSION['user_id'];
 
 if ($runId === '' || $runToken === '') {
     http_response_code(400);
@@ -99,31 +98,64 @@ function gc_compute_score(string $gameId, array $payload, int $startedAt = 0): a
         if (!in_array($levelId, ['level1', 'level2', 'level3'], true)) {
             return ['ok' => false, 'error' => 'Invalid level_id'];
         }
+        // 'lose' — все три жизни потрачены. Пишем такую попытку в историю
+        // с нулём очков, чтобы поражение было видно наравне с победой.
+        // Старые клиенты поля result не шлют — считаем такой запрос победой.
+        $result = (string)($payload['result'] ?? 'win');
+        if (!in_array($result, ['win', 'lose'], true)) {
+            return ['ok' => false, 'error' => 'Invalid result'];
+        }
         $correct = gc_int($payload['correct'], 0, 3, -1);
         $wrong = gc_int($payload['wrong'], 0, 3, -1);
         $elapsed = gc_int($payload['elapsed_ms'], 0, 3600_000, -1);
         if ($correct < 0 || $wrong < 0 || $elapsed < 0) return ['ok' => false, 'error' => 'Invalid stats'];
         if (($correct + $wrong) !== 3) return ['ok' => false, 'error' => 'Rounds mismatch'];
-        if ($wrong > 2) return ['ok' => false, 'error' => 'Not a win'];
+        $lives = 3;
+        if ($result === 'win') {
+            if ($wrong >= $lives) return ['ok' => false, 'error' => 'Not a win'];
+        } else {
+            // Проигрыш наступает ровно на третьей ошибке, а раундов всего три,
+            // поэтому у проигравшего не может быть ни одного верного ответа.
+            if ($wrong !== $lives) return ['ok' => false, 'error' => 'Invalid loss state'];
+        }
         if ($elapsed < 1800) return ['ok' => false, 'error' => 'Too fast'];
-        return ['ok' => true, 'score' => $correct * 100, 'meta' => ['level_id' => $levelId, 'correct' => $correct, 'wrong' => $wrong, 'elapsed_ms' => $elapsed]];
+        return ['ok' => true, 'score' => $correct * 100, 'meta' => ['level_id' => $levelId, 'result' => $result, 'correct' => $correct, 'wrong' => $wrong, 'elapsed_ms' => $elapsed]];
     }
 
     if ($gameId === 'sorter') {
         if (!gc_require_keys($payload, ['level', 'correct_total', 'errors_total', 'correct_by_level', 'elapsed_ms'])) {
             return ['ok' => false, 'error' => 'Invalid payload'];
         }
+
+        // 'lose' — проигрыш: жизни кончились раньше, чем набрана цель.
+        // Очки за уже разобранные блоки всё равно засчитываются.
+        // Старые клиенты поля result не шлют — считаем такой запрос победой.
+        $result = (string)($payload['result'] ?? 'win');
+        if (!in_array($result, ['win', 'lose'], true)) {
+            return ['ok' => false, 'error' => 'Invalid result'];
+        }
         $level = gc_int($payload['level'], 1, 3, -1);
         $correctTotal = gc_int($payload['correct_total'], 0, 20, -1);
-        $errorsTotal = gc_int($payload['errors_total'], 0, 2, -1);
+        $errorsTotal = gc_int($payload['errors_total'], 0, 3, -1); // 3 = все жизни потрачены (проигрыш)
         $elapsed = gc_int($payload['elapsed_ms'], 0, 3600_000, -1);
         if ($level < 0 || $correctTotal < 0 || $errorsTotal < 0 || $elapsed < 0) return ['ok' => false, 'error' => 'Invalid stats'];
 
         $targets = [1 => 10, 2 => 15, 3 => 20];
-        $maxErrors = [1 => 5, 2 => 4, 3 => 3];
+        $lives = 3; // одинаково на всех уровнях; каждая ошибка стоит жизни
         $target = $targets[$level];
-        if ($correctTotal !== $target) return ['ok' => false, 'error' => 'Invalid correct_total'];
-        if ($errorsTotal > $maxErrors[$level]) return ['ok' => false, 'error' => 'Too many errors'];
+
+        if ($result === 'win') {
+            // Победа возможна только при полностью набранной цели
+            // и при том, что жизни ещё оставались.
+            if ($correctTotal !== $target) return ['ok' => false, 'error' => 'Invalid correct_total'];
+            if ($errorsTotal >= $lives) return ['ok' => false, 'error' => 'Too many errors'];
+        } else {
+            // Проигрыш наступает ровно тогда, когда потрачены все жизни.
+            // Это условие не даёт «сдаться пораньше» и забрать очки:
+            // без трёх ошибок игра не заканчивается.
+            if ($errorsTotal !== $lives) return ['ok' => false, 'error' => 'Invalid loss state'];
+            if ($correctTotal >= $target) return ['ok' => false, 'error' => 'Loss with target reached'];
+        }
         if (!is_array($payload['correct_by_level'])) return ['ok' => false, 'error' => 'Invalid correct_by_level'];
 
         $c1 = gc_int($payload['correct_by_level'][1] ?? $payload['correct_by_level']['1'] ?? 0, 0, $target, -1);
@@ -141,6 +173,7 @@ function gc_compute_score(string $gameId, array $payload, int $startedAt = 0): a
 
         return ['ok' => true, 'score' => $score, 'meta' => [
             'level' => $level,
+            'result' => $result,
             'correct_total' => $correctTotal,
             'errors_total' => $errorsTotal,
             'correct_by_level' => ['1' => $c1, '2' => $c2, '3' => $c3],
@@ -182,7 +215,7 @@ function gc_compute_score(string $gameId, array $payload, int $startedAt = 0): a
         $total      = gc_int($payload['total_chests'], 1, 5, -1);
         $battlesWon = gc_int($payload['monster_battles_won'], 0, 6, -1);  // max 6 врагов на карте
         $battlesAll = gc_int($payload['monster_battles_total'], 0, 100, -1);
-        $hp         = gc_int($payload['hp_remaining'], 1, 5, -1);
+        $hp         = gc_int($payload['hp_remaining'], 0, 5, -1); // 0 = игрок погиб (проигрыш)
         $elapsed    = gc_int($payload['elapsed_ms'], 0, 7200_000, -1);
         $directPts  = gc_int($payload['direct_pts'], 0, 99999, -1);
         $completed  = $payload['completed'] === true;
@@ -191,24 +224,34 @@ function gc_compute_score(string $gameId, array $payload, int $startedAt = 0): a
             || $battlesWon < 0 || $battlesAll < 0 || $hp < 0 || $elapsed < 0 || $directPts < 0) {
             return ['ok' => false, 'error' => 'Invalid stats'];
         }
-        // Очки только за победу: уровень пройден, все сундуки собраны, игрок жив
-        if (!$completed) return ['ok' => false, 'error' => 'Not a win'];
-        if ($chests !== $total) return ['ok' => false, 'error' => 'Chests mismatch'];
         if ($battlesWon > $battlesAll) return ['ok' => false, 'error' => 'Battles mismatch'];
 
         // Анти-спидран: используем серверное время, а не клиентское elapsed_ms
         // Клиент может подделать elapsed_ms — сервер знает реальное время старта
         $serverElapsed = $startedAt > 0 ? (int)((time() - $startedAt) * 1000) : $elapsed;
-        $minMs = max(15000, $total * 4000 + $battlesAll * 2000);
-        if ($serverElapsed < $minMs) return ['ok' => false, 'error' => 'Too fast'];
 
-        // Cap очков: только победные битвы дают очки (battlesWon, не battlesAll)
-        // Это закрывает вектор: накрутить battlesAll чтобы раздуть разрешённый максимум
-        $maxPossible = ($total * 20) + ($battlesWon * 15);
-        $score = max(0, min($directPts, $maxPossible));
+        if (!$completed) {
+            // Проигрыш: HP кончились, уровень не пройден. Пишем попытку в историю
+            // с нулём очков. Проверку времени здесь не делаем — умереть можно быстро,
+            // а накрутить нечего: за проигрыш начисляется ровно 0.
+            if ($hp !== 0) return ['ok' => false, 'error' => 'Invalid loss state'];
+            $score = 0;
+        } else {
+            // Очки только за победу: уровень пройден, все сундуки собраны, игрок жив
+            if ($hp < 1) return ['ok' => false, 'error' => 'Invalid win state'];
+            if ($chests !== $total) return ['ok' => false, 'error' => 'Chests mismatch'];
+            $minMs = max(15000, $total * 4000 + $battlesAll * 2000);
+            if ($serverElapsed < $minMs) return ['ok' => false, 'error' => 'Too fast'];
+
+            // Cap очков: только победные битвы дают очки (battlesWon, не battlesAll)
+            // Это закрывает вектор: накрутить battlesAll чтобы раздуть разрешённый максимум
+            $maxPossible = ($total * 20) + ($battlesWon * 15);
+            $score = max(0, min($directPts, $maxPossible));
+        }
 
         return ['ok' => true, 'score' => $score, 'meta' => [
             'level' => $level,
+            'result' => $completed ? 'win' : 'lose',
             'chests_opened' => $chests,
             'total_chests' => $total,
             'monster_battles_won' => $battlesWon,
@@ -231,6 +274,30 @@ if (empty($computed['ok'])) {
 
 $score = (int)$computed['score'];
 $meta = $computed['meta'] ?? [];
+
+if ($isGuest) {
+    // Храним ТОЛЬКО последний результат — так решено по продукту.
+    // Число живёт на сервере: браузер получает его лишь для показа в окне
+    // и подделать сохраняемое значение не может.
+    $_SESSION['pending_score'] = [
+        'game_id'    => $gameId,
+        'score'      => $score,
+        'meta'       => $meta,
+        'created_at' => $now,
+    ];
+
+    $_SESSION['game_runs'][$runId]['used'] = true;
+    $_SESSION['last_score_submit'][$gameId] = $now;
+
+    echo json_encode([
+        'ok'      => true,
+        'saved'   => false,
+        'guest'   => true,
+        'pending' => true,
+        'score'   => $score,
+    ]);
+    exit;
+}
 
 // Сумма очков этого пользователя в этой игре ДО новой записи — SQL вместо readScores()
 $beforeRows = gamecode_pg_query_all(

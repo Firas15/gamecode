@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/csrf.php';
 requireAdmin();
 require_once dirname(__DIR__) . '/includes/redis.php';
 

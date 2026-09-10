@@ -1,8 +1,10 @@
+BEGIN;
+DELETE FROM shop_items;
 --
 -- PostgreSQL database dump
 --
 
-\restrict Dwukc0USn3S4vLvdqMR5fMIUviWEaUUuQQqDnSs9X895KmmWKMcvYIj2a4DLZip
+\restrict Wv1o5XSbEgCrD0ub9oI7gJHKeydd9pKhc37XKGyOba8bjh10TSJFSSz0iRamAhu
 
 -- Dumped from database version 18.3
 -- Dumped by pg_dump version 18.3
@@ -10,7 +12,6 @@
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
-SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -63,5 +64,6 @@ INSERT INTO public.shop_items VALUES ('frame_pink', 'frame', 'Красный ш�
 -- PostgreSQL database dump complete
 --
 
-\unrestrict Dwukc0USn3S4vLvdqMR5fMIUviWEaUUuQQqDnSs9X895KmmWKMcvYIj2a4DLZip
+\unrestrict Wv1o5XSbEgCrD0ub9oI7gJHKeydd9pKhc37XKGyOba8bjh10TSJFSSz0iRamAhu
 
+COMMIT;

@@ -17,11 +17,15 @@ docker-compose.*.yml
 Dockerfile
 .dockerignore
 DEPLOY.md
-db/*.sql
 *.log
 *.tar
 *.zip
 
 # Секрет античита — генерируется entrypoint-ом внутри тома, в образ не пакуем
 data/app_secret.key
-db/
+
+# База: дампы и схема наружу не нужны, но миграции нужны —
+# entrypoint прогоняет их при старте контейнера.
+db/*
+!db/migrations/
+!db/migrations/*.sql

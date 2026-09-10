@@ -56,7 +56,38 @@
 
 .lb-nick {
     flex: 1;
+    min-width: 0;
     color: #e0f7fa;
+    /* Колонка в две строки: ник сверху, купленный титул под ним.
+       Раньше титул шёл через <br> внутри однострочной ячейки и
+       читался как продолжение ника. */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+.lb-nick-name {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Титул из магазина. Отдельный класс, а не gc-title-tag: тот живёт
+   в shop.css, которого на страницах игр нет. Размер подобран так,
+   чтобы самый длинный титул («ЛЕГЕНДА GAMECODE») влезал в строку. */
+.lb-title {
+    display: inline-block;
+    max-width: 100%;
+    padding: 3px 5px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 6px;
+    line-height: 1.6;
+    letter-spacing: 0.5px;
+    color: var(--yellow, #f5d800);
+    border: 1px solid rgba(245, 216, 0, 0.5);
+    background: rgba(245, 216, 0, 0.08);
+    border-radius: 2px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -464,4 +495,17 @@
         font-size: 8px;
         line-height: 1.9;
     }
+}
+
+/* ── Ссылка на профиль игрока ──
+   Цвет наследуем от ника: у медальных мест он свой. */
+.lb-profile-link {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+.lb-profile-link:hover,
+.lb-profile-link:focus-visible {
+    color: var(--cyan, #00e5ff);
+    text-decoration: underline;
 }

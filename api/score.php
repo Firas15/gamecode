@@ -90,6 +90,22 @@ function gc_require_keys(array $arr, array $keys): bool {
 }
 
 function gc_compute_score(string $gameId, array $payload, int $startedAt = 0): array {
+    // ВРЕМЯ ПАРТИИ СЧИТАЕМ ПО СЕРВЕРУ, А НЕ ПО КЛИЕНТУ.
+    //
+    // elapsed_ms присылает браузер, и раньше проверки «слишком быстро»
+    // опирались именно на него — а значит бот мог прислать красивые
+    // «30 секунд» сразу после ping-game и фармить очки и пиксель коины
+    // каждые несколько секунд, вообще не играя.
+    //
+    // started_at лежит в ране и входит в HMAC-подпись run_token, так
+    // что подделать его нельзя: партия не может закончиться раньше,
+    // чем сервер её зарегистрировал. Клиентский elapsed_ms остаётся
+    // только для справки в мете.
+    $clientElapsed = gc_int($payload['elapsed_ms'] ?? 0, 0, 7200_000, 0);
+    $serverElapsed = $startedAt > 0
+        ? (int)((time() - $startedAt) * 1000)
+        : $clientElapsed;
+
     if ($gameId === 'network') {
         if (!gc_require_keys($payload, ['level_id', 'correct', 'wrong', 'elapsed_ms'])) {
             return ['ok' => false, 'error' => 'Invalid payload'];
@@ -118,8 +134,12 @@ function gc_compute_score(string $gameId, array $payload, int $startedAt = 0): a
             // поэтому у проигравшего не может быть ни одного верного ответа.
             if ($wrong !== $lives) return ['ok' => false, 'error' => 'Invalid loss state'];
         }
-        if ($elapsed < 1800) return ['ok' => false, 'error' => 'Too fast'];
-        return ['ok' => true, 'score' => $correct * 100, 'meta' => ['level_id' => $levelId, 'result' => $result, 'correct' => $correct, 'wrong' => $wrong, 'elapsed_ms' => $elapsed]];
+        // Три раунда физически не проходятся быстрее: после каждого
+        // ответа игра держит анимацию пакета и паузу ~2.6 секунды,
+        // то есть честный минимум около восьми секунд. Берём шесть
+        // с запасом, чтобы не отсечь никого на медленной машине.
+        if ($serverElapsed < 6000) return ['ok' => false, 'error' => 'Too fast'];
+        return ['ok' => true, 'score' => $correct * 100, 'meta' => ['level_id' => $levelId, 'result' => $result, 'correct' => $correct, 'wrong' => $wrong, 'elapsed_ms' => $serverElapsed]];
     }
 
     if ($gameId === 'sorter') {
@@ -169,7 +189,7 @@ function gc_compute_score(string $gameId, array $payload, int $startedAt = 0): a
         $score = ($c1 * 15) + ($c2 * 20) + ($c3 * 25) - ($errorsTotal * 5);
         if ($score < 0) $score = 0;
         $minMs = (int)(($correctTotal + $errorsTotal) * 350);
-        if ($elapsed < max(2000, $minMs)) return ['ok' => false, 'error' => 'Too fast'];
+        if ($serverElapsed < max(2000, $minMs)) return ['ok' => false, 'error' => 'Too fast'];
 
         return ['ok' => true, 'score' => $score, 'meta' => [
             'level' => $level,
@@ -177,7 +197,7 @@ function gc_compute_score(string $gameId, array $payload, int $startedAt = 0): a
             'correct_total' => $correctTotal,
             'errors_total' => $errorsTotal,
             'correct_by_level' => ['1' => $c1, '2' => $c2, '3' => $c3],
-            'elapsed_ms' => $elapsed,
+            'elapsed_ms' => $serverElapsed,
         ]];
     }
 
@@ -197,8 +217,8 @@ function gc_compute_score(string $gameId, array $payload, int $startedAt = 0): a
             $score = ($reached >= 10) ? 320 : (($reached >= 5) ? 10 : 0);
         }
 
-        if ($elapsed < $reached * 1200) return ['ok' => false, 'error' => 'Too fast'];
-        return ['ok' => true, 'score' => $score, 'meta' => ['reached' => $reached, 'won' => $won, 'elapsed_ms' => $elapsed]];
+        if ($serverElapsed < $reached * 1200) return ['ok' => false, 'error' => 'Too fast'];
+        return ['ok' => true, 'score' => $score, 'meta' => ['reached' => $reached, 'won' => $won, 'elapsed_ms' => $serverElapsed]];
     }
 
     if ($gameId === 'pixelgame') {
@@ -225,10 +245,6 @@ function gc_compute_score(string $gameId, array $payload, int $startedAt = 0): a
             return ['ok' => false, 'error' => 'Invalid stats'];
         }
         if ($battlesWon > $battlesAll) return ['ok' => false, 'error' => 'Battles mismatch'];
-
-        // Анти-спидран: используем серверное время, а не клиентское elapsed_ms
-        // Клиент может подделать elapsed_ms — сервер знает реальное время старта
-        $serverElapsed = $startedAt > 0 ? (int)((time() - $startedAt) * 1000) : $elapsed;
 
         if (!$completed) {
             // Проигрыш: HP кончились, уровень не пройден. Пишем попытку в историю
@@ -275,6 +291,16 @@ if (empty($computed['ok'])) {
 $score = (int)$computed['score'];
 $meta = $computed['meta'] ?? [];
 
+// Ран гасим ДО начисления, а не после.
+//
+// Раньше отметка ставилась в самом конце: если бы запрос оборвался
+// между записью очков и этой строкой, ран остался бы «свежим», и
+// повтор того же запроса начислил бы очки и коины второй раз.
+// Порядок «сначала погасить, потом начислять» превращает это
+// в «не более одного раза» вместо «не менее одного раза».
+$_SESSION['game_runs'][$runId]['used'] = true;
+$_SESSION['last_score_submit'][$gameId] = $now;
+
 if ($isGuest) {
     // Храним ТОЛЬКО последний результат — так решено по продукту.
     // Число живёт на сервере: браузер получает его лишь для показа в окне
@@ -286,9 +312,6 @@ if ($isGuest) {
         'created_at' => $now,
     ];
 
-    $_SESSION['game_runs'][$runId]['used'] = true;
-    $_SESSION['last_score_submit'][$gameId] = $now;
-
     echo json_encode([
         'ok'      => true,
         'saved'   => false,
@@ -298,6 +321,13 @@ if ($isGuest) {
     ]);
     exit;
 }
+
+// Сколько коинов даст этот результат — считаем ДО записи, чтобы
+// число попало в мету попытки. Иначе в истории игр («последние
+// игры» в профиле) показать заработок было бы неоткуда: в таблице
+// scores лежат только очки, а пересчёт задним числом соврал бы про
+// партии, сыгранные до появления валюты.
+$meta['coins'] = gc_shop_coins_for_score($score);
 
 // Сумма очков этого пользователя в этой игре ДО новой записи — SQL вместо readScores()
 $beforeRows = gamecode_pg_query_all(
@@ -315,6 +345,11 @@ if (!$savedEntry) {
 
 cache_invalidate_leaderboard($gameId);
 
+// Монеты магазина: процент от очков. Считаются от уже проверенного
+// сервером значения — клиент на сумму повлиять не может.
+// Очки при этом не расходуются: таблица лидеров живёт своей шкалой.
+$coinsEarned = gc_shop_award_coins($userId, $score);
+
 // Сумма всех очков пользователя ПОСЛЕ сохранения — SQL вместо readScores()
 $afterRows = gamecode_pg_query_all(
     'SELECT COALESCE(SUM(score), 0) AS total FROM scores WHERE user_id = $1',
@@ -326,8 +361,6 @@ updateUser($userId, ['best_score' => $totalAll]);
 cache_invalidate_user($userId, $_SESSION['user_nickname'] ?? '');
 
 $totalAfterGame = $totalBeforeGame + $score;
-$_SESSION['game_runs'][$runId]['used'] = true;
-$_SESSION['last_score_submit'][$gameId] = $now;
 
 echo json_encode([
     'ok' => true,
@@ -336,4 +369,6 @@ echo json_encode([
     'old_score' => $totalBeforeGame,
     'is_record' => $totalAfterGame > $totalBeforeGame,
     'total_game_score' => $totalAfterGame,
+    'coins_earned' => $coinsEarned,
+    'coins' => gc_shop_coins($userId),
 ]);

@@ -753,7 +753,7 @@ function removeCurrentBlock() {
 function refreshHUD() {
   document.getElementById('h-score').textContent = game.score;
   document.getElementById('h-prog').textContent  = `${game.correct}/${game.level.target}`;
-  document.getElementById('h-lname').textContent = `LVL ${game.level.id} — ${game.level.name}`;
+  document.getElementById('h-lname').textContent = `УР. ${game.level.id} — ${game.level.name}`;
 
   // Прогресс-бар: сколько % от цели выполнено
   const progressPercent = Math.min(100, Math.round(game.correct / game.level.target * 100));
@@ -800,7 +800,7 @@ function finishGame(result) {
 
   // Заголовок результата
   const titleEl = document.getElementById('r-title');
-  titleEl.textContent = isWin ? '>> УРОВЕНЬ ПРОЙДЕН! <<' : '>> GAME OVER <<';
+  titleEl.textContent = isWin ? '>> УРОВЕНЬ ПРОЙДЕН! <<' : '>> ИГРА ОКОНЧЕНА <<';
   titleEl.className   = 'res-title ' + (isWin ? 'win' : 'lose');
 
   // Статистика
@@ -830,7 +830,7 @@ function togglePause() {
   game.paused = !game.paused;
   game.paused ? playSoundPause() : playSoundUnpause();
 
-  document.getElementById('btn-pause').textContent = game.paused ? '> RESUME' : '|| PAUSE';
+  document.getElementById('btn-pause').textContent = game.paused ? '> ПРОДОЛЖИТЬ' : '|| ПАУЗА';
 
   if (game.paused) {
     // Отменяем ожидающий спавн, чтобы не запустился пока на паузе

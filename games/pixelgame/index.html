@@ -27,6 +27,9 @@
     document.write('<link rel="icon" href="' + window.__assetUrl('../../img/ICON.PNG') + '" type="image/png">');
     document.write('<link rel="stylesheet" href="' + window.__assetUrl('css/style.css') + '">');
     document.write('<link rel="stylesheet" href="' + window.__assetUrl('../../css/leaderboard.css') + '">');
+    // Рамки аватаров из магазина: виджет топа рисует их разметку,
+    // а описаны они в shop.css — без него это был просто пустой span.
+    document.write('<link rel="stylesheet" href="' + window.__assetUrl('../../css/shop.css') + '">');
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 </head>

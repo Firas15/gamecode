@@ -13,8 +13,8 @@
  *   gamecode:games          — список игр           TTL: 1 час
  *   gamecode:news           — список новостей      TTL: 30 мин
  *   gamecode:faq            — FAQ чат-бота         TTL: 1 час
- *   gamecode:lb:all         — лидерборд общий      TTL: 5 мин
- *   gamecode:lb:{game}      — лидерборд по игре    TTL: 5 мин
+ *   gamecode:lb:v3:all      — лидерборд общий      TTL: 5 мин
+ *   gamecode:lb:v3:{game}   — лидерборд по игре    TTL: 5 мин
  *   gamecode:user:{id}      — профиль пользователя TTL: 10 мин
  *   gamecode:user:nick:{lc} — поиск по нику        TTL: 10 мин
  */
@@ -141,11 +141,16 @@ const CACHE_TTL_PIXELGAME_CONTENT = 3600; // 1 час — контент уро�
 const CACHE_KEY_GAMES    = 'gamecode:games';
 const CACHE_KEY_NEWS     = 'gamecode:news';
 const CACHE_KEY_FAQ      = 'gamecode:faq';
-const CACHE_KEY_LB_ALL   = 'gamecode:lb:all';
+// v3 — в строках лидерборда появился id игрока (ссылка на профиль).
+// v2 — до этого добавились рамка и титул из магазина.
+// Версия в ключе нужна, чтобы после деплоя не отдавались ещё живые
+// записи старого формата: они пролежали бы в кэше до конца TTL,
+// и рамки у всех появились бы с задержкой в пять минут.
+const CACHE_KEY_LB_ALL   = 'gamecode:lb:v3:all';
 const CACHE_KEY_PIXELGAME_QUESTIONS = 'gamecode:pixelgame:questions';
 
 function cache_key_lb(string $game): string {
-    return 'gamecode:lb:' . $game;
+    return 'gamecode:lb:v3:' . $game;
 }
 function cache_key_pixelgame_level(int $levelNumber): string {
     return 'gamecode:pixelgame:level:' . $levelNumber;
@@ -361,17 +366,24 @@ function cached_leaderboard(string $game, int $limit = 10): array {
 
 
 function build_leaderboard_from_db(string $game, int $limit): array {
+    // Колонки магазина появились в миграции 002-shop.sql. Пока её не
+    // применили, запрашиваем старый набор полей — иначе таблица
+    // лидеров упала бы на всём сайте из-за неизвестной колонки.
+    $cols = gamecode_pg_table_columns('users');
+    $hasShop = in_array('equipped_frame', $cols, true) && in_array('equipped_title', $cols, true);
+    $extra = $hasShop ? ', u.equipped_frame, u.equipped_title' : '';
+
     if ($game === 'all') {
         $sql = '
             SELECT
                 u.id,
                 u.nickname,
-                u.avatar_emoji,
+                u.avatar_emoji' . $extra . ',
                 SUM(s.score) AS total_score
             FROM scores s
             JOIN users u ON u.id = s.user_id
             WHERE s.user_id IS NOT NULL
-            GROUP BY u.id, u.nickname, u.avatar_emoji
+            GROUP BY u.id, u.nickname, u.avatar_emoji' . $extra . '
             ORDER BY total_score DESC
             LIMIT $1
         ';
@@ -381,13 +393,13 @@ function build_leaderboard_from_db(string $game, int $limit): array {
             SELECT
                 u.id,
                 u.nickname,
-                u.avatar_emoji,
+                u.avatar_emoji' . $extra . ',
                 SUM(s.score) AS total_score
             FROM scores s
             JOIN users u ON u.id = s.user_id
             WHERE s.game_id = $1
               AND s.user_id IS NOT NULL
-            GROUP BY u.id, u.nickname, u.avatar_emoji
+            GROUP BY u.id, u.nickname, u.avatar_emoji' . $extra . '
             ORDER BY total_score DESC
             LIMIT $2
         ';
@@ -399,15 +411,27 @@ function build_leaderboard_from_db(string $game, int $limit): array {
         return [];
     }
 
+    if ($hasShop) {
+        require_once __DIR__ . '/shop.php';
+    }
+
     $result = [];
     $rank = 1;
     foreach ($rows as $row) {
         $entry = [
             'rank'         => $rank++,
+            // id нужен для ссылки на профиль игрока прямо из таблицы
+            'id'           => (int)($row['id'] ?? 0),
             'nickname'     => (string)($row['nickname'] ?? ''),
             'avatar_emoji' => (string)($row['avatar_emoji'] ?? 'avatar1'),
             'score'        => (int)($row['total_score'] ?? 0),
         ];
+        if ($hasShop) {
+            // Отдаём готовый класс и текст, а не id предмета: клиенту
+            // тогда не нужно знать каталог, а каталог остаётся на сервере.
+            $entry['frame_css']  = gc_shop_frame_css((string)($row['equipped_frame'] ?? ''));
+            $entry['title_text'] = gc_shop_title_text((string)($row['equipped_title'] ?? ''));
+        }
         if ($game !== 'all') {
             $entry['game_id'] = $game;
         }
@@ -428,4 +452,20 @@ function cache_invalidate_leaderboard(string $gameId = ''): void {
     if ($gameId !== '') {
         cache_delete(cache_key_lb($gameId));
     }
+}
+
+/**
+ * Сброс ВСЕХ лидербордов сразу.
+ *
+ * Нужен, когда поменялось не число очков, а то, как игрок выглядит:
+ * аватар, рамка, титул. Эти поля лежат в каждой строке кэша, а в
+ * какие именно игры человек играл — мы в этот момент не знаем, так
+ * что дешевле снести все ключи, чем гадать.
+ *
+ * Без этого смена аватара до пяти минут не была видна в таблице
+ * лидеров: строки отдавались из кэша со старой картинкой.
+ */
+function cache_invalidate_leaderboards_all(): void {
+    cache_delete(CACHE_KEY_LB_ALL);
+    cache_delete_pattern('gamecode:lb:v3:*');
 }

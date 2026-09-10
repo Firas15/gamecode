@@ -27,11 +27,12 @@ require_once dirname(__DIR__) . '/includes/assets.php';
       <span class="pixel-text accent">CODE</span>
     </div>
     <ul class="sidebar-nav">
-      <li><a href="../index.html"    class="sidebar-link">Все игры</a></li>
-      <li><a href="leaderboard.html" class="sidebar-link">Лидеры</a></li>
-      <li><a href="how-to-play.html" class="sidebar-link">Как играть</a></li>
-      <li><a href="theory.html"      class="sidebar-link">Теория</a></li>
-      <li><a href="about.html"       class="sidebar-link">О нас</a></li>
+      <li><a href="../index.html" class="sidebar-link sidebar-link--games">Все игры</a></li>
+      <li><a href="leaderboard.html" class="sidebar-link sidebar-link--leaders">Лидеры</a></li>
+      <li><a href="theory.html" class="sidebar-link sidebar-link--theory">Теория</a></li>
+      <li><a href="shop.php" class="sidebar-link sidebar-link--shop">Магазин</a></li>
+      <li><a href="how-to-play.html" class="sidebar-link sidebar-link--howto">Как играть</a></li>
+      <li><a href="about.html" class="sidebar-link sidebar-link--about">О нас</a></li>
     </ul>
     <a class="sidebar-partner" href="https://itgorky.ru/" target="_blank" rel="noopener">
       <img class="sidebar-partner-img" src="../img/itgorky-mascot.png" alt="ITGorky" />

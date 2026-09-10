@@ -28,6 +28,9 @@
     document.write('<link rel="stylesheet" href="' + window.__assetUrl('css/style.css') + '">');
     document.write('<link rel="stylesheet" href="' + window.__assetUrl('css/mobile.css') + '">');
     document.write('<link rel="stylesheet" href="' + window.__assetUrl('../../css/leaderboard.css') + '">');
+    // Рамки аватаров из магазина: виджет топа рисует их разметку,
+    // а описаны они в shop.css — без него это был просто пустой span.
+    document.write('<link rel="stylesheet" href="' + window.__assetUrl('../../css/shop.css') + '">');
   </script>
 </head>
 <body>
@@ -75,7 +78,7 @@
 
  
     <div class="hud-mid">
-      <div class="hud-lvname" id="h-lname">LVL 1</div>
+      <div class="hud-lvname" id="h-lname">УР. 1</div>
       <div class="prog-wrap">
         <div class="prog-fill" id="h-bar" style="width:0"></div>
       </div>
@@ -101,18 +104,18 @@
 <div id="s-result" class="screen out">
   <h2 class="res-title" id="r-title"></h2>
   <div class="res-stats">
-    <div class="res-stat"><div class="sn" id="r-score">0</div><div class="sl">Score</div></div>
-    <div class="res-stat"><div class="sn" id="r-ok">0</div><div class="sl">Correct</div></div>
-    <div class="res-stat"><div class="sn" id="r-err">0</div><div class="sl">Errors</div></div>
-    <div class="res-stat"><div class="sn" id="r-acc">0%</div><div class="sl">Accuracy</div></div>
+    <div class="res-stat"><div class="sn" id="r-score">0</div><div class="sl">Очки</div></div>
+    <div class="res-stat"><div class="sn" id="r-ok">0</div><div class="sl">Верно</div></div>
+    <div class="res-stat"><div class="sn" id="r-err">0</div><div class="sl">Ошибки</div></div>
+    <div class="res-stat"><div class="sn" id="r-acc">0%</div><div class="sl">Точность</div></div>
   </div>
   <div class="err-sec" id="r-errsec" style="display:none">
     <h3>// разбор ошибок</h3>
     <div id="r-errlist"></div>
   </div>
   <div class="res-btns">
-    <button class="btn-prim" id="btn-retry">[ RETRY ]</button>
-    <button class="btn-sec"  id="btn-menu">[ MENU ]</button>
+    <button class="btn-prim" id="btn-retry">[ ЗАНОВО ]</button>
+    <button class="btn-sec"  id="btn-menu">[ В МЕНЮ ]</button>
   </div>
 </div>
 

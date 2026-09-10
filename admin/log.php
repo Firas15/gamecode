@@ -2,6 +2,9 @@
 require_once __DIR__ . '/config.php';
 requireAdmin();
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    admin_csrf_check();
+}
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'clear') {
     writeAdminLog([]);
     writeLog('Лог очищен администратором');
@@ -27,6 +30,7 @@ $log = array_reverse(readAdminLog());
     <h1 class="adm-page-title pixel">// ЛОГ СОБЫТИЙ</h1>
     <div style="display:flex;gap:10px;align-items:center;">
       <form method="POST" onsubmit="return confirm('Очистить весь лог?')">
+              <?= admin_csrf_field() ?>
         <input type="hidden" name="action" value="clear"/>
         <button type="submit" class="adm-btn-danger pixel">[ ОЧИСТИТЬ ЛОГ ]</button>
       </form>

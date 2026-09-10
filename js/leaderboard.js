@@ -63,10 +63,86 @@ async function submitScore(gameId, payload) {
             setTimeout(() => showGuestSavePrompt(Number(data.score)), 1400);
         }
 
+        // Заработок за партию. Число приходит с сервера — он его и начислил.
+        if (Number(data.coins_earned) > 0) {
+            setTimeout(() => showCoinReward(Number(data.coins_earned), Number(data.coins)), 700);
+        }
+
         return data;
     } catch {
         return null;
     }
+}
+
+/* ============================================================
+   ПЛАШКА «+N ПИКСЕЛЬ КОИНОВ» В КОНЦЕ ПАРТИИ
+
+   Тоже общая для всех четырёх игр: экраны результатов у них
+   разные, а плашка одна — рисуется поверх, поэтому ни один
+   game.js и ни одну вёрстку трогать не пришлось.
+
+   Стили инжектим из JS: страницы игр не подключают ни shop.css,
+   ни auth.css, и рассчитывать там на классы сайта нельзя.
+   ============================================================ */
+
+const GC_COIN_TOAST_ID = 'gcCoinReward';
+
+function gcInjectCoinStyles() {
+    if (document.getElementById('gcCoinRewardStyles')) return;
+    const css = document.createElement('style');
+    css.id = 'gcCoinRewardStyles';
+    css.textContent = `
+    #${GC_COIN_TOAST_ID}{
+        position:fixed;left:50%;top:26px;transform:translate(-50%,-16px);
+        z-index:10000;display:flex;align-items:center;gap:12px;
+        padding:14px 20px;
+        background:#0d1626;border:2px solid #f5d800;
+        box-shadow:0 0 26px rgba(245,216,0,.28);
+        font-family:'Press Start 2P',monospace;
+        opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;
+    }
+    #${GC_COIN_TOAST_ID}.gc-on{opacity:1;transform:translate(-50%,0)}
+    #${GC_COIN_TOAST_ID} .gc-cr-img{width:34px;height:34px;display:block;flex-shrink:0}
+    #${GC_COIN_TOAST_ID} .gc-cr-plus{font-size:20px;color:#f5d800;line-height:1}
+    #${GC_COIN_TOAST_ID} .gc-cr-txt{font-size:8px;line-height:2;color:#8aa2c0;letter-spacing:1px}
+    #${GC_COIN_TOAST_ID} .gc-cr-total{color:#f5d800}
+    @media (max-width:480px){
+        #${GC_COIN_TOAST_ID}{padding:11px 14px;gap:9px;max-width:92vw}
+        #${GC_COIN_TOAST_ID} .gc-cr-img{width:26px;height:26px}
+        #${GC_COIN_TOAST_ID} .gc-cr-plus{font-size:16px}
+        #${GC_COIN_TOAST_ID} .gc-cr-txt{font-size:7px}
+    }
+    @media (prefers-reduced-motion:reduce){
+        #${GC_COIN_TOAST_ID}{transition:none}
+    }`;
+    document.head.appendChild(css);
+}
+
+/**
+ * @param {number} earned — начислено за эту партию
+ * @param {number} total  — баланс после начисления (может прийти пустым)
+ */
+function showCoinReward(earned, total) {
+    gcInjectCoinStyles();
+
+    document.getElementById(GC_COIN_TOAST_ID)?.remove();
+
+    const box = document.createElement('div');
+    box.id = GC_COIN_TOAST_ID;
+    box.innerHTML =
+        `<img class="gc-cr-img" src="${LB_ROOT}img/pixel_coin.png" alt=""/>` +
+        `<span class="gc-cr-plus">+${earned}</span>` +
+        `<span class="gc-cr-txt">ПИКСЕЛЬ КОИНОВ` +
+        (Number.isFinite(total) && total > 0
+            ? `<br>всего: <span class="gc-cr-total">${total}</span></span>`
+            : `</span>`);
+    document.body.appendChild(box);
+
+    requestAnimationFrame(() => box.classList.add('gc-on'));
+    setTimeout(() => {
+        box.classList.remove('gc-on');
+        setTimeout(() => box.remove(), 400);
+    }, 4000);
 }
 
 /* ============================================================
@@ -204,19 +280,58 @@ async function renderLeaderboard(container, gameId, limit = 5) {
         return;
     }
 
-    const rows = data.rows.map(r => `
+    // Рамка и титул приходят из магазина. Класс рамки сервер отдаёт
+    // из своего каталога, но в разметку он всё равно идёт через
+    // белый список: строка из ответа не должна становиться атрибутом
+    // как есть, даже если ответ свой.
+    const FRAME_CLASSES = [
+        'gc-frame--cyan', 'gc-frame--green', 'gc-frame--pink', 'gc-frame--gold',
+        'gc-frame--dashed', 'gc-frame--glitch', 'gc-frame--rgb',
+    ];
+    const frameClass = css => (FRAME_CLASSES.includes(css) ? css : '');
+
+    const rows = data.rows.map(r => {
+        const fc = frameClass(r.frame_css || '');
+        const avatar = `<img src="${LB_ROOT}img/avatars/${escHtml(r.avatar_emoji || 'avatar1')}.png" alt="аватар" class="avatar-img avatar-img--sm"/>`;
+        // Свой класс, а не gc-title-tag из shop.css: страницы игр его
+        // не подключают, поэтому титул в виджете выходил голым текстом
+        // и слипался с ником. lb-title живёт в leaderboard.css, который
+        // подключён во всех четырёх играх.
+        const title = r.title_text
+            ? `<span class="lb-title">${escHtml(r.title_text)}</span>`
+            : '';
+        // Ник и аватар ведут в профиль игрока. id приходит из API;
+        // если по какой-то причине его нет — оставляем просто текст,
+        // чтобы не получить ссылку в никуда.
+        const pid = Number(r.id) || 0;
+        const openTag = pid ? `<a class="lb-profile-link" href="${LB_ROOT}pages/profile.php?id=${pid}" title="Профиль игрока">` : '';
+        const closeTag = pid ? '</a>' : '';
+
+        return `
         <div class="lb-row ${r.rank <= 3 ? 'lb-top' : ''}">
             <span class="lb-rank">${r.rank === 1 ? '🥇' : r.rank === 2 ? '🥈' : r.rank === 3 ? '🥉' : '#' + r.rank}</span>
-            <span class="lb-avatar"><img src="${LB_ROOT}img/avatars/${r.avatar_emoji || 'avatar1'}.png" alt="аватар" class="avatar-img avatar-img--sm"/></span>
-            <span class="lb-nick">${escHtml(r.nickname)}</span>
+            <span class="lb-avatar">${openTag}${fc ? `<span class="gc-frame ${fc}">${avatar}</span>` : avatar}${closeTag}</span>
+            <span class="lb-nick"><span class="lb-nick-name">${openTag}${escHtml(r.nickname)}${closeTag}</span>${title}</span>
             <span class="lb-score">${r.score.toLocaleString('ru-RU')}</span>
-        </div>
-    `).join('');
+        </div>`;
+    }).join('');
 
+    gcInjectProfileLinkStyles();
     container.innerHTML = `
         <div class="lb-title">// ТОП ИГРОКОВ</div>
         <div class="lb-list">${rows}</div>
     `;
+}
+
+/** Подчёркивание при наведении — иначе неочевидно, что ник кликается. */
+function gcInjectProfileLinkStyles() {
+    if (document.getElementById('gcProfileLinkStyles')) return;
+    const css = document.createElement('style');
+    css.id = 'gcProfileLinkStyles';
+    css.textContent = `
+    .lb-profile-link{color:inherit;text-decoration:none;cursor:pointer}
+    .lb-profile-link:hover{color:#00e5ff;text-decoration:underline}`;
+    document.head.appendChild(css);
 }
 
 function escHtml(str) {

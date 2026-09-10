@@ -5,13 +5,52 @@
   const container = document.getElementById('auth-widget');
   if (!container) return;
 
+  // Картинки берём относительным путём, когда AUTH_ROOT пуст (главная),
+  // и от корня — со вложенных страниц. Так же сделано у аватара.
+  const IMG = ROOT ? ROOT + '/img/' : 'img/';
+
+  /**
+   * Баланс пиксель коинов слева от виджета пользователя.
+   *
+   * Рисуется здесь, а не в разметке страниц: шапка одинаковая на
+   * трёх десятках файлов, и держать её в них синхронно вручную —
+   * гарантированный источник расхождений. Здесь же уже есть ответ
+   * check-auth.php, в котором баланс и приходит.
+   */
+  function renderBalance(coins) {
+    const host = container.parentNode;
+    if (!host) return;
+
+    let el = document.getElementById('gcBalance');
+    if (!el) {
+      el = document.createElement('a');
+      el.id = 'gcBalance';
+      el.className = 'gc-balance';
+      el.href = ROOT + '/pages/shop.php';
+      el.title = 'Пиксель коины — валюта магазина';
+      host.insertBefore(el, container);
+    }
+    el.innerHTML =
+      `<img class="gc-coin" src="${IMG}pixel_coin.png" alt="пиксель коин"/>` +
+      `<span class="gc-balance-num">${Number(coins) || 0}</span>`;
+  }
+
+  function removeBalance() {
+    const el = document.getElementById('gcBalance');
+    if (el) el.remove();
+  }
+
   // Рендер виджета
   function render(data) {
     if (data.loggedIn && data.banned) {
+      // У заблокированного баланс убираем: показывать ему магазин незачем.
+      removeBalance();
       renderBanned();
     } else if (data.loggedIn) {
+      renderBalance(data.coins);
       renderUser(data);
     } else {
+      removeBalance();
       renderGuest();
     }
   }

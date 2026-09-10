@@ -7,6 +7,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $login = trim($_POST['login'] ?? '');
     $pass  = $_POST['password'] ?? '';
     if ($login === ADMIN_LOGIN && $pass === ADMIN_PASSWORD) {
+        // Новый идентификатор сессии на вход: закрывает подмену
+        // сессии и заодно выдаёт куку с новыми параметрами
+        // (HttpOnly, SameSite) тем, кто уже был залогинен.
+        session_regenerate_id(true);
         $_SESSION[ADMIN_SESSION] = true;
         writeLog('Вход в админку');
         header('Location: dashboard.php');

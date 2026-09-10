@@ -23,6 +23,10 @@ if (!adminIsLoggedIn()) {
     exit;
 }
 
+// Тело здесь — JSON, скрытому полю взяться неоткуда, поэтому токен
+// редактор присылает заголовком X-CSRF-Token.
+admin_csrf_check(true);
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['ok' => false, 'error' => 'Method not allowed']);

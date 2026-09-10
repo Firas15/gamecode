@@ -5,11 +5,33 @@ const playerSprites = {
   down: new Image()
 };
 
-// Корректные пути к 4 разным направлениям
-playerSprites.left.src = 'assets/player/left.png';
-playerSprites.right.src = 'assets/player/right.png';
-playerSprites.up.src = 'assets/player/up.png';
-playerSprites.down.src = 'assets/player/down.png';
+/**
+ * Скин персонажа. Базовые спрайты лежат в assets/player/,
+ * купленные — в подпапках assets/player/<скин>/ с теми же именами.
+ * Поэтому смена скина — это смена одного префикса пути.
+ */
+function loadPlayerSprites(dir) {
+  const base = 'assets/player/' + (dir ? dir + '/' : '');
+  ['left', 'right', 'up', 'down'].forEach(side => {
+    playerSprites[side].src = base + side + '.png';
+  });
+}
+
+// Сначала базовый персонаж, чтобы игра не ждала сети.
+loadPlayerSprites('');
+
+// Затем спрашиваем сервер, что игрок купил и надел. Гость, ошибка
+// сети или невошедший пользователь просто остаются с базовым скином.
+(function applyEquippedSkin() {
+  fetch('../../api/check-auth.php', { credentials: 'same-origin', cache: 'no-store' })
+    .then(r => (r.ok ? r.json() : null))
+    .then(data => {
+      if (data && data.loggedIn === true && data.skinDir) {
+        loadPlayerSprites(String(data.skinDir));
+      }
+    })
+    .catch(() => {});
+})();
 
 const finishIcon = new Image();
 finishIcon.src = 'assets/icons/computer.png';

@@ -1123,7 +1123,8 @@
 }
 .profile-history-row {
     display: grid;
-    grid-template-columns: 10px 1fr auto auto;
+    /* точка · игра · очки · коины · дата */
+    grid-template-columns: 10px 1fr auto auto auto;
     align-items: center;
     gap: 10px;
     padding: 10px 4px;
@@ -1148,6 +1149,19 @@
     white-space: nowrap;
     text-align: right;
 }
+.ph-coins {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 8px;
+    color: #f5d800;
+    white-space: nowrap;
+    text-align: right;
+    /* Колонка держит ширину, даже когда пустая: иначе строки старых
+       попыток без коинов разъезжались бы относительно новых. */
+    min-width: 46px;
+    justify-content: flex-end;
+}
 .ph-date {
     font-size: 7px;
     color: rgba(224,247,250,0.4);
@@ -1160,12 +1174,27 @@
         grid-template-columns: 1fr 1fr;
     }
     .profile-history-row {
-        grid-template-columns: 8px 1fr auto;
+        grid-template-columns: 8px 1fr auto auto;
         grid-template-rows: auto auto;
     }
+    .ph-coins { min-width: 0; }
     .ph-date {
         grid-column: 2 / -1;
         text-align: left;
         min-width: 0;
     }
+}
+
+/* ── Ссылка на профиль игрока (таблица лидеров, топ-3 на главной) ──
+   Цвет наследуем: ник в разных местах покрашен по-своему, и своя
+   расцветка у ссылки ломала бы медали и подсветку своей строки. */
+.lb-profile-link {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+.lb-profile-link:hover,
+.lb-profile-link:focus-visible {
+    color: var(--cyan, #00e5ff);
+    text-decoration: underline;
 }

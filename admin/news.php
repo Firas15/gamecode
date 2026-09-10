@@ -72,6 +72,7 @@ $msg = '';
 $msgType = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    admin_csrf_check();
     $action = $_POST['action'] ?? '';
 
     if ($action === 'save') {
@@ -225,6 +226,7 @@ $editItem = $editId ? findNewsById($news, $editId) : null;
 
     <div style="padding:20px 24px;">
       <form method="POST" enctype="multipart/form-data">
+              <?= admin_csrf_field() ?>
         <input type="hidden" name="action" value="save"/>
         <input type="hidden" name="existing_id" value="<?= htmlspecialchars($editItem['id'] ?? '', ENT_QUOTES, 'UTF-8') ?>"/>
 
@@ -308,12 +310,14 @@ $editItem = $editId ? findNewsById($news, $editId) : null;
           <td class="pixel dim"><?= htmlspecialchars(substr((string)($item['updated_at'] ?? ''), 0, 16), ENT_QUOTES, 'UTF-8') ?></td>
           <td class="adm-actions">
             <form method="POST" style="display:inline">
+              <?= admin_csrf_field() ?>
               <input type="hidden" name="action" value="move"/>
               <input type="hidden" name="direction" value="up"/>
               <input type="hidden" name="news_id" value="<?= htmlspecialchars((string)$item['id'], ENT_QUOTES, 'UTF-8') ?>"/>
               <button type="submit" class="adm-btn-sm adm-btn-warn pixel" <?= $index === 0 ? 'disabled' : '' ?> title="Поднять выше">↑</button>
             </form>
             <form method="POST" style="display:inline">
+              <?= admin_csrf_field() ?>
               <input type="hidden" name="action" value="move"/>
               <input type="hidden" name="direction" value="down"/>
               <input type="hidden" name="news_id" value="<?= htmlspecialchars((string)$item['id'], ENT_QUOTES, 'UTF-8') ?>"/>
@@ -321,6 +325,7 @@ $editItem = $editId ? findNewsById($news, $editId) : null;
             </form>
             <a href="news.php?edit=<?= urlencode((string)$item['id']) ?>" class="adm-btn pixel">РЕД.</a>
             <form method="POST" style="display:inline" onsubmit="return confirm('Удалить новость «<?= htmlspecialchars((string)($item['title'] ?? ''), ENT_QUOTES, 'UTF-8') ?>»?')">
+              <?= admin_csrf_field() ?>
               <input type="hidden" name="action" value="delete"/>
               <input type="hidden" name="news_id" value="<?= htmlspecialchars((string)$item['id'], ENT_QUOTES, 'UTF-8') ?>"/>
               <button type="submit" class="adm-btn-sm adm-btn-danger pixel">🗑</button>

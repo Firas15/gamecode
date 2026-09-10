@@ -1,10 +1,15 @@
 <?php
 require_once __DIR__ . '/config.php';
+require_once dirname(__DIR__) . '/includes/shop.php';
 requireAdmin();
 
 $msg = ''; $msgType = '';
 
 // Удаление пользователя
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    admin_csrf_check();
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'delete' && !empty($_POST['user_id'])) {
         $uid   = (int)$_POST['user_id'];
@@ -17,6 +22,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         writeUsersAdmin(array_values($users));
         writeLog('Удалён пользователь', $nick);
         $msg = "Пользователь «{$nick}» удалён."; $msgType = 'success';
+    }
+    // Выдача и списание пиксель коинов.
+    //
+    // Идёт мимо readUsersAdmin()/writeUsersAdmin(): те переписывают
+    // таблицу пользователей целиком по фиксированному списку колонок,
+    // в котором coins нет, — баланс бы просто не сохранился.
+    // gc_shop_admin_adjust() делает атомарный UPDATE и не пускает в минус.
+    if ($_POST['action'] === 'coins' && !empty($_POST['user_id'])) {
+        $uid  = (int)$_POST['user_id'];
+        $sign = ($_POST['sign'] ?? '') === 'minus' ? -1 : 1;
+
+        // Из формы приходит только модуль: знак задаёт нажатая кнопка.
+        $amount = (int)($_POST['amount'] ?? 0);
+        if ($amount < 0) $amount = 0;
+        if ($amount > 1000000) $amount = 1000000;
+
+        $user = findUserById($uid);
+        $nick = $user['nickname'] ?? ('#' . $uid);
+
+        if ($amount === 0) {
+            $msg = 'Укажите количество больше нуля.'; $msgType = 'error';
+        } elseif (!gc_shop_ready()) {
+            $msg = 'Магазин не подключён: не применена миграция 002-shop.sql.'; $msgType = 'error';
+        } else {
+            $before = gc_shop_coins($uid);
+            $left   = gc_shop_admin_adjust($uid, $sign * $amount);
+            if ($left === null) {
+                $msg = 'Не удалось изменить баланс.'; $msgType = 'error';
+            } else {
+                // Сообщаем то, что произошло на самом деле, а не то, что
+                // было в поле: при списании больше баланса он упирается
+                // в ноль, и «списано 999999» было бы неправдой.
+                $realDelta = abs($left - $before);
+                $word = $sign > 0 ? 'начислено' : 'списано';
+                writeLog("Пиксель коины: {$word} {$realDelta}", $nick);
+                cache_invalidate_user($uid, $nick);
+                $msg = "«{$nick}»: {$word} {$realDelta}. Баланс: {$left}."; $msgType = 'success';
+            }
+        }
     }
     if ($_POST['action'] === 'ban' && !empty($_POST['user_id'])) {
         $uid   = (int)$_POST['user_id'];
@@ -37,6 +81,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 }
 
 $users  = readUsersAdmin();
+
+// Балансы одним запросом, а не по разу на строку таблицы.
+$coinsById = [];
+if (gc_shop_ready()) {
+    $rows = gamecode_pg_query_all('SELECT id, coins FROM users');
+    foreach ((is_array($rows) ? $rows : []) as $row) {
+        $coinsById[(int)$row['id']] = (int)$row['coins'];
+    }
+}
+
 $search = trim($_GET['q'] ?? '');
 if ($search) {
     $users = array_filter($users, fn($u) => stripos($u['nickname'], $search) !== false);
@@ -89,6 +143,7 @@ $users = array_reverse($users);
           <th>Никнейм</th>
           <th>Биография</th>
           <th>Язык</th>
+          <th>Пиксель коины</th>
           <th>Регистрация</th>
           <th>Статус</th>
           <th>Действия</th>
@@ -104,6 +159,28 @@ $users = array_reverse($users);
           <td class="pixel"><?= htmlspecialchars($u['nickname']) ?></td>
           <td class="dim"><?= htmlspecialchars(substr($u['bio'] ?? '', 0, 40)) ?><?= strlen($u['bio'] ?? '') > 40 ? '...' : '' ?></td>
           <td class="pixel dim"><?= htmlspecialchars($u['favorite_lang'] ?? '—') ?></td>
+          <td>
+            <?php if (!gc_shop_ready()): ?>
+              <span class="pixel dim">—</span>
+            <?php else: ?>
+              <div class="adm-coins">
+                <span class="adm-coins-val pixel">
+                  <img src="../img/pixel_coin.png" alt="" class="adm-coin-img"/><?= (int)($coinsById[(int)$u['id']] ?? 0) ?>
+                </span>
+                <form method="POST" class="adm-coins-form">
+              <?= admin_csrf_field() ?>
+                  <input type="hidden" name="action" value="coins"/>
+                  <input type="hidden" name="user_id" value="<?= (int)$u['id'] ?>"/>
+                  <input class="adm-coins-input pixel" type="number" name="amount"
+                         min="1" max="1000000" step="1" placeholder="0" required/>
+                  <button type="submit" name="sign" value="plus"
+                          class="adm-btn-sm adm-btn-coin-plus pixel" title="Начислить">+</button>
+                  <button type="submit" name="sign" value="minus"
+                          class="adm-btn-sm adm-btn-coin-minus pixel" title="Списать">&minus;</button>
+                </form>
+              </div>
+            <?php endif; ?>
+          </td>
           <td class="pixel dim"><?= htmlspecialchars(substr($u['created_at'], 0, 10)) ?></td>
           <td>
             <?php if (!empty($u['banned'])): ?>
@@ -114,6 +191,7 @@ $users = array_reverse($users);
           </td>
           <td class="adm-actions">
             <form method="POST" style="display:inline">
+              <?= admin_csrf_field() ?>
               <input type="hidden" name="action" value="ban"/>
               <input type="hidden" name="user_id" value="<?= (int)$u['id'] ?>"/>
               <button type="submit" class="adm-btn-sm adm-btn-warn pixel"
@@ -123,6 +201,7 @@ $users = array_reverse($users);
             </form>
             <form method="POST" style="display:inline"
                   onsubmit="return confirm('Удалить «<?= htmlspecialchars($u['nickname'], ENT_QUOTES) ?>»? Это действие нельзя отменить.')">
+              <?= admin_csrf_field() ?>
               <input type="hidden" name="action" value="delete"/>
               <input type="hidden" name="user_id" value="<?= (int)$u['id'] ?>"/>
               <button type="submit" class="adm-btn-sm adm-btn-danger pixel">🗑</button>
@@ -131,7 +210,7 @@ $users = array_reverse($users);
         </tr>
         <?php endforeach; ?>
         <?php if (empty($users)): ?>
-        <tr><td colspan="8" class="pixel dim" style="text-align:center;padding:24px">Нет пользователей</td></tr>
+        <tr><td colspan="9" class="pixel dim" style="text-align:center;padding:24px">Нет пользователей</td></tr>
         <?php endif; ?>
       </tbody>
     </table>

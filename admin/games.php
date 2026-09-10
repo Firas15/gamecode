@@ -5,6 +5,7 @@ requireAdmin();
 $msg = ''; $msgType = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    admin_csrf_check();
     $action = $_POST['action'] ?? '';
 
     // Добавить игру
@@ -121,6 +122,7 @@ $games = readGames();
     </div>
     <div id="addForm" style="display:none; padding:20px 24px;">
       <form method="POST" class="adm-form-grid">
+              <?= admin_csrf_field() ?>
         <input type="hidden" name="action" value="add"/>
         <div class="adm-field">
           <label class="adm-label pixel">// ID (латиница)</label>
@@ -210,18 +212,21 @@ $games = readGames();
           <td class="pixel dim"><?= htmlspecialchars(substr($g['created_at'] ?? '', 0, 10)) ?></td>
           <td class="adm-actions">
             <form method="POST" style="display:inline">
+              <?= admin_csrf_field() ?>
               <input type="hidden" name="action" value="move"/>
               <input type="hidden" name="direction" value="up"/>
               <input type="hidden" name="game_id" value="<?= htmlspecialchars($g['id'], ENT_QUOTES, 'UTF-8') ?>"/>
               <button type="submit" class="adm-btn-sm adm-btn-warn pixel" <?= $index === 0 ? 'disabled' : '' ?> title="Поднять выше">↑</button>
             </form>
             <form method="POST" style="display:inline">
+              <?= admin_csrf_field() ?>
               <input type="hidden" name="action" value="move"/>
               <input type="hidden" name="direction" value="down"/>
               <input type="hidden" name="game_id" value="<?= htmlspecialchars($g['id'], ENT_QUOTES, 'UTF-8') ?>"/>
               <button type="submit" class="adm-btn-sm adm-btn-warn pixel" <?= $index === count($games) - 1 ? 'disabled' : '' ?> title="Опустить ниже">↓</button>
             </form>
             <form method="POST" style="display:inline">
+              <?= admin_csrf_field() ?>
               <input type="hidden" name="action" value="toggle_wip"/>
               <input type="hidden" name="game_id" value="<?= htmlspecialchars($g['id']) ?>"/>
               <button type="submit" class="adm-btn-sm adm-btn-warn pixel" title="<?= $g['wip'] ? 'Сделать LIVE' : 'Сделать WIP' ?>">
@@ -230,6 +235,7 @@ $games = readGames();
             </form>
             <form method="POST" style="display:inline"
                   onsubmit="return confirm('Удалить «<?= htmlspecialchars($g['title'], ENT_QUOTES) ?>»?')">
+              <?= admin_csrf_field() ?>
               <input type="hidden" name="action" value="delete"/>
               <input type="hidden" name="game_id" value="<?= htmlspecialchars($g['id']) ?>"/>
               <button type="submit" class="adm-btn-sm adm-btn-danger pixel">🗑</button>

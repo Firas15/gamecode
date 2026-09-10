@@ -32,6 +32,9 @@
     document.write('<link rel="stylesheet" href="' + window.__assetUrl('css/style.css') + '">');
     document.write('<link rel="stylesheet" href="' + window.__assetUrl('css/mobile.css') + '">');
     document.write('<link rel="stylesheet" href="' + window.__assetUrl('../../css/leaderboard.css') + '">');
+    // Рамки аватаров из магазина: виджет топа рисует их разметку,
+    // а описаны они в shop.css — без него это был просто пустой span.
+    document.write('<link rel="stylesheet" href="' + window.__assetUrl('../../css/shop.css') + '">');
   </script>
 </head>
 <body>

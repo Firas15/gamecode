@@ -6,6 +6,7 @@ $msg = ''; $msgType = '';
 $configFile = __DIR__ . '/config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    admin_csrf_check();
     $action = $_POST['action'] ?? '';
 
     if ($action === 'change_password') {
@@ -76,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="adm-panel">
       <div class="adm-panel-header"><span class="pixel">🔑 ИЗМЕНИТЬ ЛОГИН АДМИНА</span></div>
       <form method="POST" style="padding:20px 24px;">
+              <?= admin_csrf_field() ?>
         <input type="hidden" name="action" value="change_login"/>
         <div class="adm-field">
           <label class="adm-label pixel">// ТЕКУЩИЙ ЛОГИН</label>
@@ -97,6 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="adm-panel">
       <div class="adm-panel-header"><span class="pixel">🔐 ИЗМЕНИТЬ ПАРОЛЬ АДМИНА</span></div>
       <form method="POST" style="padding:20px 24px;">
+              <?= admin_csrf_field() ?>
         <input type="hidden" name="action" value="change_password"/>
         <div class="adm-field">
           <label class="adm-label pixel">// ТЕКУЩИЙ ПАРОЛЬ</label>

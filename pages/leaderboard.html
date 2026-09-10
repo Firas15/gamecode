@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="../css/style.css"/>
   <link rel="stylesheet" href="../css/pages.css"/>
   <link rel="stylesheet" href="../css/auth.css">
+  <link rel="stylesheet" href="../css/shop.css"/>
   <link rel="stylesheet" href="../css/mobile.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
@@ -23,11 +24,12 @@
       <span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span>
     </div>
     <ul class="sidebar-nav">
-      <li><a href="../index.html" class="sidebar-link">Все игры</a></li>
-      <li><a href="leaderboard.html" class="sidebar-link active">Лидеры</a></li>
-      <li><a href="how-to-play.html" class="sidebar-link">Как играть</a></li>
-      <li><a href="theory.html" class="sidebar-link">Теория</a></li>
-      <li><a href="about.html" class="sidebar-link">О нас</a></li>
+      <li><a href="../index.html" class="sidebar-link sidebar-link--games">Все игры</a></li>
+      <li><a href="leaderboard.html" class="sidebar-link sidebar-link--leaders active">Лидеры</a></li>
+      <li><a href="theory.html" class="sidebar-link sidebar-link--theory">Теория</a></li>
+      <li><a href="shop.php" class="sidebar-link sidebar-link--shop">Магазин</a></li>
+      <li><a href="how-to-play.html" class="sidebar-link sidebar-link--howto">Как играть</a></li>
+      <li><a href="about.html" class="sidebar-link sidebar-link--about">О нас</a></li>
     </ul>
     <a class="sidebar-partner" href="https://itgorky.ru/" target="_blank" rel="noopener">
       <img class="sidebar-partner-img" src="../img/itgorky-mascot.png" alt="ITGorky" />
@@ -204,13 +206,30 @@
       };
       const rowClass = { 1: 'lb-gold', 2: 'lb-silver', 3: 'lb-bronze' };
 
+      // Рамка и титул приходят из магазина. Класс рамки прогоняем через
+      // белый список: строка из ответа не должна попадать в атрибут как есть.
+      const FRAME_CLASSES = [
+        'gc-frame--cyan', 'gc-frame--green', 'gc-frame--pink', 'gc-frame--gold',
+        'gc-frame--dashed', 'gc-frame--glitch', 'gc-frame--rgb'
+      ];
+
       const rows = data.rows.map(r => {
         const isMe = currentNick && r.nickname === currentNick;
         const cls = [rowClass[r.rank] || '', isMe ? 'lb-me' : ''].filter(Boolean).join(' ');
+        const frame = FRAME_CLASSES.includes(r.frame_css) ? r.frame_css : '';
+        const avatar = `<img src="../img/avatars/${escHtml(r.avatar_emoji || 'avatar1')}.png" alt="аватар" class="avatar-img avatar-img--sm"/>`;
+        const title = r.title_text
+          ? `<span class="gc-title-tag gc-title-tag--sm">${escHtml(r.title_text)}</span>`
+          : '';
+
+        // Ник и аватар — ссылка на профиль игрока
+        const pid = Number(r.id) || 0;
+        const a1 = pid ? `<a class="lb-profile-link" href="profile.php?id=${pid}" title="Профиль игрока">` : '';
+        const a2 = pid ? '</a>' : '';
 
         return `<tr class="${cls}">
           <td class="td-rank">${medals[r.rank] || '#' + r.rank}</td>
-          <td><div class="td-user"><span class="td-avatar"><img src="../img/avatars/${r.avatar_emoji || 'avatar1'}.png" alt="аватар" class="avatar-img avatar-img--sm"/></span><span class="td-nick">${escHtml(r.nickname)}${isMe ? ' ◀' : ''}</span></div></td>
+          <td><div class="td-user"><span class="td-avatar">${a1}${frame ? `<span class="gc-frame ${frame}">${avatar}</span>` : avatar}${a2}</span><span class="td-nick">${a1}${escHtml(r.nickname)}${a2}${isMe ? ' ◀' : ''}${title ? `<br>${title}` : ''}</span></div></td>
           <td></td>
           <td class="td-score">${Number(r.score).toLocaleString('ru-RU')}</td>
         </tr>`;

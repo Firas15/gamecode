@@ -623,3 +623,137 @@ body.login-page {
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================================
+   ПИКСЕЛЬ КОИНЫ В СПИСКЕ ПОЛЬЗОВАТЕЛЕЙ
+   Баланс плюс поле ввода с кнопками «+» и «−».
+   ============================================================ */
+.adm-coins {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+.adm-coins-val {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--yellow);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.adm-coin-img {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+.adm-coins-form {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.adm-coins-input {
+  width: 76px;
+  padding: 6px 8px;
+  background: var(--bg);
+  border: 1px solid var(--border, #1a3a6b);
+  color: var(--text, #c8d8f0);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+}
+.adm-coins-input:focus {
+  outline: none;
+  border-color: var(--yellow);
+}
+.adm-btn-sm.adm-btn-coin-plus  { border-color: var(--green); color: var(--green); }
+.adm-btn-sm.adm-btn-coin-plus:hover  { background: rgba(57,255,20,0.12); }
+.adm-btn-sm.adm-btn-coin-minus { border-color: var(--pink); color: var(--pink); }
+.adm-btn-sm.adm-btn-coin-minus:hover { background: rgba(255,77,109,0.12); }
+
+/* 
+   МАГАЗИН
+ */
+
+/* Превью товара. Бокс фиксированный, картинка вписывается
+   целиком и не сглаживается: пиксель-арт при любом масштабе
+   должен оставаться пиксель-артом, а не мыльным пятном.
+   Тот же приём, что у аватаров на сайте. */
+.adm-shop-preview {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.adm-shop-preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+/* Файла нет — прячем «сломанную картинку», рамка остаётся
+   и сразу видно, что превью отсутствует. */
+.adm-shop-preview img.is-missing { visibility: hidden; }
+.adm-shop-empty { font-size: 7px; color: var(--dim); }
+
+/* Монета рядом с ценой — та же картинка, что на сайте. */
+.adm-coin {
+  width: 14px;
+  height: 14px;
+  image-rendering: pixelated;
+  vertical-align: middle;
+}
+
+/* Строка редактирования прямо в таблице */
+.adm-shop-row-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.adm-inline-input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--white);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  padding: 6px 8px;
+  min-width: 130px;
+  outline: none;
+}
+.adm-inline-input:focus { border-color: var(--cyan); }
+.adm-inline-input:disabled { opacity: 0.45; cursor: not-allowed; }
+.adm-inline-input--num  { min-width: 74px; width: 74px; }
+.adm-inline-input--text { min-width: 110px; color: var(--yellow); }
+
+.adm-inline-price { display: inline-flex; align-items: center; gap: 5px; }
+
+/* Кнопка «заменить картинку»: сам input скрыт, кликается иконка. */
+.adm-inline-file {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px; height: 30px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 13px;
+}
+.adm-inline-file:hover { border-color: var(--cyan); }
+.adm-inline-file input { display: none; }
+
+.adm-file-note {
+  font-size: 7px;
+  color: var(--dim);
+  line-height: 1.8;
+  margin-top: 4px;
+}
+
+/* Снятый с продажи товар виден, но приглушён. */
+.row-hidden { opacity: 0.45; }
+/* Сохранение строки — главное действие в ряду, поэтому цветом. */
+.adm-btn-sm.adm-btn-save { border-color: var(--cyan); color: var(--cyan); }
+.adm-btn-sm.adm-btn-save:hover { background: rgba(0,229,255,0.12); }

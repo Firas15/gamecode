@@ -554,3 +554,63 @@
   .aw-btn-full { display: inline; }
   .aw-btn-compact { display: none !important; }
 }
+
+/* ============================================================
+   ПИКСЕЛЬ КОИН — валюта магазина
+
+   Живёт в auth.css, а не в shop.css: баланс показывается в шапке
+   на каждой странице, а shop.css подключён только там, где есть
+   витрина. Один файл на весь сайт — один источник правды.
+   ============================================================ */
+
+/* Иконку НЕ переводим в image-rendering:pixelated: исходник 389px,
+   и при уменьшении до 20px чёткое масштабирование даёт рваные
+   пиксели, а плавное — ровный кружок. */
+.gc-coin {
+  width: 20px;
+  height: 20px;
+  display: block;
+  flex-shrink: 0;
+}
+.gc-coin--sm { width: 14px; height: 14px; }
+.gc-coin--lg { width: 34px; height: 34px; }
+
+/* Баланс в шапке, слева от виджета пользователя */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gc-balance {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 13px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 1px;
+  color: var(--yellow, #f5d800);
+  background: rgba(245, 216, 0, 0.06);
+  border: 1px solid rgba(245, 216, 0, 0.45);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.gc-balance:hover {
+  border-color: var(--yellow, #f5d800);
+  box-shadow: 0 0 14px rgba(245, 216, 0, 0.22);
+}
+
+@media (max-width: 900px) {
+  /* В шапке на телефоне и так тесно: гамбургер, логотип, партнёр
+     и виджет. Оставляем монету с числом, убирая лишний воздух. */
+  .header-right { gap: 8px; }
+  .gc-balance { font-size: 9px; padding: 8px 9px; gap: 6px; }
+  .gc-coin { width: 16px; height: 16px; }
+}
+@media (max-width: 400px) {
+  .gc-balance { font-size: 8px; padding: 7px 7px; gap: 5px; border-width: 1px; }
+  .gc-coin { width: 14px; height: 14px; }
+}

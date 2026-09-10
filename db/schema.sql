@@ -720,3 +720,120 @@ GRANT ALL ON SCHEMA public TO gamecode_user;
 --
 
 CREATE INDEX IF NOT EXISTS idx_games_sort ON public.games USING btree (sort_order ASC);
+
+--
+-- ============================================================
+--  Магазин за очки (миграция 002-shop.sql)
+--
+--  Дописано в конец схемы, а не вплетено в CREATE TABLE выше:
+--  так один и тот же текст описывает и чистую установку, и
+--  обновление существующей базы, и его не надо держать в двух
+--  местах синхронно. Для уже работающего сервера отдельно лежит
+--  db/migrations/002-shop.sql.
+-- ============================================================
+--
+
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS coins integer DEFAULT 50 NOT NULL;
+ALTER TABLE public.users ALTER COLUMN coins SET DEFAULT 0;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS coins_earned integer DEFAULT 0 NOT NULL;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS equipped_frame character varying(40) DEFAULT ''::character varying NOT NULL;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS equipped_title character varying(40) DEFAULT ''::character varying NOT NULL;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS equipped_skin  character varying(40) DEFAULT ''::character varying NOT NULL;
+
+CREATE TABLE IF NOT EXISTS public.shop_purchases (
+    id         bigserial PRIMARY KEY,
+    user_id    integer NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+    item_id    character varying(40) NOT NULL,
+    price      integer DEFAULT 0 NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+ALTER TABLE public.shop_purchases OWNER TO gamecode_user;
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_shop_purchases_uniq ON public.shop_purchases USING btree (user_id, item_id);
+CREATE INDEX IF NOT EXISTS idx_shop_purchases_user ON public.shop_purchases USING btree (user_id);
+
+--
+-- ============================================================
+--  Каталог магазина в базе (миграция 003-shop-items.sql)
+--
+--  Тот же приём, что выше: один текст на чистую установку и на
+--  обновление. Для работающего сервера отдельно лежит
+--  db/migrations/003-shop-items.sql.
+-- ============================================================
+--
+
+-- payload — единственное поле, которое значит разное у разных
+-- видов товара. Так сделано намеренно: заводить четыре почти
+-- всегда пустые колонки ради одного заполненного значения хуже,
+-- чем одна колонка с понятным правилом.
+--
+--   frame  → CSS-класс рамки      (gc-frame--gold)
+--   title  → сам текст титула     (ХАКЕР)
+--   avatar → имя файла без .png   (avatar4-gold → img/avatars/avatar4-gold.png)
+--   skin   → папка спрайтов       (gold → games/pixelgame/assets/player/gold/)
+--
+-- hidden — снят с продажи. Товар исчезает с витрины, но у тех,
+-- кто успел купить, продолжает работать: удалять купленное
+-- нельзя, иначе люди теряют то, за что заплатили.
+CREATE TABLE IF NOT EXISTS public.shop_items (
+    id         character varying(40) PRIMARY KEY,
+    kind       character varying(16) NOT NULL,
+    name       character varying(80) NOT NULL,
+    price      integer DEFAULT 0 NOT NULL,
+    is_free    boolean DEFAULT false NOT NULL,
+    hidden     boolean DEFAULT false NOT NULL,
+    payload    character varying(120) DEFAULT ''::character varying NOT NULL,
+    sort_order integer DEFAULT 0 NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_shop_items_kind ON public.shop_items USING btree (kind, sort_order);
+
+-- Стартовое наполнение — ровно тот каталог, что сейчас в коде.
+-- ON CONFLICT DO NOTHING: если миграцию прогнать второй раз уже
+-- после правок в админке, цены останутся отредактированными.
+INSERT INTO public.shop_items (id, kind, name, price, is_free, payload, sort_order) VALUES
+    -- РАМКИ
+    ('frame_none',     'frame',  'Без рамки',          0,   true,  '',                  10),
+    ('frame_cyan',     'frame',  'Неоновый контур',    50,  false, 'gc-frame--cyan',    20),
+    ('frame_green',    'frame',  'Матрица',            90,  false, 'gc-frame--green',   30),
+    ('frame_pink',     'frame',  'Розовый шум',        140, false, 'gc-frame--pink',    40),
+    ('frame_gold',     'frame',  'Золото',             200, false, 'gc-frame--gold',    50),
+    ('frame_dashed',   'frame',  'Бегущая строка',     300, false, 'gc-frame--dashed',  60),
+    ('frame_glitch',   'frame',  'Глитч',              450, false, 'gc-frame--glitch',  70),
+    ('frame_rgb',      'frame',  'RGB',                700, false, 'gc-frame--rgb',     80),
+
+    -- ТИТУЛЫ
+    ('title_none',     'title',  'Без титула',         0,   true,  '',                     10),
+    ('title_novice',   'title',  'Новичок',            40,  false, 'НОВИЧОК',              20),
+    ('title_debug',    'title',  'Отладчик',           70,  false, 'ОТЛАДЧИК',             30),
+    ('title_net',      'title',  'Сетевой инженер',    100, false, 'СЕТЕВОЙ ИНЖЕНЕР',      40),
+    ('title_sorter',   'title',  'Мастер сортировки',  100, false, 'МАСТЕР СОРТИРОВКИ',    50),
+    ('title_quiz',     'title',  'Эрудит',             100, false, 'ЭРУДИТ',               60),
+    ('title_hacker',   'title',  'Хакер',              180, false, 'ХАКЕР',                70),
+    ('title_arch',     'title',  'Архитектор',         280, false, 'АРХИТЕКТОР',           80),
+    ('title_legend',   'title',  'Легенда GameCode',   450, false, 'ЛЕГЕНДА GAMECODE',     90),
+
+    -- АВАТАРЫ (пять исходных бесплатны — они были у всех до магазина)
+    ('avatar1',        'avatar', 'Аватар 1',           0,   true,  'avatar1',           10),
+    ('avatar2',        'avatar', 'Аватар 2',           0,   true,  'avatar2',           20),
+    ('avatar3',        'avatar', 'Аватар 3',           0,   true,  'avatar3',           30),
+    ('avatar4',        'avatar', 'Аватар 4',           0,   true,  'avatar4',           40),
+    ('avatar5',        'avatar', 'Аватар 5',           0,   true,  'avatar5',           50),
+    ('avatar1-toxic',  'avatar', 'Токсичный',          90,  false, 'avatar1-toxic',     60),
+    ('avatar2-ice',    'avatar', 'Лёд',                120, false, 'avatar2-ice',       70),
+    ('avatar3-blood',  'avatar', 'Багровый',           160, false, 'avatar3-blood',     80),
+    ('avatar4-gold',   'avatar', 'Золотой',            200, false, 'avatar4-gold',      90),
+    ('avatar5-plasma', 'avatar', 'Плазма',             260, false, 'avatar5-plasma',   100),
+    ('avatar1-void',   'avatar', 'Пустота',            350, false, 'avatar1-void',     110),
+
+    -- СКИНЫ CODEQUEST
+    ('skin_default',   'skin',   'Базовый',            0,   true,  '',                  10),
+    ('skin_green',     'skin',   'Зелёный протокол',   150, false, 'green',             20),
+    ('skin_crimson',   'skin',   'Красный код',        250, false, 'crimson',           30),
+    ('skin_gold',      'skin',   'Золотой байт',       400, false, 'gold',              40),
+    ('skin_void',      'skin',   'Тьма',               600, false, 'void',              50)
+ON CONFLICT (id) DO NOTHING;
+
+ALTER TABLE public.shop_items OWNER TO gamecode_user;

@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/assets.php';
+require_once __DIR__ . '/shop.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_set_cookie_params(['path' => '/', 'httponly' => true, 'samesite' => 'Lax']);
@@ -47,12 +48,18 @@ function gc_attach_pending_score(int $userId): void {
     }
 
     $meta['from_guest'] = true;
+    $meta['coins'] = gc_shop_coins_for_score($score);
 
     if (!addScore($userId, $gameId, $score, $meta)) {
         return;
     }
 
     cache_invalidate_leaderboard($gameId);
+
+    // Монеты за перенесённый результат: игра сыграна, значит и валюта
+    // магазина за неё положена — иначе гость, зарегистрировавшийся
+    // ради сохранения очков, получил бы очки без монет.
+    gc_shop_award_coins($userId, $score);
 
     $user = findUserById($userId);
     if ($user) {
@@ -87,6 +94,7 @@ function registerUser(string $nickname, string $password, string $confirm, strin
 
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['nickname'] = $user['nickname'];
+    gc_shop_grant_welcome((int)$user['id']);
     gc_attach_pending_score((int)$user['id']);
     return ['ok' => true];
 }
@@ -145,7 +153,36 @@ function updateProfile(int $userId, array $data): array {
             $fields[$key] = substr(trim($data[$key]), 0, 300);
         }
     }
+
+    // Аватар приходит из формы, а форма — из браузера: без этой проверки
+    // платный аватар надевался бы подменённым полем, минуя магазин.
+    // Ищем предмет по имени файла, потому что в avatar_emoji лежит
+    // именно файл, а не id товара.
+    if (isset($fields['avatar_emoji'])) {
+        $wanted = $fields['avatar_emoji'];
+        $itemId = null;
+        foreach (gc_shop_by_kind('avatar') as $item) {
+            if ((string)($item['file'] ?? '') === $wanted) {
+                $itemId = $item['id'];
+                break;
+            }
+        }
+        if ($itemId === null || !gc_shop_owns($userId, $itemId)) {
+            return ['error' => 'Этот аватар ещё не куплен'];
+        }
+    }
+
     if (empty($fields)) return ['error' => 'Нечего обновлять'];
     updateUser($userId, $fields);
+
+    // Тот же кэш, что и в магазине: аватар из формы профиля точно так же
+    // попадает в строки лидерборда. Заодно сбрасываем кэш самого
+    // пользователя — из него шапка берёт ник и картинку.
+    if (isset($fields['avatar_emoji'])) {
+        cache_invalidate_leaderboards_all();
+    }
+    $u = findUserById($userId);
+    cache_invalidate_user($userId, (string)($u['nickname'] ?? ''));
+
     return ['ok' => true];
 }

@@ -12,6 +12,10 @@
   --pink:          #ff4d6d;
   --cyan:          #00e5ff;
   --purple:        #b24bff;
+  /* Единственный тёплый просвет в палитре: не путается ни с
+     розовым (тот краснее), ни с жёлтым (тот заметно светлее).
+     Отдан магазину — читается как «монеты». */
+  --orange:        #ff8c1a;
   --accent:        #b24bff;
 
   --text-main:     #c8d8f0;
@@ -173,11 +177,16 @@ a { text-decoration: none; color: inherit; }
   flex-shrink: 0;
 }
 
-.sidebar-nav li:nth-child(1) .sidebar-link::before { background: var(--pink); }
-.sidebar-nav li:nth-child(2) .sidebar-link::before { background: var(--purple); }
-.sidebar-nav li:nth-child(3) .sidebar-link::before { background: var(--cyan); }
-.sidebar-nav li:nth-child(4) .sidebar-link::before { background: var(--green); }
-.sidebar-nav li:nth-child(5) .sidebar-link::before { background: var(--yellow); }
+/* Цвет квадратика привязан к разделу, а не к его месту в списке.
+   Раньше это были nth-child: любая перестановка пунктов меняла
+   цвета местами, а шестой пункт («О нас») вообще оставался без
+   квадратика, потому что правил было только пять. */
+.sidebar-link--games::before   { background: var(--pink); }
+.sidebar-link--leaders::before { background: var(--purple); }
+.sidebar-link--theory::before  { background: var(--green); }
+.sidebar-link--shop::before    { background: var(--orange); }
+.sidebar-link--howto::before   { background: var(--cyan); }
+.sidebar-link--about::before   { background: var(--yellow); }
 
 
 .sidebar-link:hover {

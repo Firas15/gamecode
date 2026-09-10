@@ -566,6 +566,7 @@ requireAdmin();
 </style>
 </head>
 <body>
+<script>window.GC_ADMIN_CSRF = <?= json_encode(admin_csrf_token()) ?>;</script>
 <div class="scanlines-overlay"></div>
 
 <!-- ── ADMIN PANEL ── -->
@@ -1463,7 +1464,7 @@ function deleteLevel() {
   fetch('pixelgame_editor_save.php', {
     method: 'POST',
     credentials: 'same-origin',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': window.GC_ADMIN_CSRF || '' },
     body: JSON.stringify({ action: 'delete_level', level_number: deletedLevelNumber }),
   }).then(r => r.json()).then(data => {
     if (!data || !data.ok) showNotify('✕ Не удалось удалить в БД', true);
@@ -1575,7 +1576,7 @@ function saveLevel() {
   return fetch('pixelgame_editor_save.php', {
     method: 'POST',
     credentials: 'same-origin',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': window.GC_ADMIN_CSRF || '' },
     body: JSON.stringify(payload),
   })
     .then(r => r.json())

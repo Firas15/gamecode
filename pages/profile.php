@@ -1,17 +1,52 @@
 <?php
+/**
+ * ПРОФИЛЬ
+ *
+ * Одна страница на два режима:
+ *   profile.php          — свой профиль, со всей кухней и настройками
+ *   profile.php?id=<N>   — чужой, только витрина
+ *
+ * Чужому не показываем ничего личного: ни кошелёк, ни историю партий
+ * (по ней видно, когда человек сидел за компьютером), ни настройки.
+ * Остаётся то, ради чего в профиль и заходят, — достижения в играх.
+ *
+ * Витрина открыта и гостям: таблица лидеров публична, и профиль
+ * чемпиона из неё — повод зарегистрироваться, а не запертая дверь.
+ */
 require_once dirname(__DIR__) . '/includes/auth.php';
 
-if (!isLoggedIn()) {
-    header('Location: login.php?redirect=profile.php');
-    exit;
+$viewerId    = isLoggedIn() ? (int)$_SESSION['user_id'] : 0;
+$requestedId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
+// Свой профиль — это и profile.php без параметров, и profile.php?id=<свой>:
+// ссылка из таблицы лидеров на самого себя должна вести в полноценный
+// профиль, а не в урезанную витрину.
+$isOwn = ($requestedId === 0 || $requestedId === $viewerId);
+
+$notFound = false;
+if ($isOwn) {
+    if (!isLoggedIn()) {
+        header('Location: login.php?redirect=profile.php');
+        exit;
+    }
+    $user = getCurrentUser();
+} else {
+    $user = findUserById($requestedId);
+    if (!$user) {
+        $notFound = true;
+        $user = ['id' => 0, 'nickname' => '', 'created_at' => date('Y-m-d H:i:s'),
+                 'avatar_emoji' => 'avatar1', 'bio' => '', 'favorite_lang' => '',
+                 'favorite_game' => '', 'games_played' => 0, 'best_score' => 0];
+    }
 }
 
-$user    = getCurrentUser();
-$isNew   = isset($_GET['new']);
+$isNew   = $isOwn && isset($_GET['new']);
 $saved   = false;
 $saveErr = '';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update') {
+// Сохранение — только для своего профиля. Даже если кто-то подставит
+// чужой id в форму, updateProfile получит id из сессии, а не из запроса.
+if ($isOwn && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update') {
     $result = updateProfile((int)$user['id'], [
         'bio'           => $_POST['bio']           ?? '',
         'favorite_lang' => $_POST['favorite_lang'] ?? '',
@@ -26,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// Считаем статистику из Postgres — только записи текущего пользователя
+// Считаем статистику из Postgres — только записи показываемого пользователя
 $userId      = (int)$user['id'];
 $gamesPlayed = (int)($user['games_played'] ?? 0);
 
@@ -172,14 +207,41 @@ $overallRank = !empty($rows[0]['rnk']) ? (int)$rows[0]['rnk'] : null;
 
 // История последних 10 попыток 
 $recentRows = gamecode_pg_query_all(
-    'SELECT game_id, score, created_at FROM scores
+    'SELECT game_id, score, meta, created_at FROM scores
      WHERE user_id = $1 AND game_id = ANY($2)
      ORDER BY id DESC LIMIT 10',
     [$userId, '{' . implode(',', array_keys($gameLabels)) . '}']
 );
 $recentAttempts = is_array($recentRows) ? $recentRows : [];
 
-$avatars  = ['avatar1','avatar2','avatar3','avatar4','avatar5'];
+// Рамка и титул нужны в шапке обоих режимов — их видно и со стороны.
+$equipped  = gc_shop_equipped($userId);
+$frameCss  = gc_shop_frame_css($equipped['frame']);
+$titleText = gc_shop_title_text($equipped['title']);
+
+// Всё, что ниже, — кухня своего профиля. Для чужого не считаем вовсе:
+// это и лишние запросы, и лишний повод случайно вывести чужой кошелёк.
+$ownedItems = $avatars = $ownedFrames = $ownedTitles = [];
+$wallet = ['coins' => 0, 'earned' => 0, 'spent' => 0];
+
+if ($isOwn) {
+    // Список аватаров ведёт каталог магазина, а не константа:
+    // показываем только те, которыми игрок владеет — за остальными
+    // отправляем в магазин, чтобы выбор не дразнил недоступным.
+    $ownedItems = gc_shop_purchased($userId);
+    foreach (gc_shop_by_kind('avatar') as $avItem) {
+        if (!empty($avItem['free']) || (int)$avItem['price'] === 0
+            || in_array($avItem['id'], $ownedItems, true)) {
+            $avatars[] = (string)$avItem['file'];
+        }
+    }
+    if (empty($avatars)) $avatars = ['avatar1'];
+
+    $wallet = gc_shop_wallet($userId);
+    $ownedFrames = array_values(array_filter(gc_shop_by_kind('frame'), fn($i) => !empty($i['free']) || in_array($i['id'], $ownedItems, true)));
+    $ownedTitles = array_values(array_filter(gc_shop_by_kind('title'), fn($i) => !empty($i['free']) || in_array($i['id'], $ownedItems, true)));
+}
+
 $langs    = ['','Python','C++','JavaScript','Java','Go','Rust','TypeScript','C#','PHP','Kotlin'];
 $games    = ['','Кто хочет стать программистом','Сетевой маршрут','Сортировщик','Внутри компьютера'];
 $regDate  = date('d.m.Y', strtotime($user['created_at']));
@@ -189,11 +251,12 @@ $regDate  = date('d.m.Y', strtotime($user['created_at']));
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title><?= htmlspecialchars($user['nickname']) ?> — Профиль — Game Code</title>
+  <title><?= $notFound ? 'Профиль не найден' : htmlspecialchars($user['nickname']) . ' — Профиль' ?> — Game Code</title>
   <link rel="icon" href="../../img/ICON.PNG" type="image/png">
   <link rel="stylesheet" href="<?= htmlspecialchars(asset_url('../css/style.css', 'css/style.css'), ENT_QUOTES, 'UTF-8') ?>"/>
   <link rel="stylesheet" href="<?= htmlspecialchars(asset_url('../css/pages.css', 'css/pages.css'), ENT_QUOTES, 'UTF-8') ?>"/>
   <link rel="stylesheet" href="<?= htmlspecialchars(asset_url('../css/auth.css', 'css/auth.css'), ENT_QUOTES, 'UTF-8') ?>"/>
+  <link rel="stylesheet" href="<?= htmlspecialchars(asset_url('../css/shop.css', 'css/shop.css'), ENT_QUOTES, 'UTF-8') ?>"/>
   <link rel="stylesheet" href="../css/mobile.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
@@ -209,11 +272,12 @@ $regDate  = date('d.m.Y', strtotime($user['created_at']));
       <span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span>
     </div>
     <ul class="sidebar-nav">
-      <li><a href="../index.html"    class="sidebar-link" >Все игры</a></li>
-      <li><a href="leaderboard.html"      class="sidebar-link" >Лидеры</a></li>
-      <li><a href="how-to-play.html" class="sidebar-link" >Как играть</a></li>
-      <li><a href="theory.html"      class="sidebar-link" >Теория</a></li>
-      <li><a href="about.html"       class="sidebar-link" >О нас</a></li>
+      <li><a href="../index.html" class="sidebar-link sidebar-link--games">Все игры</a></li>
+      <li><a href="leaderboard.html" class="sidebar-link sidebar-link--leaders">Лидеры</a></li>
+      <li><a href="theory.html" class="sidebar-link sidebar-link--theory">Теория</a></li>
+      <li><a href="shop.php" class="sidebar-link sidebar-link--shop">Магазин</a></li>
+      <li><a href="how-to-play.html" class="sidebar-link sidebar-link--howto">Как играть</a></li>
+      <li><a href="about.html" class="sidebar-link sidebar-link--about">О нас</a></li>
     </ul>
     <a class="sidebar-partner" href="https://itgorky.ru/" target="_blank" rel="noopener">
       <img class="sidebar-partner-img" src="../img/itgorky-mascot.png" alt="ITGorky" />
@@ -255,14 +319,48 @@ $regDate  = date('d.m.Y', strtotime($user['created_at']));
 
   <section class="page-hero">
     <div class="page-hero-inner">
-      <p class="breadcrumb"><a href="../index.html">ГЛАВНАЯ</a> / <span class="accent">ПРОФИЛЬ</span></p>
-      <div class="profile-hero-avatar"><img src="../img/avatars/<?= htmlspecialchars($user['avatar_emoji']) ?>.png" alt="аватар" class="avatar-img avatar-img--hero"/></div>
+      <p class="breadcrumb">
+        <a href="../index.html">ГЛАВНАЯ</a> /
+        <?php if ($isOwn): ?>
+          <span class="accent">ПРОФИЛЬ</span>
+        <?php else: ?>
+          <a href="leaderboard.html">ЛИДЕРЫ</a> / <span class="accent">ПРОФИЛЬ ИГРОКА</span>
+        <?php endif; ?>
+      </p>
+      <div class="profile-hero-avatar">
+        <?php if ($frameCss !== ''): ?>
+          <span class="gc-frame <?= htmlspecialchars($frameCss) ?>" id="heroFrame">
+            <img src="../img/avatars/<?= htmlspecialchars($user['avatar_emoji']) ?>.png" alt="аватар" class="avatar-img avatar-img--hero"/>
+          </span>
+        <?php else: ?>
+          <span class="gc-frame" id="heroFrame" style="border-color:transparent;background:none;padding:0">
+            <img src="../img/avatars/<?= htmlspecialchars($user['avatar_emoji']) ?>.png" alt="аватар" class="avatar-img avatar-img--hero"/>
+          </span>
+        <?php endif; ?>
+      </div>
       <h1 class="page-title accent"><?= htmlspecialchars($user['nickname']) ?></h1>
+      <?php if ($titleText !== ''): ?>
+        <p style="margin:2px 0 10px"><span class="gc-title-tag"><?= htmlspecialchars($titleText) ?></span></p>
+      <?php endif; ?>
       <p class="page-subtitle pixel-text">ИГРОК С <?= $regDate ?></p>
     </div>
   </section>
 
   <main class="page-content" style="max-width:780px;">
+
+    <?php if ($notFound): ?>
+    <div class="content-block" style="border-color:rgba(255,77,109,0.3)">
+      <h2 class="block-title pink">[ ПРОФИЛЬ НЕ НАЙДЕН ]</h2>
+      <p class="block-text pixel-text">
+        Такого игрока нет — возможно, аккаунт удалён.
+      </p>
+      <p style="margin-top:16px">
+        <a href="leaderboard.html" class="auth-submit pixel-text" style="display:inline-block;width:auto;padding:12px 18px;text-decoration:none">
+          [ К ТАБЛИЦЕ ЛИДЕРОВ ]
+        </a>
+      </p>
+    </div>
+    <?php else: ?>
 
     <?php if ($isNew): ?>
     <div class="auth-success pixel-text" style="margin-bottom:24px;">
@@ -397,8 +495,9 @@ $regDate  = date('d.m.Y', strtotime($user['created_at']));
       <?php endif; ?>
     </div>
 
-    <!-- Последние игры -->
-    <?php if (!empty($recentAttempts)): ?>
+    <!-- Последние игры. Только свой профиль: по датам и времени видно,
+         когда человек сидел за компьютером, — чужим это знать незачем. -->
+    <?php if ($isOwn && !empty($recentAttempts)): ?>
     <div class="content-block" style="animation-delay:0.08s; border-color:rgba(0,229,255,0.2);">
       <h2 class="block-title cyan">[ ПОСЛЕДНИЕ ИГРЫ ]</h2>
       <div class="profile-history">
@@ -409,11 +508,27 @@ $regDate  = date('d.m.Y', strtotime($user['created_at']));
             $hcol  = $gameColors[$hgid] ?? '#00e5ff';
             $hsc   = (int)($attempt['score'] ?? 0);
             $hdate = !empty($attempt['created_at']) ? date('d.m.Y  H:i', strtotime($attempt['created_at'])) : '—';
+
+            // Коины берём из меты попытки, а не пересчитываем из очков:
+            // у партий, сыгранных до появления валюты, их нет, и показывать
+            // им придуманный заработок было бы враньём. Такие строки просто
+            // остаются без колонки.
+            $hmeta  = [];
+            if (!empty($attempt['meta'])) {
+                $decoded = json_decode((string)$attempt['meta'], true);
+                if (is_array($decoded)) $hmeta = $decoded;
+            }
+            $hcoins = array_key_exists('coins', $hmeta) ? (int)$hmeta['coins'] : null;
         ?>
         <div class="profile-history-row">
           <span class="ph-dot" style="background:<?= $hcol ?>"></span>
           <span class="ph-game pixel-text" style="color:<?= $hcol ?>"><?= htmlspecialchars($hname) ?></span>
           <span class="ph-score pixel-text"><?= number_format($hsc, 0, '.', ' ') ?></span>
+          <span class="ph-coins pixel-text">
+            <?php if ($hcoins !== null && $hcoins > 0): ?>
+              <img class="gc-coin gc-coin--sm" src="../img/pixel_coin.png" alt="пиксель коины"/>+<?= $hcoins ?>
+            <?php endif; ?>
+          </span>
           <span class="ph-date pixel-text"><?= $hdate ?></span>
         </div>
         <?php endforeach; ?>
@@ -439,6 +554,77 @@ $regDate  = date('d.m.Y', strtotime($user['created_at']));
     </div>
     <?php endif; ?>
 
+    <?php if ($isOwn): ?>
+    <!-- Внешний вид: то, что куплено в магазине -->
+    <div class="content-block yellow-accent" style="animation-delay:0.15s">
+      <h2 class="block-title yellow">[ ВНЕШНИЙ ВИД ]</h2>
+
+      <div class="gc-wallet">
+        <div>
+          <div class="gc-wallet-coins">
+            <img class="gc-coin gc-coin--lg" src="../img/pixel_coin.png" alt=""/>
+            <span><?= (int)$wallet['coins'] ?></span>
+          </div>
+          <div class="gc-wallet-label"><?= GC_COIN_NAME ?></div>
+        </div>
+        <div class="gc-wallet-sub">
+          <?= GC_COIN_RATE ?>% от очков за каждую партию<br>
+          <a href="shop.php" style="color:#00e5ff">открыть магазин →</a>
+        </div>
+      </div>
+
+      <?php if (count($ownedFrames) > 1 || count($ownedTitles) > 1): ?>
+        <?php if (count($ownedFrames) > 1): ?>
+        <div class="auth-field">
+          <label class="auth-label pixel-text">// РАМКА</label>
+          <div class="gc-shop-grid">
+            <?php foreach ($ownedFrames as $f): $on = $equipped['frame'] === $f['id']; ?>
+              <div class="gc-shop-card <?= $on ? 'gc-shop-card--on' : '' ?>" data-item="<?= htmlspecialchars($f['id']) ?>">
+                <div class="gc-shop-preview">
+                  <span class="gc-frame <?= htmlspecialchars((string)($f['css'] ?? '')) ?>">
+                    <img src="../img/avatars/<?= htmlspecialchars($user['avatar_emoji']) ?>.png" alt=""/>
+                  </span>
+                </div>
+                <div class="gc-shop-name"><?= htmlspecialchars($f['name']) ?></div>
+                <button type="button" class="gc-shop-btn gc-shop-btn--equip" data-equip <?= $on ? 'disabled' : '' ?>>
+                  <?= $on ? '[ НАДЕТО ]' : '[ НАДЕТЬ ]' ?>
+                </button>
+              </div>
+            <?php endforeach; ?>
+          </div>
+        </div>
+        <?php endif; ?>
+
+        <?php if (count($ownedTitles) > 1): ?>
+        <div class="auth-field">
+          <label class="auth-label pixel-text">// ТИТУЛ</label>
+          <div class="gc-shop-grid">
+            <?php foreach ($ownedTitles as $t): $on = $equipped['title'] === $t['id']; ?>
+              <div class="gc-shop-card <?= $on ? 'gc-shop-card--on' : '' ?>" data-item="<?= htmlspecialchars($t['id']) ?>">
+                <div class="gc-shop-preview">
+                  <?php if (($t['text'] ?? '') === ''): ?>
+                    <span class="gc-shop-name" style="color:#5f7590">— пусто —</span>
+                  <?php else: ?>
+                    <span class="gc-title-tag"><?= htmlspecialchars($t['text']) ?></span>
+                  <?php endif; ?>
+                </div>
+                <div class="gc-shop-name"><?= htmlspecialchars($t['name']) ?></div>
+                <button type="button" class="gc-shop-btn gc-shop-btn--equip" data-equip <?= $on ? 'disabled' : '' ?>>
+                  <?= $on ? '[ НАДЕТО ]' : '[ НАДЕТЬ ]' ?>
+                </button>
+              </div>
+            <?php endforeach; ?>
+          </div>
+        </div>
+        <?php endif; ?>
+      <?php else: ?>
+        <p class="gc-shop-note">
+          Рамок и титулов пока нет. Загляни в <a href="shop.php" style="color:#00e5ff">магазин</a> —
+          самая дешёвая рамка стоит 50 пиксель коинов, а приветственных как раз <?= GC_WELCOME_COINS ?>.
+        </p>
+      <?php endif; ?>
+    </div>
+
     <!-- Редактирование профиля -->
     <div class="content-block accent-border" style="animation-delay:0.2s">
       <h2 class="block-title accent">[ РЕДАКТИРОВАТЬ ПРОФИЛЬ ]</h2>
@@ -458,6 +644,9 @@ $regDate  = date('d.m.Y', strtotime($user['created_at']));
             <?php endforeach; ?>
           </div>
           <input type="hidden" name="avatar_emoji" id="avatarInput" value="<?= htmlspecialchars($user['avatar_emoji']) ?>"/>
+          <p class="auth-hint pixel-text">
+            Ещё аватары — в <a href="shop.php" style="color:#00e5ff">магазине</a>.
+          </p>
         </div>
 
         <div class="auth-field">
@@ -514,6 +703,20 @@ $regDate  = date('d.m.Y', strtotime($user['created_at']));
         </a>
       </div>
     </div>
+    <?php endif; /* $isOwn: внешний вид, редактирование, аккаунт */ ?>
+
+    <?php if (!$isOwn): ?>
+    <div class="content-block" style="animation-delay:0.3s">
+      <div class="profile-actions">
+        <a href="leaderboard.html" class="auth-submit pixel-text"
+           style="display:inline-block;width:auto;padding:12px 18px;text-decoration:none">
+          [ К ТАБЛИЦЕ ЛИДЕРОВ ]
+        </a>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <?php endif; /* $notFound */ ?>
 
   </main>
 
@@ -525,6 +728,29 @@ $regDate  = date('d.m.Y', strtotime($user['created_at']));
   <script src="<?= htmlspecialchars(asset_url('../js/app.js', 'js/app.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
   <script src="<?= htmlspecialchars(asset_url('../js/auth.js', 'js/auth.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
   <script>
+    // Надеть рамку или титул. Покупка тут невозможна — только выбор
+    // из уже своего, поэтому подтверждения не спрашиваем.
+    document.querySelectorAll('.gc-shop-btn[data-equip]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const itemId = btn.closest('.gc-shop-card').dataset.item;
+        btn.disabled = true;
+        try {
+          const res = await fetch('../api/shop.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ action: 'equip', item_id: itemId }),
+          });
+          const data = await res.json();
+          if (!data.ok) { alert(data.error || 'Не получилось'); btn.disabled = false; return; }
+          window.location.reload();
+        } catch (e) {
+          alert('Нет связи с сервером');
+          btn.disabled = false;
+        }
+      });
+    });
+
     // Пикер аватара
     document.querySelectorAll('.avatar-opt').forEach(btn => {
       btn.addEventListener('click', function() {
@@ -537,10 +763,15 @@ $regDate  = date('d.m.Y', strtotime($user['created_at']));
       });
     });
 
-    // Счётчик символов bio
+    // Счётчик символов bio.
+    // На чужом профиле формы редактирования нет, и без этой проверки
+    // скрипт падал бы здесь — а вместе с ним не рисовался бы график,
+    // который идёт ниже по коду.
     const bioEl = document.getElementById('bio');
     const cntEl = document.getElementById('bioCount');
-    bioEl.addEventListener('input', () => { cntEl.textContent = bioEl.value.length; });
+    if (bioEl && cntEl) {
+      bioEl.addEventListener('input', () => { cntEl.textContent = bioEl.value.length; });
+    }
 
     const progressRoot = document.querySelector('[data-profile-chart]');
     if (progressRoot) {

@@ -42,11 +42,12 @@
       <span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span>
     </div>
     <ul class="sidebar-nav">
-      <li><a href="index.html"                  class="sidebar-link" >Все игры</a></li>
-      <li><a href="pages/leaderboard.html"      class="sidebar-link" >Лидеры</a></li>
-      <li><a href="pages/how-to-play.html"      class="sidebar-link" >Как играть</a></li>
-      <li><a href="pages/theory.html"           class="sidebar-link" >Теория</a></li>
-      <li><a href="pages/about.html"            class="sidebar-link" >О нас</a></li>
+      <li><a href="index.html" class="sidebar-link sidebar-link--games">Все игры</a></li>
+      <li><a href="pages/leaderboard.html" class="sidebar-link sidebar-link--leaders">Лидеры</a></li>
+      <li><a href="pages/theory.html" class="sidebar-link sidebar-link--theory">Теория</a></li>
+      <li><a href="pages/shop.php" class="sidebar-link sidebar-link--shop">Магазин</a></li>
+      <li><a href="pages/how-to-play.html" class="sidebar-link sidebar-link--howto">Как играть</a></li>
+      <li><a href="pages/about.html" class="sidebar-link sidebar-link--about">О нас</a></li>
     </ul>
     <a class="sidebar-partner" href="https://itgorky.ru/" target="_blank" rel="noopener">
       <img class="sidebar-partner-img" src="img/itgorky-mascot.png" alt="ITGorky" />
@@ -248,6 +249,19 @@
         if (el) el.textContent = '—';
       });
 
+    // Ник и имя файла аватара приходят с сервера и вставляются в HTML.
+    // Браузер не отличает текст от разметки: без этой замены ник вида
+    // <img src=x onerror=...> стал бы настоящим тегом и выполнил чужой
+    // скрипт у всех, кто открыл главную. Регулярка при регистрации
+    // угловые скобки не пропускает, но защита в одном слое рассыплется
+    // при первой же правке этой регулярки или при импорте базы мимо неё.
+    // Та же функция есть в js/leaderboard.js — сюда он не подключён.
+    const escHtml = (str) => String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+
     // Топ-3 по "все игры"
     fetch('api/leaderboard.php?game=all&limit=3')
       .then(r => r.json())
@@ -258,14 +272,19 @@
           el.innerHTML = '<div class="hstat-empty pixel-text">Пока нет данных</div>';
           return;
         }
-        el.innerHTML = data.rows.map((row, i) => `
+        el.innerHTML = data.rows.map((row, i) => {
+          // Ник ведёт в профиль игрока; без id — просто текст
+          const pid = Number(row.id) || 0;
+          const a1 = pid ? `<a class="lb-profile-link" href="pages/profile.php?id=${pid}" title="Профиль игрока">` : '';
+          const a2 = pid ? '</a>' : '';
+          return `
           <div class="hstat-row" style="--place-color:${COLORS[i]}">
             <span class="hstat-medal"><img src="${MEDAL_IMAGES[i]}" alt="Место ${i + 1}" class="medal-img medal-img--home" style="width:40px;height:40px;object-fit:contain;display:block;"/></span>
-            <span class="hstat-avatar"><img src="img/avatars/${row.avatar_emoji || 'avatar1'}.png" alt="аватар" class="avatar-img avatar-img--sm"/></span>
-            <span class="hstat-nick pixel-text">${row.nickname}</span>
+            <span class="hstat-avatar">${a1}<img src="img/avatars/${escHtml(row.avatar_emoji || 'avatar1')}.png" alt="аватар" class="avatar-img avatar-img--sm"/>${a2}</span>
+            <span class="hstat-nick pixel-text">${a1}${escHtml(row.nickname)}${a2}</span>
             <span class="hstat-score pixel-text" style="color:${COLORS[i]}">${row.score}</span>
-          </div>
-        `).join('');
+          </div>`;
+        }).join('');
       })
       .catch(() => {
         const el = document.getElementById('hs-top3');

@@ -1,0 +1,171 @@
+/* ============================================================
+   МАГАЗИН: рамки, титулы, витрина
+
+   Рамки — чистый CSS, без единой картинки: цвет и анимация
+   задаются классом gc-frame--*, поэтому новый вариант стоит
+   пять строк и не требует ни файла, ни миграции.
+   ============================================================ */
+
+/* ── РАМКА ВОКРУГ АВАТАРА ─────────────────────────────────── */
+.gc-frame{
+  display:inline-block;
+  padding:5px;
+  line-height:0;
+  position:relative;
+  border:3px solid transparent;
+  background:#0a1422;
+}
+.gc-frame img{display:block}
+
+/* Размер рамки задаёт вложенная картинка, поэтому одни и те же
+   классы работают и на аватаре 120px в профиле, и на 34px в топе. */
+.gc-frame--cyan  {border-color:#00e5ff;box-shadow:0 0 12px rgba(0,229,255,.55), inset 0 0 8px rgba(0,229,255,.25)}
+.gc-frame--green {border-color:#39ff14;box-shadow:0 0 12px rgba(57,255,20,.5),  inset 0 0 8px rgba(57,255,20,.25)}
+.gc-frame--pink  {border-color:#ff4d6d;box-shadow:0 0 12px rgba(255,77,109,.5), inset 0 0 8px rgba(255,77,109,.25)}
+.gc-frame--gold  {
+  border-color:#f5d800;
+  box-shadow:0 0 0 2px #0a1422, 0 0 0 4px #f5d800, 0 0 16px rgba(245,216,0,.55);
+}
+
+/* Бегущая строка: пунктир едет по кругу */
+.gc-frame--dashed{
+  border-style:dashed;
+  border-color:#00e5ff;
+  animation:gcFrameMarch 1.4s linear infinite;
+}
+@keyframes gcFrameMarch{
+  to{border-color:#39ff14}
+}
+
+/* Глитч: две смещённые копии рамки дёргаются в противофазе */
+.gc-frame--glitch{border-color:#bf5af2}
+.gc-frame--glitch::before,
+.gc-frame--glitch::after{
+  content:'';position:absolute;inset:-3px;border:3px solid;pointer-events:none;
+}
+.gc-frame--glitch::before{border-color:#00e5ff;animation:gcGlitchA 2.2s steps(1) infinite}
+.gc-frame--glitch::after {border-color:#ff4d6d;animation:gcGlitchB 2.2s steps(1) infinite}
+@keyframes gcGlitchA{
+  0%,88%{transform:translate(0,0);opacity:0}
+  90%{transform:translate(-3px,2px);opacity:.9}
+  94%{transform:translate(2px,-2px);opacity:.9}
+  97%,100%{transform:translate(0,0);opacity:0}
+}
+@keyframes gcGlitchB{
+  0%,90%{transform:translate(0,0);opacity:0}
+  92%{transform:translate(3px,-2px);opacity:.9}
+  96%{transform:translate(-2px,2px);opacity:.9}
+  99%,100%{transform:translate(0,0);opacity:0}
+}
+
+/* RGB: цвет рамки едет по кругу спектра */
+.gc-frame--rgb{
+  border-color:#ff4d6d;
+  animation:gcRgb 3s linear infinite;
+}
+@keyframes gcRgb{
+  0%  {border-color:#ff4d6d;box-shadow:0 0 12px rgba(255,77,109,.6)}
+  33% {border-color:#39ff14;box-shadow:0 0 12px rgba(57,255,20,.6)}
+  66% {border-color:#00e5ff;box-shadow:0 0 12px rgba(0,229,255,.6)}
+  100%{border-color:#ff4d6d;box-shadow:0 0 12px rgba(255,77,109,.6)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .gc-frame--dashed,.gc-frame--rgb,
+  .gc-frame--glitch::before,.gc-frame--glitch::after{animation:none}
+  .gc-frame--glitch::before,.gc-frame--glitch::after{opacity:0}
+}
+
+/* ── ТИТУЛ ────────────────────────────────────────────────── */
+.gc-title-tag{
+  display:inline-block;
+  font-family:'Press Start 2P',monospace;
+  font-size:8px;line-height:1.8;letter-spacing:1px;
+  color:#f5d800;
+  border:1px solid rgba(245,216,0,.55);
+  background:rgba(245,216,0,.07);
+  padding:5px 9px;
+}
+.gc-title-tag--sm{font-size:6px;padding:3px 6px;letter-spacing:.5px}
+
+/* ── КОШЕЛЁК ──────────────────────────────────────────────── */
+.gc-wallet{
+  display:flex;align-items:center;justify-content:center;gap:26px;flex-wrap:wrap;
+  text-align:center;
+  border:2px solid #f5d800;background:rgba(245,216,0,.06);
+  padding:16px 20px;margin-bottom:26px;
+}
+.gc-wallet-coins{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  font-family:'Press Start 2P',monospace;font-size:26px;color:#f5d800;
+  text-shadow:0 0 14px rgba(245,216,0,.5);
+}
+.gc-wallet-label{font-family:'Press Start 2P',monospace;font-size:8px;color:#8aa2c0;line-height:2}
+.gc-wallet-sub{font-family:'Press Start 2P',monospace;font-size:7px;line-height:2;color:#6d8099}
+
+/* ── ВИТРИНА ──────────────────────────────────────────────── */
+.gc-shop-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:16px;
+}
+.gc-shop-card{
+  border:1px solid #1e2e46;background:#0b1526;
+  padding:16px 14px;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  transition:border-color .2s,transform .2s;
+}
+.gc-shop-card:hover{border-color:#00e5ff;transform:translateY(-2px)}
+.gc-shop-card--owned{border-color:#39ff14}
+.gc-shop-card--on{border-color:#f5d800;box-shadow:0 0 14px rgba(245,216,0,.2)}
+
+.gc-shop-preview{
+  min-height:96px;display:flex;align-items:center;justify-content:center;width:100%;
+}
+/* Пропорции у товаров разные: аватары почти квадратные, персонаж
+   CodeQuest вытянутый. Поэтому ограничиваем габарит, а не задаём
+   ширину и высоту жёстко — иначе персонажа сплющило бы в квадрат. */
+.gc-shop-preview img{
+  max-width:64px;max-height:88px;width:auto;height:auto;
+  image-rendering:pixelated;image-rendering:crisp-edges;
+}
+.gc-shop-name{
+  font-family:'Press Start 2P',monospace;font-size:8px;line-height:1.9;color:#dbe7f5;
+}
+.gc-shop-price{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  min-height:16px;
+  font-family:'Press Start 2P',monospace;font-size:9px;color:#f5d800;
+}
+.gc-shop-price--owned{color:#39ff14}
+.gc-shop-btn{
+  font-family:'Press Start 2P',monospace;font-size:7px;line-height:1.8;
+  padding:9px 12px;width:100%;cursor:pointer;
+  background:transparent;color:#00e5ff;border:1px solid #00e5ff;
+  transition:background .15s,color .15s;
+}
+.gc-shop-btn:hover:not(:disabled){background:#00e5ff;color:#061018}
+.gc-shop-btn--equip{color:#39ff14;border-color:#39ff14}
+.gc-shop-btn--equip:hover:not(:disabled){background:#39ff14;color:#061018}
+.gc-shop-btn:disabled{color:#3d5069;border-color:#1e2e46;cursor:default}
+
+.gc-shop-note{
+  font-family:'Press Start 2P',monospace;font-size:7px;line-height:2.2;color:#8aa2c0;
+  margin:0 0 18px;
+}
+.gc-shop-toast{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%);
+  font-family:'Press Start 2P',monospace;font-size:8px;line-height:1.9;
+  padding:14px 18px;border:2px solid #39ff14;background:#0d1626;color:#39ff14;
+  z-index:999;max-width:min(420px,90vw);text-align:center;
+  opacity:0;transition:opacity .2s;pointer-events:none;
+}
+.gc-shop-toast--err{border-color:#ff4d6d;color:#ff4d6d}
+.gc-shop-toast--on{opacity:1}
+
+@media (max-width:480px){
+  .gc-shop-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+  .gc-wallet-coins{font-size:20px}
+  .gc-coin--lg{width:26px;height:26px}
+  .gc-shop-name{font-size:7px}
+}

@@ -166,6 +166,7 @@ a { text-decoration: none; color: inherit; }
   border: 1px solid transparent;
   transition: all 0.2s;
   position: relative;
+  white-space: nowrap;
   text-transform: uppercase;
 }
 .sidebar-link::before {

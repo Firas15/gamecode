@@ -9,6 +9,7 @@ header('Access-Control-Allow-Origin: *');
 
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/game_security.php';
+require_once __DIR__ . '/../includes/glitch.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -27,7 +28,7 @@ $runId = isset($body['run_id']) ? trim((string)$body['run_id']) : '';
 $runToken = isset($body['run_token']) ? trim((string)$body['run_token']) : '';
 $payload = isset($body['payload']) && is_array($body['payload']) ? $body['payload'] : [];
 
-$allowedGames = ['sorter', 'network', 'millionaire', 'pixelgame'];
+$allowedGames = ['sorter', 'network', 'millionaire', 'pixelgame', 'glitch'];
 if (!in_array($gameId, $allowedGames, true)) {
     http_response_code(400);
     echo json_encode(['error' => 'Unknown game_id']);
@@ -89,7 +90,7 @@ function gc_require_keys(array $arr, array $keys): bool {
     return true;
 }
 
-function gc_compute_score(string $gameId, array $payload, int $startedAt = 0): array {
+function gc_compute_score(string $gameId, array $payload, int $startedAt = 0, array $run = []): array {
     // ВРЕМЯ ПАРТИИ СЧИТАЕМ ПО СЕРВЕРУ, А НЕ ПО КЛИЕНТУ.
     //
     // elapsed_ms присылает браузер, и раньше проверки «слишком быстро»
@@ -278,10 +279,44 @@ function gc_compute_score(string $gameId, array $payload, int $startedAt = 0): a
         ]];
     }
 
+    if ($gameId === 'glitch') {
+        // «Глюк-атаку» ведёт сервер (api/glitch.php): каждый ответ проверен
+        // там же, очки посчитаны по серверным часам. Из payload браузера
+        // здесь не берётся НИЧЕГО — только итог из состояния рана.
+        $g = $run['glitch'] ?? null;
+        if (!is_array($g)) return ['ok' => false, 'error' => 'Run not started'];
+        if (empty($g['finished'])) return ['ok' => false, 'error' => 'Run not finished'];
+        $answered = (int)$g['right'] + (int)$g['wrong'];
+        if ($answered <= 0) return ['ok' => false, 'error' => 'Nothing answered'];
+        // Честный минимум длительности партии: каждый вопрос — выход призрака
+        // и пауза после ответа (~1.3 с), каждая волна — заставка 1.5 с,
+        // босс — заставка и финал (~3.8 с). Берём 80 % с запасом на быстрые
+        // машины. Это ограничивает, как часто можно сдавать даже идеальные
+        // партии, — бот со списком ответов фармит не быстрее живого игрока.
+        $waves = []; $boss = false;
+        foreach (array_slice((array)$g['plan'], 0, (int)$g['pos']) as $item) {
+            if (!empty($item['boss'])) $boss = true; else $waves[(int)$item['wave']] = true;
+        }
+        $minMs = (int)(0.8 * ($answered * 1300 + count($waves) * 1500 + ($boss ? 3800 : 0)));
+        if ($serverElapsed < max(5000, $minMs)) return ['ok' => false, 'error' => 'Too fast'];
+        $score = max(0, min(GLITCH_SCORE_CAP, (int)$g['score']));
+        return ['ok' => true, 'score' => $score, 'meta' => [
+            'result'      => !empty($g['won']) ? 'win' : 'lose',
+            'correct'     => (int)$g['right'],
+            'wrong'       => (int)$g['wrong'],
+            'best_streak' => (int)$g['best'],
+            'boss_killed' => (int)$g['boss_hp'] === 0,
+            'lives_left'  => (int)$g['lives'],
+            'themes'      => array_values((array)$g['themes']),
+            'by_theme'    => (array)$g['by_theme'],
+            'elapsed_ms'  => $serverElapsed,
+        ]];
+    }
+
     return ['ok' => false, 'error' => 'Unsupported game'];
 }
 
-$computed = gc_compute_score($gameId, $payload, $startedAt);
+$computed = gc_compute_score($gameId, $payload, $startedAt, $run);
 if (empty($computed['ok'])) {
     http_response_code(400);
     echo json_encode(['ok' => false, 'error' => $computed['error'] ?? 'Invalid score payload']);

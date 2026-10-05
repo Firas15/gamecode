@@ -837,3 +837,42 @@ INSERT INTO public.shop_items (id, kind, name, price, is_free, payload, sort_ord
 ON CONFLICT (id) DO NOTHING;
 
 ALTER TABLE public.shop_items OWNER TO gamecode_user;
+
+--
+-- ============================================================
+--  «Глюк-атака» (миграция 004-glitch.sql)
+--
+--  Здесь только таблицы. Стартовые темы, 50 вопросов и строку
+--  игры в games заливает сама миграция — она прогоняется при
+--  каждом старте контейнера и на чистой базе тоже.
+-- ============================================================
+--
+
+CREATE TABLE IF NOT EXISTS public.glitch_themes (
+    id          varchar(20) PRIMARY KEY,
+    name        varchar(40) NOT NULL,
+    color       varchar(7)  NOT NULL DEFAULT '#00e5ff',
+    sort_order  integer     NOT NULL DEFAULT 0,
+    hidden      boolean     NOT NULL DEFAULT false,
+    created_at  timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS public.glitch_questions (
+    id           serial PRIMARY KEY,
+    theme_id     varchar(20) NOT NULL REFERENCES public.glitch_themes(id) ON UPDATE CASCADE,
+    question     text        NOT NULL,
+    answer1      text        NOT NULL,
+    answer2      text        NOT NULL,
+    answer3      text        NOT NULL,
+    answer4      text        NOT NULL,
+    correct      smallint    NOT NULL DEFAULT 0 CHECK (correct BETWEEN 0 AND 3),
+    explanation  text        NOT NULL DEFAULT '',
+    hidden       boolean     NOT NULL DEFAULT false,
+    created_at   timestamptz NOT NULL DEFAULT now(),
+    updated_at   timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_glitch_questions_theme ON public.glitch_questions (theme_id);
+
+ALTER TABLE public.glitch_themes OWNER TO gamecode_user;
+ALTER TABLE public.glitch_questions OWNER TO gamecode_user;

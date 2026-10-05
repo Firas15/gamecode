@@ -2,7 +2,7 @@
 /**
  * Game Session Ping
  * POST /api/ping-game.php
- * Body: { game_id: "sorter"|"network"|"millionaire" }
+ * Body: { game_id: "sorter"|"network"|"millionaire"|"pixelgame"|"glitch" }
  *
  * Вызывается при каждом запуске игры (startLevel).
  * Увеличивает счётчик games_played у пользователя.
@@ -28,7 +28,7 @@ $isGuest = !isLoggedIn();
 $body   = json_decode(file_get_contents('php://input'), true);
 $gameId = isset($body['game_id']) ? trim($body['game_id']) : '';
 
-$allowedGames = ['sorter', 'network', 'millionaire', 'pixelgame'];
+$allowedGames = ['sorter', 'network', 'millionaire', 'pixelgame', 'glitch'];
 if (!in_array($gameId, $allowedGames, true)) {
     http_response_code(400);
     echo json_encode(['error' => 'Unknown game_id']);

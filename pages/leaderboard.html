@@ -24,7 +24,8 @@
       <span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span>
     </div>
     <ul class="sidebar-nav">
-      <li><a href="../index.html" class="sidebar-link sidebar-link--games">Все игры</a></li>
+      <li><a href="../index.html" class="sidebar-link sidebar-link--games">Главная</a></li>
+      <li><a href="games.html" class="sidebar-link sidebar-link--allgames">Все игры</a></li>
       <li><a href="leaderboard.html" class="sidebar-link sidebar-link--leaders active">Лидеры</a></li>
       <li><a href="theory.html" class="sidebar-link sidebar-link--theory">Теория</a></li>
       <li><a href="shop.php" class="sidebar-link sidebar-link--shop">Магазин</a></li>
@@ -81,6 +82,7 @@
         <option value="network">СЕТЕВОЙ МАРШРУТ</option>
         <option value="millionaire">КТО ХОЧЕТ СТАТЬ ПРОГРАММИСТОМ</option>
         <option value="pixelgame">ВНУТРИ КОМПЬЮТЕРА</option>
+        <option value="glitch">ГЛЮК-АТАКА</option>
       </select>
     </div>
 
@@ -146,7 +148,8 @@
       sorter: 'Сортировщик',
       network: 'Сетевой маршрут',
       millionaire: 'Кто хочет стать программистом',
-      pixelgame: 'CodeQuest — Внутри компьютера'
+      pixelgame: 'CodeQuest — Внутри компьютера',
+      glitch: 'Глюк-атака'
     };
 
     const GAME_TITLES = {
@@ -154,7 +157,8 @@
       sorter: '[ СОРТИРОВЩИК ]',
       network: '[ СЕТЕВОЙ МАРШРУТ ]',
       millionaire: '[ КТО ХОЧЕТ СТАТЬ ПРОГРАММИСТОМ ]',
-      pixelgame: '[ ВНУТРИ КОМПЬЮТЕРА ]'
+      pixelgame: '[ ВНУТРИ КОМПЬЮТЕРА ]',
+      glitch: '[ ГЛЮК-АТАКА ]'
     };
 
     const LB_API_URL = new URL('../api/leaderboard.php', window.location.href).href;

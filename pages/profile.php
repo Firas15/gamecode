@@ -70,6 +70,7 @@ $gameLabels = [
     'network'     => 'Сетевой маршрут',
     'millionaire' => 'Кто хочет стать программистом',
     'pixelgame'   => 'Внутри компьютера',
+    'glitch'      => 'Глюк-атака',
 ];
 $gameColors = [
     'total'       => '#00e5ff',
@@ -77,6 +78,7 @@ $gameColors = [
     'network'     => '#f5d800',
     'millionaire' => '#ff4d6d',
     'pixelgame'   => '#bf5af2',
+    'glitch'      => '#ff8c1a',
 ];
 
 $userScoreRows = gamecode_pg_query_all(
@@ -272,7 +274,8 @@ $regDate  = date('d.m.Y', strtotime($user['created_at']));
       <span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span>
     </div>
     <ul class="sidebar-nav">
-      <li><a href="../index.html" class="sidebar-link sidebar-link--games">Все игры</a></li>
+      <li><a href="../index.html" class="sidebar-link sidebar-link--games">Главная</a></li>
+      <li><a href="games.html" class="sidebar-link sidebar-link--allgames">Все игры</a></li>
       <li><a href="leaderboard.html" class="sidebar-link sidebar-link--leaders">Лидеры</a></li>
       <li><a href="theory.html" class="sidebar-link sidebar-link--theory">Теория</a></li>
       <li><a href="shop.php" class="sidebar-link sidebar-link--shop">Магазин</a></li>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Все игры — Game Code</title>
+  <link rel="icon" href="../img/ICON.PNG" type="image/png">
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/pages.css" />
+  <link rel="stylesheet" href="../css/auth.css">
+  <link rel="stylesheet" href="../css/mobile.css" />
+  <link rel="stylesheet" href="../css/all-games.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+
+  <div class="overlay" id="overlay"></div>
+
+  
+  <nav class="sidebar" id="sidebar">
+    <button class="sidebar-close" id="sidebarClose">х</button>
+    <div class="sidebar-logo">
+      <span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="../index.html" class="sidebar-link sidebar-link--games">Главная</a></li>
+      <li><a href="games.html" class="sidebar-link sidebar-link--allgames active">Все игры</a></li>
+      <li><a href="leaderboard.html" class="sidebar-link sidebar-link--leaders">Лидеры</a></li>
+      <li><a href="theory.html" class="sidebar-link sidebar-link--theory">Теория</a></li>
+      <li><a href="shop.php" class="sidebar-link sidebar-link--shop">Магазин</a></li>
+      <li><a href="how-to-play.html" class="sidebar-link sidebar-link--howto">Как играть</a></li>
+      <li><a href="about.html" class="sidebar-link sidebar-link--about">О нас</a></li>
+    </ul>
+    <a class="sidebar-partner" href="https://itgorky.ru/" target="_blank" rel="noopener">
+      <img class="sidebar-partner-img" src="../img/itgorky-mascot.png" alt="ITGorky" />
+      <span class="partner-name">IT<em>GORKY</em></span>
+    </a>
+    <div class="sidebar-footer">
+      <span>GameCode © 2026</span>
+    </div>
+  </nav>
+
+
+  <header class="header">
+    <div class="header-left">
+      <button class="menu-btn" id="menuBtn" aria-label="Открыть меню">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="site-title">
+        <a href="../index.html" class="logo pixel-text" style="text-decoration:none;">GAME<span class="accent">CODE</span></a>
+        <p class="tagline pixel-text">Изучай программирование в играх</p>
+      
+        <a class="partner-mark" href="https://itgorky.ru/" target="_blank" rel="noopener">
+          <span class="partner-x">×</span>
+          <span class="partner-name">IT<em>GORKY</em></span>
+        </a>
+      </div>
+      <a class="partner-mark" href="https://itgorky.ru/" target="_blank" rel="noopener"
+         title="ITGorky — ИТ-карта Нижнего Новгорода. Партнёр проекта">
+        <span class="partner-x">×</span>
+        <!-- Когда получите логотип от партнёров, положите файл в img/itgorky-logo.svg
+             и раскомментируйте строку ниже, а <span class="partner-name"> удалите.
+        <img class="partner-logo" src="../img/itgorky-logo.svg" alt="ITGorky" />
+        -->
+        <span class="partner-name">IT<em>GORKY</em></span>
+      </a>
+    </div>
+    <div class="header-right"><div id="auth-widget"></div></div>
+  </header>
+
+ 
+  <section class="page-hero">
+    <div class="page-hero-inner">
+      <p class="breadcrumb"><a href="../index.html">ГЛАВНАЯ</a> / ВСЕ ИГРЫ</p>
+      <h1 class="page-title ag-title">ВСЕ ИГРЫ</h1>
+      <p class="page-subtitle pixel-text" id="agSubtitle">Выбирай игру по уровню и начинай прямо сейчас</p>
+    </div>
+  </section>
+
+  <main class="page-content ag-page">
+
+    <div class="ag-toolbar">
+      <div class="ag-filters" id="agFilters" role="tablist" aria-label="Уровень игр"></div>
+      <button class="ag-random pixel-text" id="agRandom" type="button" title="Открыть случайную игру">СЛУЧАЙНАЯ ИГРА</button>
+    </div>
+
+    <div class="ag-grid" id="agGrid">
+      <div class="ag-loading pixel-text">// загрузка игр...</div>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <p class="pixel-text">GAME<span class="accent">CODE</span> &copy; 2026</p>
+    <p class="footer-sub">Изучай программирование в играх</p>
+  </footer>
+
+ 
+  <script>
+    const sidebar     = document.getElementById('sidebar');
+    const overlay     = document.getElementById('overlay');
+    const menuBtn     = document.getElementById('menuBtn');
+    const sidebarClose = document.getElementById('sidebarClose');
+
+    const openSidebar  = () => { sidebar.classList.add('open'); overlay.classList.add('active'); document.body.style.overflow = 'hidden'; };
+    const closeSidebar = () => { sidebar.classList.remove('open'); overlay.classList.remove('active'); document.body.style.overflow = ''; };
+
+    menuBtn.addEventListener('click', openSidebar);
+    sidebarClose.addEventListener('click', closeSidebar);
+    overlay.addEventListener('click', closeSidebar);
+    document.addEventListener('keydown', e => e.key === 'Escape' && closeSidebar());
+
+    const searchBtn = document.getElementById('searchBtn');
+    const searchInput = document.getElementById('searchInput');
+    searchBtn?.addEventListener('click', () => {
+      const q = searchInput?.value.trim();
+      if (q) window.location.href = '../index.html?q=' + encodeURIComponent(q);
+    });
+    searchInput?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const q = e.target.value.trim();
+        if (q) window.location.href = '../index.html?q=' + encodeURIComponent(q);
+      }
+    });
+  </script>
+  
+  <script src="../js/all-games.js"></script>
+  <script src="../js/pixels-bg.js"></script>
+  <script>window.AUTH_ROOT = "..";</script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/ai-chat.js"></script>
+</body>
+</html>

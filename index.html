@@ -42,7 +42,8 @@
       <span class="pixel-text">GAME</span><span class="pixel-text accent">CODE</span>
     </div>
     <ul class="sidebar-nav">
-      <li><a href="index.html" class="sidebar-link sidebar-link--games">Все игры</a></li>
+      <li><a href="index.html" class="sidebar-link sidebar-link--games">Главная</a></li>
+      <li><a href="pages/games.html" class="sidebar-link sidebar-link--allgames">Все игры</a></li>
       <li><a href="pages/leaderboard.html" class="sidebar-link sidebar-link--leaders">Лидеры</a></li>
       <li><a href="pages/theory.html" class="sidebar-link sidebar-link--theory">Теория</a></li>
       <li><a href="pages/shop.php" class="sidebar-link sidebar-link--shop">Магазин</a></li>
@@ -129,7 +130,7 @@
     <section class="carousel-section">
       <div class="carousel-header">
         <h2 class="section-title pixel-text">
-          <span class="section-num accent">></span> ИГРЫ
+          <span class="section-num accent">></span> ЛУЧШИЕ ИГРЫ
         </h2>
         <p class="section-sub pixel-text">Выбирай игру и начинай прямо сейчас</p>
       </div>
@@ -170,6 +171,17 @@
         <p class="section-sub pixel-text">Всё, что есть на платформе</p>
       </div>
       <div class="games-grid" style="grid-template-columns: repeat(auto-fill, minmax(220px,1fr));">
+
+        <a href="pages/games.html" class="game-card" style="--corner-color:#2a5fbf; text-decoration:none; display:block;">
+          <div class="card-preview" style="height:100px; display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg,#0d1626,#111e35);">
+            <img src="img/gamepad.png" alt="" style="width:min(250px,80%); height:auto; max-height:84px; object-fit:contain; image-rendering:pixelated;" />
+          </div>
+          <div class="card-body">
+            <div class="card-title">Все игры</div>
+            <p class="card-desc pixel-text">Все игры платформы в одном месте: выбирай по уровню.</p>
+            <div class="card-btn btn-play" style="color:#2a5fbf; border-color:#2a5fbf;">[ ОТКРЫТЬ ]</div>
+          </div>
+        </a>
 
         <a href="pages/how-to-play.html" class="game-card" style="--corner-color:var(--cyan); text-decoration:none; display:block;">
           <div class="card-preview" style="height:100px; display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg,#0d1a2e,#0a2240);">

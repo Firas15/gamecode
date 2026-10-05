@@ -1,0 +1,134 @@
+/* ============================================================
+   СТРАНИЦА «ВСЕ ИГРЫ» (pages/games.html)
+   Карточки в том же стиле, что слайды карусели на главной:
+   цветной градиент игры, сканлайны, пиксельные уголки.
+   ============================================================ */
+
+.ag-title { color: #2a5fbf; text-shadow: 0 0 20px rgba(42, 95, 191, 0.55), 3px 3px 0 #0d1f45; }
+
+.ag-page { max-width: 1240px; }
+
+/* ---------- фильтры и «случайная игра» ---------- */
+.ag-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; margin-bottom: 28px;
+}
+.ag-filters { display: flex; flex-wrap: wrap; gap: 10px; }
+.ag-filter {
+  --c: #2a5fbf;
+  font-size: 9px; letter-spacing: 1px; color: var(--text-dim);
+  background: var(--bg-card); border: 1px solid var(--border-blue);
+  padding: 10px 14px; cursor: pointer; transition: all .2s;
+}
+.ag-filter b { font-weight: normal; color: var(--text-main); margin-left: 6px; }
+.ag-filter:hover { color: var(--c); border-color: var(--c); }
+.ag-filter.on { color: var(--bg-dark); background: var(--c); border-color: var(--c); box-shadow: 0 0 16px color-mix(in srgb, var(--c) 45%, transparent); }
+.ag-filter.on b { color: var(--bg-dark); }
+
+.ag-random {
+  font-size: 9px; letter-spacing: 1px; color: var(--yellow);
+  background: var(--bg-card); border: 1px solid var(--yellow);
+  padding: 10px 14px; cursor: pointer; transition: all .2s;
+}
+.ag-random:hover:not(:disabled) { background: var(--yellow); color: var(--bg-dark); box-shadow: 0 0 18px rgba(245, 216, 0, .45); }
+.ag-random:disabled { cursor: default; opacity: .85; }
+
+/* ---------- сетка ---------- */
+/* flex, а не grid: неполный последний ряд встаёт по центру */
+.ag-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; }
+.ag-grid > .ag-card { flex: 0 0 calc((100% - 48px) / 3); }
+@media (max-width: 1100px) { .ag-grid > .ag-card { flex-basis: calc((100% - 24px) / 2); } }
+@media (max-width: 720px)  { .ag-grid > .ag-card { flex-basis: 100%; } }
+.ag-loading { grid-column: 1 / -1; text-align: center; padding: 60px 0; font-size: 10px; color: var(--text-dim); }
+
+/* ---------- карточка ---------- */
+.ag-card {
+  --a: #2a5fbf; --from: #0d1626; --to: #111e35;
+  display: flex; flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--border-blue);
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+  transition: transform .25s, border-color .25s, box-shadow .25s;
+  animation: agIn .45s ease both;
+}
+.ag-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--a);
+  box-shadow: 0 10px 30px -10px color-mix(in srgb, var(--a) 55%, transparent);
+}
+@keyframes agIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+.ag-visual {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  height: 220px; overflow: hidden;
+  background: radial-gradient(circle at 50% 55%, color-mix(in srgb, var(--a) 18%, transparent), transparent 62%),
+              linear-gradient(135deg, var(--from), var(--to));
+  border-bottom: 1px solid var(--border-blue);
+}
+.ag-visual img {
+  position: relative; z-index: 1;
+  max-width: 62%; max-height: 170px; width: auto; height: auto;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 18px color-mix(in srgb, var(--a) 35%, transparent));
+  animation: float 4s ease-in-out infinite;
+  transition: transform .3s;
+}
+.ag-card:nth-child(2n) .ag-visual img { animation-delay: -1.3s; }
+.ag-card:nth-child(3n) .ag-visual img { animation-delay: -2.6s; }
+.ag-card:hover .ag-visual img { transform: scale(1.06); }
+.ag-scan {
+  position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(0, 0, 0, .1) 3px 4px);
+}
+.ag-corner { position: absolute; width: 14px; height: 14px; border: solid var(--a); opacity: .8; }
+.ag-tl { top: 10px; left: 10px; border-width: 2px 0 0 2px; }
+.ag-tr { top: 10px; right: 10px; border-width: 2px 2px 0 0; }
+.ag-bl { bottom: 10px; left: 10px; border-width: 0 0 2px 2px; }
+.ag-br { bottom: 10px; right: 10px; border-width: 0 2px 2px 0; }
+
+.ag-body { display: flex; flex-direction: column; gap: 14px; padding: 22px 22px 24px; flex: 1; }
+.ag-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ag-level { font-size: 8px; letter-spacing: 2px; }
+.ag-stars { line-height: 1; }  /* сам вид звёзд — .cs-stars из style.css, как в карусели */
+
+.ag-name { font-size: 13px; line-height: 1.6; color: var(--a); letter-spacing: 1px; }
+.ag-desc { font-family: var(--font-pixel); font-size: 14px; line-height: 1.7; color: var(--text-main); flex: 1; }  /* как .cs-desc в карусели */
+
+.ag-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.ag-tag {
+  font-family: var(--font-ui); font-size: 13px; font-weight: 600; letter-spacing: .5px;
+  color: var(--text-dim); border: 1px solid var(--border-blue); padding: 3px 8px;
+}
+
+.ag-play {
+  align-self: flex-start;
+  font-size: 9px; letter-spacing: 1px; text-decoration: none;
+  color: var(--a); border: 1px solid var(--a); padding: 12px 18px;
+  transition: all .2s;
+}
+.ag-play:hover { background: var(--a); color: var(--bg-dark); box-shadow: 0 0 20px color-mix(in srgb, var(--a) 50%, transparent); }
+.ag-play.is-off { color: var(--text-dim); border-color: var(--border-blue); }
+
+.ag-card.is-wip .ag-visual img { filter: grayscale(.8) brightness(.6); }
+.ag-soon {
+  position: absolute; z-index: 2; font-size: 11px; letter-spacing: 3px; color: var(--yellow);
+  background: rgba(8, 12, 20, .8); border: 1px solid var(--yellow); padding: 10px 16px;
+}
+
+/* ---------- телефоны ---------- */
+@media (max-width: 640px) {
+  .ag-toolbar { flex-direction: column; align-items: stretch; }
+  .ag-filters { justify-content: center; }
+  .ag-filter, .ag-random { font-size: 8px; padding: 9px 10px; }
+  .ag-grid { gap: 18px; }
+  .ag-visual { height: 180px; }
+  .ag-visual img { max-height: 140px; }
+  .ag-body { padding: 18px 16px 20px; }
+  .ag-name { font-size: 11px; }
+  .ag-desc { font-size: 12px; line-height: 1.8; }
+  .ag-play { align-self: stretch; text-align: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ag-card, .ag-visual img { animation: none; }
+}

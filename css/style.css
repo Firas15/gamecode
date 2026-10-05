@@ -183,6 +183,7 @@ a { text-decoration: none; color: inherit; }
    цвета местами, а шестой пункт («О нас») вообще оставался без
    квадратика, потому что правил было только пять. */
 .sidebar-link--games::before   { background: var(--pink); }
+.sidebar-link--allgames::before { background: #2a5fbf; }
 .sidebar-link--leaders::before { background: var(--purple); }
 .sidebar-link--theory::before  { background: var(--green); }
 .sidebar-link--shop::before    { background: var(--orange); }

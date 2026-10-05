@@ -48,6 +48,16 @@ const GAME_VISUALS = {
     desc: "Пиксельная RPG: исследуй лабиринт внутри компьютера, открывай сундуки с кодом, побеждай вирусы и собери программу на Go, чтобы выбраться!",
     tags: ["Go", "RPG", "Квест"],
   },
+  glitch: {
+    img: "js/img_carusel/glitchmainicon.png",
+    accentColor: "var(--cyan)",
+    gradientFrom: "#061620",
+    gradientTo: "#0b2233",
+    level: "ПРАКТИК",
+    levelColor: "var(--yellow)",
+    desc: "Глюк-призраки атакуют сервер GameCode! Отвечай на вопросы по сетям, Python, железу, Linux, данным и вебу — верный ответ сбивает глюк из пушки. В конце — босс «Глюк-ядро».",
+    tags: ["Викторина", "Аркада", "Все темы IT"],
+  },
 };
 
 const FALLBACK_VISUAL = {
@@ -70,10 +80,17 @@ function escapeHtml(value = "") {
     .replace(/'/g, "&#039;");
 }
 
+function withPeriod(text) {
+  const t = String(text || "").trim();
+  return !t || /[.!?…»)]$/.test(t) ? t : t + ".";
+}
+
 function normalizeGame(game) {
   const visual = GAME_VISUALS[game.id] || FALLBACK_VISUAL;
   const apiDesc = typeof game.desc === "string" ? game.desc.trim() : "";
-  const normalizedDesc = apiDesc.length >= 40 ? apiDesc : visual.desc;
+  // Описание всегда заканчивается точкой: в админке её легко забыть,
+  // а в карточке обрыв на полуслове выглядит как недописанный текст.
+  const normalizedDesc = withPeriod(apiDesc.length >= 40 ? apiDesc : visual.desc);
 
   return {
     id: game.id || "",
@@ -237,6 +254,8 @@ function bindControls(track, dotsContainer) {
   }, { passive: true });
 }
 
+const CAROUSEL_GAMES = ["glitch", "pixelgame", "sorter"];
+
 async function initCarousel() {
   const track = document.getElementById("carouselTrack");
   const dotsContainer = document.getElementById("carouselDots");
@@ -249,7 +268,9 @@ async function initCarousel() {
       throw new Error("invalid-response");
     }
 
-    carouselGames = data.games.map(normalizeGame).filter((g) => g.id && g.title);
+    // На главной — только «лучшие игры» и в этом порядке; все игры — на pages/games.html
+    const byId = new Map(data.games.map(normalizeGame).filter((g) => g.id && g.title).map((g) => [g.id, g]));
+    carouselGames = CAROUSEL_GAMES.map((id) => byId.get(id)).filter(Boolean);
     if (!carouselGames.length) {
       renderEmptyState(track, dotsContainer, "Игры скоро появятся");
       return;

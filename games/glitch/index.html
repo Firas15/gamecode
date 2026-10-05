@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ru" data-game-id="glitch">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#080c14"/>
+  <title>Глюк-атака — GameCode</title>
+  <script>
+    // Версия ассетов — как во всех играх сайта: после деплоя браузер не держит старый JS/CSS
+    (function () {
+      const api = '../../api/version.php';
+      const url = new URL(window.location.href);
+      const current = url.searchParams.get('cv') || '0';
+      window.__assetVersion = current;
+      window.__assetUrl = function (path) {
+        return path + (path.indexOf('?') >= 0 ? '&' : '?') + 'v=' + encodeURIComponent(current);
+      };
+      fetch(api, { cache: 'no-store' })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (!data || !data.version || data.version === current) return;
+          url.searchParams.set('cv', data.version);
+          window.location.replace(url.toString());
+        })
+        .catch(() => {});
+    })();
+  </script>
+  <script>
+    document.write('<link rel="icon" href="' + window.__assetUrl('../../img/ICON.PNG') + '" type="image/png">');
+    document.write('<link rel="stylesheet" href="' + window.__assetUrl('css/style.css') + '">');
+    document.write('<link rel="stylesheet" href="' + window.__assetUrl('css/mobile.css') + '">');
+    document.write('<link rel="stylesheet" href="' + window.__assetUrl('../../css/leaderboard.css') + '">');
+    // Рамки аватаров из магазина в виджете топа описаны в shop.css
+    document.write('<link rel="stylesheet" href="' + window.__assetUrl('../../css/shop.css') + '">');
+  </script>
+</head>
+<body>
+
+<!-- Поле игры: фон, призраки, пушки, сервер, Пиксель. Всё, что с текстом, — в DOM поверх. -->
+<canvas id="field"></canvas>
+
+<!-- ===================== МЕНЮ ===================== -->
+<section id="s-menu" class="screen">
+  <a href="../../index.html" class="back-btn">◄ НА ГЛАВНУЮ</a>
+  <button class="sound-btn" type="button" data-sound aria-label="Звук"></button>
+
+  <div class="logo">
+    <h1>ГЛЮК-АТАКА</h1>
+  </div>
+
+  <div class="panel themes-panel">
+    <div class="panel-title">[ ВЫБЕРИ ТЕМЫ ]</div>
+    <div class="themes" id="themes"></div>
+    <div class="themes-foot">
+      <span>Вопросов: <b id="q-count">0</b></span>
+      <span class="themes-warn" id="themes-warn">выбери больше тем</span>
+    </div>
+  </div>
+
+  <div class="menu-btns">
+    <button class="btn btn-main" id="btn-start" type="button">[ СТАРТ ]</button>
+    <button class="btn" id="btn-howto" type="button">[ КАК ИГРАТЬ ]</button>
+  </div>
+
+  <div class="lb-widget" id="lb-glitch"></div>
+</section>
+
+<!-- ===================== КАК ИГРАТЬ ===================== -->
+<section id="s-howto" class="screen out">
+  <div class="panel howto">
+    <div class="panel-title">[ КАК ИГРАТЬ ]</div>
+    <canvas id="howto-pic" width="440" height="150"></canvas>
+    <ol class="rules">
+      <li><b class="c-cyan">Глюк-призраки</b> атакуют сервер GameCode. У каждого — вопрос по IT.</li>
+      <li>Призрак <b class="c-yellow">опускается</b> к серверу — успей ответить, пока он не долетел.</li>
+      <li>Жми <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd> или <b class="c-cyan">тапни</b> по ответу — пушка выстрелит.</li>
+      <li>Ошибка или опоздание — <b class="c-pink">минус жизнь</b>. У сервера их 4.</li>
+      <li>Быстрый ответ и серия без ошибок дают <b class="c-green">больше очков</b>.</li>
+      <li>В конце — <b class="c-pink">босс «Глюк-ядро»</b>: три вопроса подряд.</li>
+    </ol>
+    <div class="tip-row"><span><kbd>P</kbd>/<kbd>ESC</kbd> пауза</span></div>
+    <button class="btn btn-main" id="btn-howto-back" type="button">[ ПОНЯТНО ]</button>
+  </div>
+</section>
+
+<!-- ===================== ИГРА ===================== -->
+<section id="s-game" class="screen out">
+  <header class="hud">
+    <div class="hud-item"><span class="hud-lbl">СЧЁТ</span><span class="hud-val" id="hud-score">0</span></div>
+    <div class="hud-item"><span class="hud-lbl">ВОЛНА</span><span class="hud-val c-cyan" id="hud-wave">1/5</span></div>
+    <div class="hud-item hud-combo" id="hud-combo-wrap"><span class="hud-lbl">КОМБО</span><span class="hud-val c-yellow" id="hud-combo">×1</span></div>
+    <div class="hud-item"><span class="hud-lbl">СЕРВЕР</span><span class="hud-hearts" id="hud-hearts"></span></div>
+    <div class="hud-btns">
+      <button class="hud-btn" type="button" data-sound aria-label="Звук"></button>
+      <button class="hud-btn" type="button" id="btn-pause" aria-label="Пауза">||</button>
+    </div>
+  </header>
+
+  <div class="sp-queue"></div>
+  <div class="question" id="question">
+    <span class="q-tag" id="q-tag">PYTHON</span>
+    <div class="q-text" id="q-text"></div>
+    <div class="q-timer"><div class="q-timer-fill" id="q-timer"></div></div>
+  </div>
+
+  <div class="sp-field" id="sp-field"></div>
+  <div class="sp-cannons"></div>
+  <div class="answers" id="answers">
+    <button class="ans" type="button" data-i="0"><span class="ans-key">1</span><span class="ans-text"></span></button>
+    <button class="ans" type="button" data-i="1"><span class="ans-key">2</span><span class="ans-text"></span></button>
+    <div class="ans-gap" aria-hidden="true"></div>
+    <button class="ans" type="button" data-i="2"><span class="ans-key">3</span><span class="ans-text"></span></button>
+    <button class="ans" type="button" data-i="3"><span class="ans-key">4</span><span class="ans-text"></span></button>
+  </div>
+
+  <div class="sp-server"></div>
+  <div class="banner" id="banner"></div>
+</section>
+
+<!-- ===================== ПАУЗА ===================== -->
+<section id="s-pause" class="screen out">
+  <div class="panel pause-panel">
+    <div class="pause-title">|| ПАУЗА</div>
+    <button class="btn btn-main" id="btn-resume" type="button">[ &gt; ПРОДОЛЖИТЬ ]</button>
+    <button class="btn" id="btn-pause-menu" type="button">[ В МЕНЮ ]</button>
+  </div>
+</section>
+
+<!-- ===================== ИТОГИ ===================== -->
+<section id="s-result" class="screen out">
+  <div class="result">
+    <h2 class="result-title" id="res-title">&gt;&gt; ВОЛНЫ ОТБИТЫ &lt;&lt;</h2>
+    <div class="result-sub" id="res-sub"></div>
+    <div class="res-coins" id="res-coins" style="display:none"></div>
+
+    <div class="result-grid">
+      <div class="panel stats" id="res-stats"></div>
+      <div class="panel topics">
+        <div class="panel-title">ТВОИ ТЕМЫ</div>
+        <div id="res-topics"></div>
+      </div>
+    </div>
+
+    <div class="panel mistakes">
+      <div class="panel-title c-pink" id="res-mist-title">РАЗБОР ОШИБОК</div>
+      <div id="res-mistakes"></div>
+    </div>
+
+    <div class="menu-btns">
+      <button class="btn btn-main" id="btn-again" type="button">[ ЗАНОВО ]</button>
+      <button class="btn" id="btn-res-menu" type="button">[ В МЕНЮ ]</button>
+    </div>
+  </div>
+</section>
+
+<script>document.write('<script src="' + window.__assetUrl('../../js/wip-guard.js') + '"><\/script>')</script>
+<script>document.write('<script src="' + window.__assetUrl('../../js/leaderboard.js') + '"><\/script>')</script>
+<script>document.write('<script src="' + window.__assetUrl('js/audio.js') + '"><\/script>')</script>
+<script>document.write('<script src="' + window.__assetUrl('js/render.js') + '"><\/script>')</script>
+<script>document.write('<script src="' + window.__assetUrl('js/game.js') + '"><\/script>')</script>
+</body>
+</html>

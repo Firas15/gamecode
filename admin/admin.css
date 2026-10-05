@@ -757,3 +757,55 @@ body.login-page {
 /* Сохранение строки — главное действие в ряду, поэтому цветом. */
 .adm-btn-sm.adm-btn-save { border-color: var(--cyan); color: var(--cyan); }
 .adm-btn-sm.adm-btn-save:hover { background: rgba(0,229,255,0.12); }
+
+/*
+   ГЛЮК-АТАКА — вопросы и темы (admin/glitch.php)
+ */
+
+/* Плашка темы: рамка цвета темы — так же, как в самой игре */
+.adm-glitch-chip {
+  --c: var(--cyan);
+  display: inline-block;
+  padding: 6px 9px;
+  font-size: 8px;
+  line-height: 1.4;
+  color: var(--c);
+  border: 2px solid var(--c);
+  background: var(--bg);
+  white-space: nowrap;
+}
+a.adm-glitch-chip:hover { background: var(--bg-card2); }
+.adm-glitch-chip.on { background: var(--c); color: var(--bg); }
+
+.adm-glitch-color {
+  width: 38px; height: 30px; padding: 0 2px;
+  background: var(--bg); border: 1px solid var(--border); cursor: pointer;
+}
+
+.adm-glitch-themes { display: flex; flex-wrap: wrap; gap: 8px; }
+.adm-glitch-radio { --c: var(--cyan); cursor: pointer; }
+.adm-glitch-radio input { position: absolute; opacity: 0; pointer-events: none; }
+.adm-glitch-radio span {
+  display: inline-block; padding: 8px 10px; font-size: 8px;
+  color: var(--dim); border: 2px solid var(--border); background: var(--bg);
+}
+.adm-glitch-radio input:checked + span { color: var(--c); border-color: var(--c); box-shadow: 0 0 10px color-mix(in srgb, var(--c) 35%, transparent); }
+.adm-glitch-radio input:focus-visible + span { outline: 1px dashed var(--white); }
+
+.adm-glitch-answers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.adm-glitch-answer { display: flex; align-items: center; gap: 10px; }
+.adm-glitch-answer input[type="radio"] { width: 18px; height: 18px; accent-color: var(--green); flex-shrink: 0; cursor: pointer; }
+.adm-glitch-answer .adm-input { flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--border); color: var(--white); padding: 9px 10px; font-family: var(--font-ui); font-size: 15px; }
+.adm-glitch-answer:has(input[type="radio"]:checked) .adm-input { border-color: var(--green); }
+
+.adm-glitch-filter { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+
+.adm-glitch-q { max-width: 640px; }
+.adm-glitch-qtext { color: var(--white); font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.adm-glitch-opts { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 2px 18px; font-size: 14px; color: var(--dim); }
+.adm-glitch-opts li.right { color: var(--green); }
+.adm-glitch-exp { margin-top: 6px; font-size: 13px; color: var(--dim); font-style: italic; }
+
+@media (max-width: 900px) {
+  .adm-glitch-answers, .adm-glitch-opts { grid-template-columns: 1fr; }
+}

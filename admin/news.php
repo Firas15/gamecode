@@ -123,7 +123,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'description' => $description,
                     'image' => $imagePath,
                     'layout' => $layout,
-                    'created_at' => $existing['created_at'] ?? date('Y-m-d H:i:s'),
+                    // Дата на сайте — created_at. Новая новость и правка с галочкой
+                    // «сегодняшняя дата» получают текущую дату, иначе дата прежняя.
+                    'created_at' => (!$existing || !empty($_POST['refresh_date']))
+                        ? date('Y-m-d H:i:s')
+                        : ($existing['created_at'] ?? date('Y-m-d H:i:s')),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ];
 
@@ -274,6 +278,16 @@ $editItem = $editId ? findNewsById($news, $editId) : null;
           </div>
         </div>
 
+        <?php if ($editItem): ?>
+        <div class="adm-field">
+          <label class="adm-toggle-label pixel">
+            <input type="checkbox" name="refresh_date" value="1" checked/>
+            <span class="adm-checkbox-custom"></span>
+            Поставить сегодняшнюю дату (сейчас на сайте: <?= htmlspecialchars(date('d.m.Y', strtotime((string)($editItem['created_at'] ?? '')) ?: time()), ENT_QUOTES, 'UTF-8') ?>)
+          </label>
+        </div>
+        <?php endif; ?>
+
         <button type="submit" class="adm-btn-primary pixel">[ СОХРАНИТЬ НОВОСТЬ ]</button>
       </form>
     </div>
@@ -295,7 +309,7 @@ $editItem = $editId ? findNewsById($news, $editId) : null;
     </div>
     <table class="adm-table adm-table-full">
       <thead>
-        <tr><th>#</th><th>КАРТИНКА</th><th>ЗАГОЛОВОК</th><th>СТОРОНА</th><th>ОБНОВЛЕНО</th><th>ДЕЙСТВИЯ</th></tr>
+        <tr><th>#</th><th>КАРТИНКА</th><th>ЗАГОЛОВОК</th><th>СТОРОНА</th><th>ДАТА НА САЙТЕ</th><th>ДЕЙСТВИЯ</th></tr>
       </thead>
       <tbody>
         <?php foreach ($news as $index => $item): ?>
@@ -308,7 +322,7 @@ $editItem = $editId ? findNewsById($news, $editId) : null;
           </td>
           <td class="pixel"><?= htmlspecialchars($item['title'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
           <td class="pixel dim"><?= (($item['layout'] ?? 'left') === 'right') ? 'СПРАВА' : 'СЛЕВА' ?></td>
-          <td class="pixel dim"><?= htmlspecialchars(substr((string)($item['updated_at'] ?? ''), 0, 16), ENT_QUOTES, 'UTF-8') ?></td>
+          <td class="pixel dim"><?= htmlspecialchars(date('d.m.Y', strtotime((string)($item['created_at'] ?? '')) ?: time()), ENT_QUOTES, 'UTF-8') ?></td>
           <td class="adm-actions">
             <form method="POST" style="display:inline">
               <?= admin_csrf_field() ?>

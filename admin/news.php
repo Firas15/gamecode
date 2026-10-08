@@ -137,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 if (!$saved) $news[] = $record;
 
-                writeNews(array_slice(array_values($news), 0, 3));
+                cached_write_news(array_slice(array_values($news), 0, 3));
                 writeLog($existing ? 'Обновлена новость' : 'Добавлена новость', $title);
                 $msg = $existing ? 'Новость обновлена' : 'Новость добавлена';
                 $msgType = 'success';
@@ -161,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $nextNews[] = $item;
         }
 
-        writeNews($nextNews);
+        cached_write_news($nextNews);
         writeLog('Удалена новость', $removedTitle);
         $msg = 'Новость удалена';
         $msgType = 'success';
@@ -180,7 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $currentItem = $news[$index];
                 $news[$index] = $news[$swapIndex];
                 $news[$swapIndex] = $currentItem;
-                writeNews($news);
+                cached_write_news($news);
                 writeLog('Изменен порядок новостей', (string)($currentItem['title'] ?? ''));
                 $msg = 'Порядок новостей обновлен';
                 $msgType = 'success';

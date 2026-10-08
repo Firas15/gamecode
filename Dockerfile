@@ -4,6 +4,12 @@ FROM php:8.2-apache
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Системные зависимости и PHP-расширения (pgsql + redis)
+#
+# Расширение redis ставим из PECL, а если pecl.php.net недоступен
+# (так уже было: сервер до него не достучался, и автодеплой молча
+# остался на старой версии), — собираем те же исходники phpredis
+# с GitHub. Версия закреплена, чтобы оба пути давали одно и то же.
+ARG PHPREDIS_VERSION=6.1.0
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
@@ -11,10 +17,21 @@ RUN set -eux; \
         postgresql-client \
         curl; \
     docker-php-ext-install pgsql pdo_pgsql; \
-    printf "\n" | pecl install redis; \
-    docker-php-ext-enable redis; \
+    if printf "\n" | timeout 180 pecl install "redis-${PHPREDIS_VERSION}"; then \
+        docker-php-ext-enable redis; \
+    else \
+        echo "PECL недоступен — собираю phpredis ${PHPREDIS_VERSION} из GitHub"; \
+        docker-php-source extract; \
+        mkdir -p /usr/src/php/ext/redis; \
+        curl -fsSL --retry 3 --connect-timeout 20 \
+            "https://github.com/phpredis/phpredis/archive/refs/tags/${PHPREDIS_VERSION}.tar.gz" \
+            | tar -xz -C /usr/src/php/ext/redis --strip-components=1; \
+        docker-php-ext-install redis; \
+        docker-php-source delete; \
+    fi; \
+    php -m | grep -qx redis; \
     a2enmod headers expires rewrite; \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* /tmp/pear
 
 # Конфиги
 COPY docker/php.ini /usr/local/etc/php/conf.d/zz-gamecode.ini

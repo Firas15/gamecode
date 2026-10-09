@@ -876,3 +876,28 @@ CREATE INDEX IF NOT EXISTS idx_glitch_questions_theme ON public.glitch_questions
 
 ALTER TABLE public.glitch_themes OWNER TO gamecode_user;
 ALTER TABLE public.glitch_questions OWNER TO gamecode_user;
+
+-- ============================================================
+--  «Сетевой маршрут» — теоретические вопросы (миграция 006-network.sql)
+--  Числовые задания игра генерирует сама (includes/network.php).
+--  Стартовые вопросы заливает миграция.
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS public.network_questions (
+    id           serial PRIMARY KEY,
+    level        smallint    NOT NULL DEFAULT 1 CHECK (level BETWEEN 1 AND 3),
+    question     text        NOT NULL,
+    answer1      text        NOT NULL,
+    answer2      text        NOT NULL,
+    answer3      text        NOT NULL,
+    answer4      text        NOT NULL,
+    correct      smallint    NOT NULL DEFAULT 0 CHECK (correct BETWEEN 0 AND 3),
+    explanation  text        NOT NULL DEFAULT '',
+    hidden       boolean     NOT NULL DEFAULT false,
+    created_at   timestamptz NOT NULL DEFAULT now(),
+    updated_at   timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_network_questions_level ON public.network_questions (level);
+
+ALTER TABLE public.network_questions OWNER TO gamecode_user;

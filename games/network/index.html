@@ -2,7 +2,7 @@
 <html lang="ru" data-game-id="network">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <title>Сетевой Маршрут — Game Code</title>
   <script>
     (function () {
@@ -26,206 +26,138 @@
   <script>
     document.write('<link rel="icon" href="' + window.__assetUrl('../../img/ICON.PNG') + '" type="image/png">');
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
   <script>
     document.write('<link rel="stylesheet" href="' + window.__assetUrl('css/style.css') + '">');
     document.write('<link rel="stylesheet" href="' + window.__assetUrl('css/mobile.css') + '">');
     document.write('<link rel="stylesheet" href="' + window.__assetUrl('../../css/leaderboard.css') + '">');
-    // Рамки аватаров из магазина: виджет топа рисует их разметку,
-    // а описаны они в shop.css — без него это был просто пустой span.
+    // Рамки аватаров из магазина: виджет топа рисует их разметку, описаны они в shop.css
     document.write('<link rel="stylesheet" href="' + window.__assetUrl('../../css/shop.css') + '">');
   </script>
 </head>
 <body>
 
 <canvas id="stars-canvas"></canvas>
+<button class="sound-btn pixel-text" id="btn-sound" type="button" title="Звук">ЗВУК: ВКЛ</button>
 
-
+<!-- ======================= МЕНЮ ======================= -->
 <div id="s-menu" class="screen active">
+  <a href="../../index.html" class="back-btn">&lt; НА ГЛАВНУЮ</a>
 
-  <a href="../../index.html" class="back-btn">◄ НА ГЛАВНУЮ</a>
-
-  <div class="menu-logo">
-    <div class="menu-logo-icon">
-      <div class="router-pixel"></div>
+  <div class="menu-head">
+    <div class="menu-logo">
+      <h1 class="menu-title pixel-text">СЕТЕВОЙ <span class="accent">МАРШРУТ</span></h1>
+      <p class="menu-subtitle pixel-text">IP-адреса, маски и маршрутизация</p>
     </div>
-    <h1 class="menu-title pixel-text">СЕТЕВОЙ<br/><span class="accent">МАРШРУТ</span></h1>
-    <p class="menu-subtitle pixel-text">IP-адреса и маски подсети</p>
-    <div class="menu-version">V2.0 — GameCode</div>
+    <div class="menu-admin">
+      <img class="admin-sprite" id="menu-admin" src="assets/img/admin-front.png" alt="Геккон-сисадмин"/>
+      <div class="bubble bubble--menu" id="menu-bubble">Привет! Я дежурный сисадмин. Помоги довести пакеты до цели.</div>
+    </div>
   </div>
 
-  <div class="level-cards" id="level-cards"></div>
+  <div class="level-cards" id="level-cards">
+    <div class="level-loading pixel-text">// загрузка...</div>
+  </div>
+
+  <div class="menu-actions">
+    <button class="btn-sec pixel-text" id="btn-howto" type="button">[ КАК ИГРАТЬ ]</button>
+  </div>
 
   <div class="lb-widget" id="lb-network"></div>
-
-  <div class="menu-controls pixel-text">
-    <span>[ НАЖМИ НА УСТРОЙСТВО ] чтобы отправить пакет</span>
-    <div class="controls-row">
-      <span><kbd>CLICK</kbd> выбрать устройство</span>
-      <span><kbd>ESC</kbd> меню</span>
-    </div>
-  </div>
-
 </div>
 
-
-<div id="s-intro" class="screen">
-
-  <div class="intro-box">
-    <div class="intro-header pixel-text">
-      <span class="intro-tag">// ВХОДЯЩИЙ ПАКЕТ</span>
-      <span id="intro-lvl-name" class="intro-lvl"></span>
-    </div>
-
-    <div class="intro-network-info">
-      <div class="info-row">
-        <span class="info-label pixel-text">IP ОТПРАВИТЕЛЯ</span>
-        <span class="info-value accent pixel-text" id="intro-sender"></span>
-      </div>
-      <div class="info-row">
-        <span class="info-label pixel-text">МАСКА ПОДСЕТИ</span>
-        <span class="info-value cyan pixel-text" id="intro-mask"></span>
-      </div>
-      <div class="info-row">
-        <span class="info-label pixel-text">ПОДСЕТЬ</span>
-        <span class="info-value green pixel-text" id="intro-subnet"></span>
-      </div>
-    </div>
-
-    <div class="intro-task">
-      <div class="intro-task-label pixel-text">// ЗАДАНИЕ</div>
-      <p class="intro-task-text" id="intro-task"></p>
-    </div>
-
-    <div class="intro-hint pixel-text" id="intro-hint"></div>
-
-    <button class="btn-start pixel-text" id="btn-start-level">[ НАЧАТЬ МИССИЮ ]</button>
+<!-- ======================= КАК ИГРАТЬ ======================= -->
+<div id="s-howto" class="screen">
+  <div class="howto-box">
+    <h2 class="howto-title pixel-text">// КАК ИГРАТЬ</h2>
+    <canvas class="howto-pic" id="howto-pic" width="960" height="340" aria-hidden="true"></canvas>
+    <ul class="howto-list">
+      <li><b>Выбери уровень.</b> Новичок — маска /24, Практик — /8 и /16, шлюзы и поломки, Эксперт — маски /25–/30 и таблицы маршрутизации.</li>
+      <li><b>Решай задания</b> на время (60 секунд на каждое): кликай по устройству на схеме или выбирай ответ. Клавиши <kbd>1</kbd>–<kbd>4</kbd> тоже работают.</li>
+      <li><b>3 жизни.</b> Ошибся или не успел — минус жизнь. Кончились жизни — сеть упала.</li>
+      <li><b>Очки</b> — за верный ответ, бонус за скорость и за серию верных подряд, а за весь уровень — бонус в конце.</li>
+      <li><b>Калькулятор</b> (<kbd>H</kbd>) показывает адреса в двоичном виде и подсвечивает биты сети. Задание с подсказкой даёт половину очков.</li>
+      <li><b>Геккон-сисадмин</b> после каждого ответа объясняет, почему верно именно так. В конце — разбор всех ошибок.</li>
+    </ul>
+    <div class="howto-types" id="howto-types"></div>
+    <button class="btn-prim pixel-text" id="btn-howto-back" type="button">[ ПОНЯТНО ]</button>
   </div>
-
 </div>
 
-
+<!-- ======================= ИГРА ======================= -->
 <div id="s-game" class="screen">
-
   <div class="hud">
     <div class="hud-col">
-      <div class="hud-item">
-        <span class="hud-lbl pixel-text">ОЧКИ</span>
-        <span class="hud-val pixel-text" id="h-score">0</span>
-      </div>
-      <div class="hud-item">
-        <span class="hud-lbl pixel-text">РАУНД</span>
-        <span class="hud-val pixel-text" id="h-round">1/5</span>
-      </div>
+      <div class="hud-item"><span class="hud-lbl pixel-text">ОЧКИ</span><span class="hud-val pixel-text" id="h-score">0</span></div>
+      <div class="hud-item"><span class="hud-lbl pixel-text">ЗАДАНИЕ</span><span class="hud-val pixel-text" id="h-task">1/8</span></div>
     </div>
-
     <div class="hud-mid">
-      <div class="hud-lvname pixel-text" id="h-lname">УРОВЕНЬ 1</div>
-      <div class="prog-wrap">
-        <div class="prog-fill" id="h-bar" style="width:0%"></div>
-      </div>
+      <div class="hud-lvname pixel-text" id="h-level">НОВИЧОК</div>
+      <div class="prog-wrap"><div class="prog-fill" id="h-progress"></div></div>
     </div>
-
-    <div class="hud-col">
-      <div class="hud-item">
-        <span class="hud-lbl pixel-text">ЖИЗНИ</span>
-        <div class="hud-hearts" id="h-hearts"></div>
-      </div>
-      <button class="btn-esc pixel-text" id="btn-esc">[ В МЕНЮ ]</button>
+    <div class="hud-col hud-col--right">
+      <div class="hud-item"><span class="hud-lbl pixel-text">СЕРИЯ</span><span class="hud-val pixel-text" id="h-streak">0</span></div>
+      <div class="hud-item"><span class="hud-lbl pixel-text">ЖИЗНИ</span><div class="hud-hearts" id="h-hearts"></div></div>
+      <button class="btn-esc pixel-text" id="btn-esc" type="button">[ МЕНЮ ]</button>
     </div>
   </div>
+  <div class="timer"><div class="timer-fill" id="timer-fill"></div><span class="timer-text pixel-text" id="timer-text">25</span></div>
 
+  <div class="play">
+    <div class="task-card" id="task-card">
+      <div class="task-top">
+        <span class="task-label pixel-text" id="task-label">СВОЙ ИЛИ ЧУЖОЙ</span>
+        <span class="task-hintmark pixel-text hidden" id="task-hintmark">ПОДСКАЗКА: 1/2 ОЧКОВ</span>
+      </div>
+      <p class="task-text" id="task-text"></p>
+      <div class="task-chips" id="task-chips"></div>
+    </div>
 
-  <div class="task-panel">
-    <div class="task-panel-inner">
-      <div class="task-data-row">
-        <div class="task-data-item">
-          <span class="task-data-label pixel-text">ОТПРАВИТЕЛЬ</span>
-          <span class="task-data-val accent pixel-text" id="t-sender"></span>
-        </div>
-        <div class="task-data-item">
-          <span class="task-data-label pixel-text">МАСКА</span>
-          <span class="task-data-val cyan pixel-text" id="t-mask"></span>
-        </div>
-        <div class="task-data-item">
-          <span class="task-data-label pixel-text">ПОДСЕТЬ</span>
-          <span class="task-data-val green pixel-text" id="t-subnet"></span>
+    <div class="arena" id="arena">
+      <svg class="arena-lines" id="arena-lines" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="arena-body" id="arena-body"></div>
+      <div class="packet" id="packet" aria-hidden="true"></div>
+    </div>
+
+    <div class="play-bottom">
+      <div class="admin-box">
+        <img class="admin-sprite admin-sprite--game" id="game-admin" src="assets/img/admin-front.png" alt=""/>
+        <div class="bubble" id="game-bubble">Смотри внимательно на маску!</div>
+        <div class="calc hidden" id="calc">
+          <div class="calc-head">
+            <span class="pixel-text">ДВОИЧНЫЙ КАЛЬКУЛЯТОР</span>
+            <span class="calc-legend"><span class="bit net">1</span> - биты сети &nbsp; <span class="bit host">0</span> - биты узла</span>
+            <button class="calc-close pixel-text" id="calc-close" type="button" title="Закрыть (H)">X</button>
+          </div>
+          <div class="calc-rows" id="calc-rows"></div>
         </div>
       </div>
-      <div class="task-question pixel-text" id="t-question"></div>
+      <div class="play-buttons">
+        <button class="btn-calc pixel-text" id="btn-calc" type="button" title="Калькулятор (H)">[ КАЛЬКУЛЯТОР <span class="dim">-50%</span> ]</button>
+        <button class="btn-next pixel-text hidden" id="btn-next" type="button">ДАЛЕЕ &gt;</button>
+      </div>
     </div>
   </div>
-
- 
-  <div class="game-field" id="game-field">
-
-   
-    <div class="sender-node" id="sender-node">
-      <div class="device-icon sender-icon">
-        <div class="device-body">
-          <div class="device-screen"></div>
-          <div class="device-base"></div>
-        </div>
-      </div>
-      <div class="device-label">
-        <div class="device-name pixel-text">ОТПРАВИТЕЛЬ</div>
-        <div class="device-ip pixel-text accent" id="sender-ip-label"></div>
-      </div>
-    </div>
-
-  
-    <svg class="network-lines" id="network-svg" xmlns="http://www.w3.org/2000/svg">
-
-    </svg>
-
-
-    <div class="packet" id="packet" aria-hidden="true">
-      <div class="packet-inner pixel-text"></div>
-    </div>
-
-    
-    <div class="devices-area" id="devices-area"></div>
-
-  </div>
-
 
   <div id="toasts"></div>
-
 </div>
 
-
+<!-- ======================= РЕЗУЛЬТАТ ======================= -->
 <div id="s-result" class="screen">
   <div class="result-box">
-    <h2 class="result-title pixel-text" id="r-title"></h2>
-    <div class="result-stats">
-      <div class="result-stat">
-        <div class="stat-num pixel-text" id="r-score">0</div>
-        <div class="stat-label pixel-text">SCORE</div>
-      </div>
-      <div class="result-stat">
-        <div class="stat-num pixel-text green" id="r-correct">0</div>
-        <div class="stat-label pixel-text">ВЕРНЫХ</div>
-      </div>
-      <div class="result-stat">
-        <div class="stat-num pixel-text pink" id="r-errors">0</div>
-        <div class="stat-label pixel-text">ОШИБОК</div>
-      </div>
-      <div class="result-stat">
-        <div class="stat-num pixel-text cyan" id="r-acc">0%</div>
-        <div class="stat-label pixel-text">ТОЧНОСТЬ</div>
+    <div class="result-head">
+      <img class="admin-sprite admin-sprite--result" id="res-admin" src="assets/img/admin-happy.png" alt=""/>
+      <div>
+        <h2 class="result-title pixel-text" id="res-title">УРОВЕНЬ ПРОЙДЕН</h2>
+        <div class="result-sub pixel-text" id="res-sub"></div>
       </div>
     </div>
-
-   
-    <div class="error-review" id="r-review" style="display:none">
-      <h3 class="pixel-text">// РАЗБОР ОШИБОК</h3>
-      <div id="r-error-list"></div>
-    </div>
-
+    <div class="result-stats" id="res-stats"></div>
+    <div class="result-saved pixel-text" id="res-saved"></div>
+    <div class="review" id="res-review"></div>
     <div class="result-btns">
-      <button class="btn-prim pixel-text" id="btn-retry">[ ПОВТОРИТЬ ]</button>
-      <button class="btn-sec pixel-text" id="btn-menu-res">[ МЕНЮ ]</button>
+      <button class="btn-prim pixel-text" id="btn-again" type="button">[ ЕЩЁ РАЗ ]</button>
+      <button class="btn-prim btn-prim--green pixel-text hidden" id="btn-nextlvl" type="button">[ СЛЕДУЮЩИЙ УРОВЕНЬ ]</button>
+      <button class="btn-sec pixel-text" id="btn-res-menu" type="button">[ МЕНЮ ]</button>
     </div>
   </div>
 </div>

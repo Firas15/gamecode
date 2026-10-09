@@ -6,6 +6,7 @@ $links = [
   'games.php'     => ['icon' => '🎮', 'label' => 'ИГРЫ'],
   'pixelgame_editor.php' => ['icon' => '👾', 'label' => 'PIXELGAME'],
   'glitch.php'    => ['icon' => '👻', 'label' => 'ГЛЮК-АТАКА'],
+  'network.php'   => ['icon' => '🌐', 'label' => 'СЕТЕВОЙ МАРШРУТ'],
   'shop.php'      => ['icon' => '🛒', 'label' => 'МАГАЗИН'],
   'news.php'      => ['icon' => '📰', 'label' => 'НОВОСТИ'],
   'log.php'       => ['icon' => '📋', 'label' => 'ЛОГ'],

@@ -10,6 +10,7 @@ header('Access-Control-Allow-Origin: *');
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/game_security.php';
 require_once __DIR__ . '/../includes/glitch.php';
+require_once __DIR__ . '/../includes/network.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -108,39 +109,31 @@ function gc_compute_score(string $gameId, array $payload, int $startedAt = 0, ar
         : $clientElapsed;
 
     if ($gameId === 'network') {
-        if (!gc_require_keys($payload, ['level_id', 'correct', 'wrong', 'elapsed_ms'])) {
-            return ['ok' => false, 'error' => 'Invalid payload'];
-        }
-        $levelId = (string)$payload['level_id'];
-        if (!in_array($levelId, ['level1', 'level2', 'level3'], true)) {
-            return ['ok' => false, 'error' => 'Invalid level_id'];
-        }
-        // 'lose' — все три жизни потрачены. Пишем такую попытку в историю
-        // с нулём очков, чтобы поражение было видно наравне с победой.
-        // Старые клиенты поля result не шлют — считаем такой запрос победой.
-        $result = (string)($payload['result'] ?? 'win');
-        if (!in_array($result, ['win', 'lose'], true)) {
-            return ['ok' => false, 'error' => 'Invalid result'];
-        }
-        $correct = gc_int($payload['correct'], 0, 3, -1);
-        $wrong = gc_int($payload['wrong'], 0, 3, -1);
-        $elapsed = gc_int($payload['elapsed_ms'], 0, 3600_000, -1);
-        if ($correct < 0 || $wrong < 0 || $elapsed < 0) return ['ok' => false, 'error' => 'Invalid stats'];
-        if (($correct + $wrong) !== 3) return ['ok' => false, 'error' => 'Rounds mismatch'];
-        $lives = 3;
-        if ($result === 'win') {
-            if ($wrong >= $lives) return ['ok' => false, 'error' => 'Not a win'];
-        } else {
-            // Проигрыш наступает ровно на третьей ошибке, а раундов всего три,
-            // поэтому у проигравшего не может быть ни одного верного ответа.
-            if ($wrong !== $lives) return ['ok' => false, 'error' => 'Invalid loss state'];
-        }
-        // Три раунда физически не проходятся быстрее: после каждого
-        // ответа игра держит анимацию пакета и паузу ~2.6 секунды,
-        // то есть честный минимум около восьми секунд. Берём шесть
-        // с запасом, чтобы не отсечь никого на медленной машине.
-        if ($serverElapsed < 6000) return ['ok' => false, 'error' => 'Too fast'];
-        return ['ok' => true, 'score' => $correct * 100, 'meta' => ['level_id' => $levelId, 'result' => $result, 'correct' => $correct, 'wrong' => $wrong, 'elapsed_ms' => $serverElapsed]];
+        // «Сетевой маршрут» ведёт сервер (api/network.php): задания, проверка
+        // ответов и очки — там же, по серверным часам. Из payload браузера
+        // здесь не берётся ничего — только итог из состояния рана.
+        $g = $run['network'] ?? null;
+        if (!is_array($g)) return ['ok' => false, 'error' => 'Run not started'];
+        if (empty($g['finished'])) return ['ok' => false, 'error' => 'Run not finished'];
+        $answered = (int)$g['right'] + (int)$g['wrong'];
+        if ($answered <= 0) return ['ok' => false, 'error' => 'Nothing answered'];
+        // Честный минимум: каждое задание — прочитать и ответить (≥ 0.5 с, это
+        // проверяет api/network.php) плюс показ результата (~1.5 с). Берём 80 %:
+        // так даже бот со всеми ответами сдаёт партии не чаще живого игрока.
+        $minMs = (int)(0.8 * $answered * 2000);
+        if ($serverElapsed < max(5000, $minMs)) return ['ok' => false, 'error' => 'Too fast'];
+        $score = max(0, min(NET_SCORE_CAP, (int)$g['score']));
+        return ['ok' => true, 'score' => $score, 'meta' => [
+            'level_id'    => 'level' . (int)$g['level'],
+            'result'      => !empty($g['won']) ? 'win' : 'lose',
+            'correct'     => (int)$g['right'],
+            'wrong'       => (int)$g['wrong'],
+            'best_streak' => (int)$g['best'],
+            'hints'       => (int)$g['hints'],
+            'lives_left'  => (int)$g['lives'],
+            'by_type'     => (array)$g['by_type'],
+            'elapsed_ms'  => $serverElapsed,
+        ]];
     }
 
     if ($gameId === 'sorter') {

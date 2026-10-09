@@ -203,6 +203,12 @@ a { text-decoration: none; color: inherit; }
   border: 1px solid var(--border);
   position: relative;
 }
+/* Широкие таблицы (Пользователи): страница занимает всю ширину окна,
+   а если таблица всё равно не влезает — она прокручивается внутри панели,
+   а не вылезает за её край. */
+.adm-main.adm-main--wide { max-width: none; min-width: 0; }
+.adm-panel--scroll { overflow-x: auto; }
+.adm-nowrap { white-space: nowrap; }
 .adm-panel-header {
   display: flex;
   align-items: center;
@@ -351,6 +357,10 @@ a { text-decoration: none; color: inherit; }
 }
 
 .adm-actions { display: flex; gap: 6px; align-items: center; }
+/* Ячейка таблицы с display:flex перестаёт быть ячейкой: колонка
+   «Действия» съезжала и вылезала за край панели. */
+td.adm-actions { display: table-cell; white-space: nowrap; vertical-align: middle; }
+td.adm-actions > * + * { margin-left: 6px; }
 
 /* 
    FORMS
@@ -661,6 +671,17 @@ body.login-page {
   font-family: 'Press Start 2P', monospace;
   font-size: 9px;
 }
+.adm-points-val { color: var(--cyan, #00e5ff); cursor: help; }
+.adm-points-game {
+  max-width: 150px;
+  padding: 6px 4px;
+  background: var(--bg);
+  border: 1px solid var(--border, #1a3a6b);
+  color: var(--text, #c8d8f0);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+}
+.adm-points-game:focus { outline: none; border-color: var(--cyan, #00e5ff); }
 .adm-coins-input:focus {
   outline: none;
   border-color: var(--yellow);

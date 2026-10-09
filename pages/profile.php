@@ -82,9 +82,12 @@ $gameColors = [
 ];
 
 $userScoreRows = gamecode_pg_query_all(
-    'SELECT game_id, score, created_at, updated_at FROM scores
+    // Поправки из админки (meta.admin) — не партии: в попытки, лучший
+    // результат и историю не попадают. В суммах и рангах они учтены.
+    "SELECT game_id, score, created_at, updated_at FROM scores
      WHERE user_id = $1 AND game_id = ANY($2)
-     ORDER BY id ASC',
+       AND (meta->>'admin') IS DISTINCT FROM 'true'
+     ORDER BY id ASC",
     [$userId, '{' . implode(',', array_keys($gameLabels)) . '}']
 );
 if (!is_array($userScoreRows)) $userScoreRows = [];
@@ -209,9 +212,10 @@ $overallRank = !empty($rows[0]['rnk']) ? (int)$rows[0]['rnk'] : null;
 
 // История последних 10 попыток 
 $recentRows = gamecode_pg_query_all(
-    'SELECT game_id, score, meta, created_at FROM scores
+    "SELECT game_id, score, meta, created_at FROM scores
      WHERE user_id = $1 AND game_id = ANY($2)
-     ORDER BY id DESC LIMIT 10',
+       AND (meta->>'admin') IS DISTINCT FROM 'true'
+     ORDER BY id DESC LIMIT 10",
     [$userId, '{' . implode(',', array_keys($gameLabels)) . '}']
 );
 $recentAttempts = is_array($recentRows) ? $recentRows : [];

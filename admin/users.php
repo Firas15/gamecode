@@ -6,6 +6,24 @@ requireAdmin();
 
 $msg = ''; $msgType = '';
 
+// Игры, очки которых можно править: те же, что в таблицах лидеров.
+$scoreGames = [
+    'sorter'      => 'Сортировщик',
+    'network'     => 'Сетевой маршрут',
+    'millionaire' => 'Миллионер',
+    'pixelgame'   => 'CodeQuest',
+    'glitch'      => 'Глюк-атака',
+];
+
+/** Очки игрока в одной игре: сумма его записей в scores, как у таблицы лидеров. */
+function gc_admin_game_points(int $uid, string $game): int {
+    $rows = gamecode_pg_query_all(
+        'SELECT COALESCE(SUM(score), 0) AS total FROM scores WHERE user_id = $1 AND game_id = $2',
+        [$uid, $game]
+    );
+    return (int)($rows[0]['total'] ?? 0);
+}
+
 // Удаление пользователя
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     admin_csrf_check();
@@ -63,6 +81,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             }
         }
     }
+    // Начисление и списание очков.
+    //
+    // Очки игрока — это сумма его записей в scores по игре: так считают
+    // таблицы лидеров, ранги в профиле и users.best_score. Поэтому старые
+    // партии не трогаем, а добавляем запись-поправку с meta.admin = true:
+    // история партий остаётся честной, любую правку видно в базе и её
+    // можно отменить обратной. В профиле поправки не считаются партиями
+    // (см. pages/profile.php). Ниже нуля очки в игре не уходят.
+    if ($_POST['action'] === 'points' && !empty($_POST['user_id'])) {
+        $uid    = (int)$_POST['user_id'];
+        $game   = (string)($_POST['game'] ?? '');
+        $sign   = ($_POST['sign'] ?? '') === 'minus' ? -1 : 1;
+        $amount = (int)($_POST['amount'] ?? 0);
+        if ($amount < 0) $amount = 0;
+        if ($amount > 1000000) $amount = 1000000;
+
+        $user = findUserById($uid);
+        $nick = $user['nickname'] ?? ('#' . $uid);
+        $label = $scoreGames[$game] ?? $game;
+
+        if (!$user) {
+            $msg = 'Пользователь не найден.'; $msgType = 'error';
+        } elseif (!isset($scoreGames[$game])) {
+            $msg = 'Выберите игру.'; $msgType = 'error';
+        } elseif ($amount === 0) {
+            $msg = 'Укажите количество больше нуля.'; $msgType = 'error';
+        } else {
+            $before = gc_admin_game_points($uid, $game);
+            $delta  = $sign * $amount;
+            if ($before + $delta < 0) $delta = -$before;
+
+            if ($delta === 0) {
+                $msg = "У «{$nick}» в игре «{$label}» и так 0 очков."; $msgType = 'error';
+            } else {
+                addScore($uid, $game, $delta, ['admin' => true]);
+                $after = gc_admin_game_points($uid, $game);
+
+                // best_score у пользователя — сумма всех очков, как в api/score.php
+                $totalRows = gamecode_pg_query_all(
+                    'SELECT COALESCE(SUM(score), 0) AS total FROM scores WHERE user_id = $1', [$uid]
+                );
+                updateUser($uid, ['best_score' => (int)($totalRows[0]['total'] ?? 0)]);
+
+                cache_invalidate_leaderboard($game);
+                cache_invalidate_user($uid, $nick);
+
+                // Как и с коинами, сообщаем то, что произошло на самом деле:
+                // при списании больше, чем есть, очки упираются в ноль.
+                $word = $delta > 0 ? 'начислено' : 'списано';
+                $real = abs($delta);
+                writeLog("Очки ({$label}): {$word} {$real}", $nick);
+                $msg = "«{$nick}», {$label}: {$word} {$real}. Очков в игре: {$after}."; $msgType = 'success';
+            }
+        }
+    }
     if ($_POST['action'] === 'ban' && !empty($_POST['user_id'])) {
         $uid   = (int)$_POST['user_id'];
         $users = readUsersAdmin();
@@ -92,6 +165,18 @@ if (gc_shop_ready()) {
     }
 }
 
+// Очки одним запросом: сумма по каждой игре, как в таблицах лидеров.
+$pointsById = [];
+$pointRows = gamecode_pg_query_all(
+    'SELECT user_id, game_id, SUM(score) AS total FROM scores
+     WHERE user_id IS NOT NULL GROUP BY user_id, game_id'
+);
+foreach ((is_array($pointRows) ? $pointRows : []) as $row) {
+    $uid = (int)$row['user_id'];
+    $pointsById[$uid]['games'][(string)$row['game_id']] = (int)$row['total'];
+    $pointsById[$uid]['total'] = ($pointsById[$uid]['total'] ?? 0) + (int)$row['total'];
+}
+
 $search = trim($_GET['q'] ?? '');
 if ($search) {
     $users = array_filter($users, fn($u) => stripos($u['nickname'], $search) !== false);
@@ -110,7 +195,7 @@ $users = array_reverse($users);
 </head>
 <body>
 <?php include __DIR__ . '/sidebar.php'; ?>
-<div class="adm-main">
+<div class="adm-main adm-main--wide">
   <div class="adm-topbar">
     <h1 class="adm-page-title pixel">// ПОЛЬЗОВАТЕЛИ</h1>
     <a href="logout.php" class="adm-btn-danger pixel">[ ВЫЙТИ ]</a>
@@ -132,7 +217,7 @@ $users = array_reverse($users);
     <?php endif; ?>
   </form>
 
-  <div class="adm-panel">
+  <div class="adm-panel adm-panel--scroll">
     <div class="adm-panel-header">
       <span class="pixel">👥 ВСЕГО: <?= count($users) ?></span>
     </div>
@@ -145,6 +230,7 @@ $users = array_reverse($users);
           <th>Биография</th>
           <th>Язык</th>
           <th>Пиксель коины</th>
+          <th>Очки</th>
           <th>Регистрация</th>
           <th>Статус</th>
           <th>Действия</th>
@@ -182,7 +268,40 @@ $users = array_reverse($users);
               </div>
             <?php endif; ?>
           </td>
-          <td class="pixel dim"><?= htmlspecialchars(substr($u['created_at'], 0, 10)) ?></td>
+          <td>
+            <?php
+              $pts = $pointsById[(int)$u['id']] ?? ['total' => 0, 'games' => []];
+              // По умолчанию в списке — игра, где у игрока больше всего очков
+              $ptsGames = $pts['games'] ?? [];
+              $ptsTop = $ptsGames ? array_search(max($ptsGames), $ptsGames, true) : '';
+              $ptsTitle = [];
+              foreach ($scoreGames as $gid => $glabel) {
+                  $ptsTitle[] = $glabel . ': ' . number_format((int)($pts['games'][$gid] ?? 0), 0, '.', ' ');
+              }
+            ?>
+            <div class="adm-coins">
+              <span class="adm-coins-val adm-points-val pixel" title="<?= htmlspecialchars(implode("\n", $ptsTitle), ENT_QUOTES, 'UTF-8') ?>">
+                ★ <?= number_format((int)($pts['total'] ?? 0), 0, '.', ' ') ?>
+              </span>
+              <form method="POST" class="adm-coins-form">
+                <?= admin_csrf_field() ?>
+                <input type="hidden" name="action" value="points"/>
+                <input type="hidden" name="user_id" value="<?= (int)$u['id'] ?>"/>
+                <select class="adm-points-game pixel" name="game" required title="Игра">
+                  <?php foreach ($scoreGames as $gid => $glabel): ?>
+                  <option value="<?= htmlspecialchars($gid) ?>"<?= $gid === $ptsTop ? ' selected' : '' ?>><?= htmlspecialchars($glabel) ?> (<?= number_format((int)($pts['games'][$gid] ?? 0), 0, '.', ' ') ?>)</option>
+                  <?php endforeach; ?>
+                </select>
+                <input class="adm-coins-input pixel" type="number" name="amount"
+                       min="1" max="1000000" step="1" placeholder="0" required/>
+                <button type="submit" name="sign" value="plus"
+                        class="adm-btn-sm adm-btn-coin-plus pixel" title="Начислить очки">+</button>
+                <button type="submit" name="sign" value="minus"
+                        class="adm-btn-sm adm-btn-coin-minus pixel" title="Списать очки">&minus;</button>
+              </form>
+            </div>
+          </td>
+          <td class="pixel dim adm-nowrap"><?= htmlspecialchars(substr($u['created_at'], 0, 10)) ?></td>
           <td>
             <?php if (!empty($u['banned'])): ?>
             <span class="adm-badge banned pixel">БАН</span>
@@ -211,7 +330,7 @@ $users = array_reverse($users);
         </tr>
         <?php endforeach; ?>
         <?php if (empty($users)): ?>
-        <tr><td colspan="9" class="pixel dim" style="text-align:center;padding:24px">Нет пользователей</td></tr>
+        <tr><td colspan="10" class="pixel dim" style="text-align:center;padding:24px">Нет пользователей</td></tr>
         <?php endif; ?>
       </tbody>
     </table>

@@ -280,9 +280,6 @@
   }
   .sidebar-logo { font-size: 16px; padding: 12px 18px 24px; }
 
-  /* Footer */
-  .footer { padding: 20px 12px; font-size: 8px; }
-  .footer-sub { font-size: 11px; }
 }
 
 /* 
@@ -390,7 +387,6 @@
   .section-header { padding-bottom: 12px; }
   .news-carousel-progress { height: 6px; }
 
-  .footer { font-size: 8px; }
 
   /* Auth forms */
   .auth-form { padding: 16px; gap: 16px; }

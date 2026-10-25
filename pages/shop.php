@@ -217,6 +217,34 @@ function shop_page_on(array $item, array $equipped): bool {
 
   </main>
 
+  <footer class="footer">
+    <div class="gc-footer-pix" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <a class="gc-footer-logo" href="../index.html">GAME<span class="accent">CODE</span></a>
+    <p class="gc-footer-tag">Изучай программирование в играх</p>
+    <nav class="gc-footer-nav" aria-label="Разделы сайта">
+      <a href="../pages/games.html">Игры</a>
+      <a href="../pages/leaderboard.html">Рейтинг</a>
+      <a href="../pages/theory.html">Теория</a>
+      <a href="../pages/how-to-play.html">Как играть</a>
+      <a href="../pages/shop.php" aria-current="page">Магазин</a>
+      <a href="../pages/about.html">О проекте</a>
+    </nav>
+    <div class="gc-footer-row">
+      <a class="gc-footer-soc gc-footer-soc--tg" href="https://t.me/gamecodeproject" target="_blank" rel="noopener">Telegram</a>
+      <a class="gc-footer-soc gc-footer-soc--vk" href="https://vk.ru/club238066032" target="_blank" rel="noopener">ВКонтакте</a>
+      <span class="gc-footer-sep" aria-hidden="true"></span>
+      <a class="gc-footer-partner" href="https://itgorky.ru/" target="_blank" rel="noopener" title="ITGorky — ИТ-карта Нижнего Новгорода. Партнёр проекта">
+        <img src="../img/itgorky-mascot.png" alt="" width="70" height="36" loading="lazy"/>
+        <span class="gc-footer-partner-name"><span class="x">×</span>IT<em>GORKY</em></span>
+      </a>
+    </div>
+    <div class="gc-footer-legal">
+      <span>© 2026 GAMECODE</span>
+      <span class="gc-footer-doc" title="Скоро">Политика конфиденциальности</span>
+      <span class="gc-footer-doc" title="Скоро">Согласие на обработку данных</span>
+    </div>
+  </footer>
+
   <div class="gc-shop-toast" id="shopToast"></div>
 
   <script src="<?= htmlspecialchars(asset_url('../js/app.js', 'js/app.js'), ENT_QUOTES, 'UTF-8') ?>"></script>

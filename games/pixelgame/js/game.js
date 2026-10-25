@@ -384,8 +384,8 @@ function renderLevelCards() {
 
 function handleLevelLoadError(levelNumber, error) {
   console.error(error);
-  showLoadError('ОШИБКА ЗАГРУЗКИ', 'Не удалось загрузить вопросы уровня.',
-    `<div style="text-align:left">Возможные причины:<ul style="text-align:left;margin-top:6px"><li>Запуск из файловой системы — запусти локальный сервер (например: <code>npx http-server</code> или <code>python -m http.server</code>).</li><li>Файл <strong>data/levels/level${levelNumber}.json</strong> отсутствует или повреждён.</li><li>Права доступа или CORS при удалённой загрузке.</li></ul></div>`
+  showLoadError('ОШИБКА ЗАГРУЗКИ', 'Не удалось начать уровень.',
+    `<div style="text-align:left">Сервер игры не ответил (${String(error && error.message || error).replace(/[<>&]/g,'')}). Проверь интернет и попробуй ещё раз.</div>`
   );
   showScreen('levels');
 }
@@ -414,6 +414,45 @@ const state = {
 };
 
 let noticeCallback = null;
+
+/* ═══ СВЯЗЬ С СЕРВЕРОМ ═══
+   Вопросы сундуков и боёв выдаёт и проверяет сервер (api/pixelgame.php):
+   правильного ответа в браузере нет, очки и HP за ответы считает он же.
+   Ходьба по лабиринту, ловушки и сборка программы — здесь, в браузере. */
+const CQ_API = '../../api/pixelgame.php';
+let cqRun = null;   // { run_id, run_token } — выдаёт api/ping-game.php
+
+async function cqApi(action, extra) {
+  if (!cqRun) throw new Error('Партия не начата');
+  const res = await fetch(CQ_API, {
+    method: 'POST', credentials: 'same-origin', cache: 'no-store',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(Object.assign({ action, run_id: cqRun.run_id, run_token: cqRun.run_token }, extra || {})),
+  });
+  let data = null;
+  try { data = await res.json(); } catch (e) { /* не JSON */ }
+  if (!res.ok || !data || data.ok !== true) throw new Error((data && data.error) || ('HTTP ' + res.status));
+  return data;
+}
+
+// Ответ слишком быстро после показа вопроса — сервер просит подождать
+async function cqAnswer(action, extra) {
+  try { return await cqApi(action, extra); }
+  catch (e) {
+    if (e.message !== 'Слишком рано') throw e;
+    await new Promise(r => setTimeout(r, 500));
+    return cqApi(action, extra);
+  }
+}
+
+function cqServerError(e) {
+  console.error(e);
+  state.gameActive = false;
+  cancelAnimationFrame(state.animFrame);
+  hideDialog('dialog-question');
+  hideDialog('dialog-battle');
+  showNotice('Нет связи с сервером, партия прервана. Попробуй ещё раз.', 'ОШИБКА', () => goToMainMenu());
+}
 
 function applyLevelMap(mapData) {
   try {
@@ -445,9 +484,7 @@ function applyLevelMap(mapData) {
   MAP = MAP_DEFAULT.slice();
 }
 
-/** Загружает уровень: сначала через API сайта (Postgres + Redis-кэш),
- * при недоступности API — фолбэк на статический JSON рядом с игрой
- */
+/** Загружает уровень через API сайта (Postgres + Redis-кэш), без ответов */
 async function loadLevel(levelNumber) {
   let fileData = null;
 
@@ -461,11 +498,9 @@ async function loadLevel(levelNumber) {
     console.warn('Pixelgame level API unavailable, falling back to static JSON:', e);
   }
 
-  if (!fileData) {
-    const response = await fetch(`data/levels/level${levelNumber}.json?v=${Date.now()}`, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`Failed to load level ${levelNumber}`);
-    fileData = await response.json();
-  }
+  // Статические JSON рядом с игрой больше не отдаются наружу: в них
+  // правильные ответы. Уровень — только через API (без ответов).
+  if (!fileData) throw new Error(`Failed to load level ${levelNumber}`);
 
   if (!fileData || !Array.isArray(fileData.chests)) {
     throw new Error(`Invalid level data for level ${levelNumber}`);
@@ -487,34 +522,6 @@ async function loadLevel(levelNumber) {
   state.totalChests = levelData.chests.length;
 }
 
-/**
- * Загружает вопросы для боёв: API сайта → фолбэк на статический JSON
- */
-async function loadMonsterQuestions() {
-  let questionData = null;
-
-  try {
-    const response = await fetch('../../api/pixelgame-questions.php', { cache: 'no-store' });
-    if (response.ok) {
-      const data = await response.json();
-      if (data && Array.isArray(data.questions)) questionData = data;
-    }
-  } catch (e) {
-    console.warn('Pixelgame questions API unavailable, falling back to static JSON:', e);
-  }
-
-  if (!questionData) {
-    const response = await fetch('data/monster-questions.json', { cache: 'no-store' });
-    if (!response.ok) throw new Error('Failed to load monster questions');
-    questionData = await response.json();
-  }
-
-  if (!questionData || !Array.isArray(questionData.questions)) {
-    throw new Error('Invalid monster question data');
-  }
-
-  state.monsterQuestions = questionData.questions;
-}
 
 function getChestContent(index) {
   return state.levelData?.chests?.[index] || null;
@@ -537,9 +544,6 @@ function getLevelFinal() {
   };
 }
 
-function getBattleQuestionPool() {
-  return state.monsterQuestions || [];
-}
 
 function shuffleArray(items) {
   const result=[...items];
@@ -550,29 +554,8 @@ function shuffleArray(items) {
   return result;
 }
 
-function resetBattleQuestionSession() {
-  state.availableMonsterQuestionIds = shuffleArray(
-    getBattleQuestionPool().map(question => question.id)
-  );
-}
 
-function getBattleQuestionById(questionId) {
-  return getBattleQuestionPool().find(question => question.id === questionId) || null;
-}
 
-function getUniqueBattleQuestionForEnemy(enemy) {
-  if (enemy.questionId != null) {
-    return getBattleQuestionById(enemy.questionId);
-  }
-
-  if (!state.availableMonsterQuestionIds.length) {
-    return null;
-  }
-
-  const nextQuestionId = state.availableMonsterQuestionIds.shift();
-  enemy.questionId = nextQuestionId;
-  return getBattleQuestionById(nextQuestionId);
-}
 
 function showNotice(message, header='УВЕДОМЛЕНИЕ', onClose=null) {
   noticeCallback = onClose;
@@ -901,17 +884,6 @@ function drawChests(cam) {
   });
 }
 
-function shuffleOptions(options, correctIndex) {
-  const indexed = options.map((opt, i) => ({ opt, correct: i === correctIndex }));
-  for (let i = indexed.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [indexed[i], indexed[j]] = [indexed[j], indexed[i]];
-  }
-  return {
-    options: indexed.map(x => x.opt),
-    correct: indexed.findIndex(x => x.correct),
-  };
-}
 
 // ВРАГИ
 const AGGRO_RANGE   = TILE * 4.5;  // дистанция агра
@@ -1297,52 +1269,43 @@ function checkInteractions() {
   if(state.score>=state.totalChests&&Math.hypot(cx-(state.finish.x+TILE/2),cy-(state.finish.y+TILE/2))<TILE) triggerFinish();
 }
 
-// СУНДУК
-function openChest(chest) {
-  if(state.openedChests.has(chest.id)) return;
+// СУНДУК — вопрос выдаёт сервер, он же проверяет ответ и начисляет очки
+async function openChest(chest) {
+  if(state.openedChests.has(chest.id) || chest.busy) return;
   state.gameActive=false;
+  chest.busy=true;
   const data=getChestContent(chest.qIdx);
-  if (data && !data.q) {
-    data.q = {
-      text: data.question,
-      code: data.code,
-      options: data.options,
-      correct: data.correct,
-      hint: data.hint
-    };
-  }
+  let q;
+  try { q = await cqApi('chest', { chest: chest.qIdx }); }
+  catch (e) { chest.busy=false; cqServerError(e); return; }
+
   document.getElementById('q-header').textContent='СУНДУК НАЙДЕН!';
-  const question=getChestQuestionText(data);
-  const code=data?.code ?? data?.q?.code ?? '';
-  const options=data?.options ?? data?.q?.options ?? [];
-  const correctIndex=Number.isInteger(data?.correct) ? data.correct : data?.q?.correct;
-  if(!data || !options.length){ state.gameActive=true; return; }
-  document.getElementById('q-text').textContent=question;
-  document.getElementById('q-code').textContent=code;
+  document.getElementById('q-text').textContent=q.text;
+  document.getElementById('q-code').textContent=q.code || '';
   document.getElementById('q-hint').textContent='Ответь правильно — получишь часть кода!';
   const opts=document.getElementById('q-options'); opts.innerHTML='';
-  const shuffled=shuffleOptions(options, correctIndex);
-  const CHEST_PTS=[20,10,5,0];
-  let chestAttempts=0;
-  shuffled.options.forEach((opt,i)=>{
+  const removed=new Set(q.removed || []);
+  q.options.forEach((opt,i)=>{
     const btn=document.createElement('button'); btn.className='q-opt'; btn.textContent=opt;
-    btn.addEventListener('click',()=>{
+    if (removed.has(i)) btn.classList.add('wrong','gone');
+    btn.addEventListener('click', async ()=>{
       opts.querySelectorAll('.q-opt').forEach(b=>b.style.pointerEvents='none');
-      if(i===shuffled.correct){
+      let r;
+      try { r = await cqAnswer('chest_answer', { chest: chest.qIdx, choice: i }); }
+      catch (e) { chest.busy=false; cqServerError(e); return; }
+      if(r.correct){
         Audio.correct();
         btn.classList.add('correct');
-        const earned=CHEST_PTS[Math.min(chestAttempts,3)];
-        state.pts+=earned;
-        document.getElementById('q-hint').textContent=earned>0?`Верно! +${earned} очков`:'Верно!';
+        state.pts=r.pts;
+        document.getElementById('q-hint').textContent=r.points>0?`Верно! +${r.points} очков`:'Верно!';
         setTimeout(()=>{
-          chest.open=true; state.openedChests.add(chest.id); state.score++;
+          chest.open=true; chest.busy=false; state.openedChests.add(chest.id); state.score++;
           state.inventory.push({...data.reward,idx:chest.qIdx});
           Audio.pickup();
           updateHUD(); updateInventory(); hideDialog('dialog-question'); state.gameActive=true;
         },700);
       } else {
         Audio.wrong();
-        chestAttempts++;
         loseHP(1);
         btn.classList.add('wrong');
         if(state.hp<=0){
@@ -1352,7 +1315,7 @@ function openChest(chest) {
         document.getElementById('q-hint').textContent='Неверно. −1 HP. Попробуй ещё раз.';
         setTimeout(()=>{
           btn.classList.add('gone');
-          opts.querySelectorAll('.q-opt').forEach(b=>b.style.pointerEvents='auto');
+          opts.querySelectorAll('.q-opt').forEach(b=>{ if(!b.classList.contains('gone')) b.style.pointerEvents='auto'; });
         },500);
       }
     }); opts.appendChild(btn);
@@ -1360,48 +1323,19 @@ function openChest(chest) {
   Audio.chest(); document.getElementById('dialog-question').classList.remove('hidden');
 }
 
-// БИТВА
-function startBattle(enemy) {
-  if(state.defeatedEnemies.has(enemy.id)) return;
-  state.gameActive=false; state.invincible=1000;
-  const q=getUniqueBattleQuestionForEnemy(enemy);
-  if (!q) {
-    state.gameActive=true;
-    return;
-  }
-  const names=['ГЛИТЧ','ГЛИТЧ','ГЛИТЧ'];
-  document.getElementById('battle-enemy-sprite').textContent='';
-  document.getElementById('b-text').textContent=`${names[enemy.type]} атакует! ${q.text}`;
-  document.getElementById('b-code').textContent=q.code||'';
-  document.getElementById('b-hint').textContent='Ответь правильно, чтобы победить врага.';
-  const opts=document.getElementById('b-options'); opts.innerHTML='';
-  q.options.forEach((opt,i)=>{
-    const btn=document.createElement('button'); btn.className='q-opt'; btn.textContent=opt;
-    btn.addEventListener('click',()=>{
-      opts.querySelectorAll('.q-opt').forEach(b=>b.style.pointerEvents='none');
-      if(i===q.correct){
-        btn.classList.add('correct');
-        Audio.correct();
-        document.getElementById('b-hint').textContent='Победа! '+q.hint;
-        setTimeout(()=>{enemy.defeated=true;state.defeatedEnemies.add(enemy.id);Audio.kill();hideDialog('dialog-battle');state.gameActive=true;state.invincible=2000;setStatus(names[enemy.type]+' уничтожен!');},900);
-      } else {
-        btn.classList.add('wrong'); Audio.wrong(); opts.querySelectorAll('.q-opt')[q.correct]?.classList.add('correct');
-        document.getElementById('b-hint').textContent='✗ '+q.hint;
-        setTimeout(()=>{hideDialog('dialog-battle');state.gameActive=true;loseHP(1);state.invincible=2500;},1200);
-      }
-    }); opts.appendChild(btn);
-  });
-  document.getElementById('dialog-battle').classList.remove('hidden');
-}
-
-startBattle = function(enemy) {
-  if(state.defeatedEnemies.has(enemy.id)) return;
+// БИТВА — вопрос выдаёт сервер, он же проверяет ответ и начисляет очки
+async function startBattle(enemy) {
+  if(state.defeatedEnemies.has(enemy.id) || enemy.busy) return;
   state.gameActive=false;
   state.invincible=1000;
+  enemy.busy=true;
+  const enemyNo=parseInt(String(enemy.id).replace(/\D/g,''),10);
+
+  let q;
+  try { q = await cqApi('battle', { enemy: enemyNo }); }
+  catch (e) { enemy.busy=false; cqServerError(e); return; }
   state.monsterBattlesTotal++;
 
-  const battleQuestions=getBattleQuestionPool();
-  const q=battleQuestions[Math.floor(Math.random()*battleQuestions.length)];
   const names=['ГЛИТЧ','ГЛИТЧ','ГЛИТЧ'];
   document.getElementById('battle-enemy-sprite').textContent='';
   document.getElementById('b-text').textContent=`${names[enemy.type]} атакует! ${q.text}`;
@@ -1410,29 +1344,31 @@ startBattle = function(enemy) {
 
   const opts=document.getElementById('b-options');
   opts.innerHTML='';
+  const removed=new Set(q.removed || []);
 
-  const BATTLE_PTS=[15,10,5,0];
-  let battleAttempts=0;
-  const shuffledB=shuffleOptions(q.options, q.correct);
-  shuffledB.options.forEach((opt,i)=>{
+  q.options.forEach((opt,i)=>{
     const btn=document.createElement('button');
     btn.className='q-opt';
     btn.textContent=opt;
+    if (removed.has(i)) btn.classList.add('wrong','gone');
 
-    btn.addEventListener('click',()=>{
+    btn.addEventListener('click', async ()=>{
       opts.querySelectorAll('.q-opt').forEach(b=>b.style.pointerEvents='none');
+      let r;
+      try { r = await cqAnswer('battle_answer', { enemy: enemyNo, choice: i }); }
+      catch (e) { enemy.busy=false; cqServerError(e); return; }
 
-      if(i===shuffledB.correct){
+      if(r.correct){
         btn.classList.add('correct');
         Audio.correct();
         state.monsterBattlesWon++;
-        const earned=BATTLE_PTS[Math.min(battleAttempts,3)];
-        state.pts+=earned;
+        state.pts=r.pts;
         updateHUD();
-        document.getElementById('b-hint').textContent=earned>0?`Победа! +${earned} очков`:'Победа!';
+        document.getElementById('b-hint').textContent=r.points>0?`Победа! +${r.points} очков`:'Победа!';
 
         setTimeout(()=>{
           enemy.defeated=true;
+          enemy.busy=false;
           state.defeatedEnemies.add(enemy.id);
           Audio.kill();
           hideDialog('dialog-battle');
@@ -1444,7 +1380,6 @@ startBattle = function(enemy) {
       }
 
       Audio.wrong();
-      battleAttempts++;
       loseHP(1);
       btn.classList.add('wrong');
       document.getElementById('b-hint').textContent='Неверно. −1 HP. Попробуй ещё раз.';
@@ -1456,7 +1391,7 @@ startBattle = function(enemy) {
 
       setTimeout(()=>{
         btn.classList.add('gone');
-        opts.querySelectorAll('.q-opt').forEach(b=>b.style.pointerEvents='auto');
+        opts.querySelectorAll('.q-opt').forEach(b=>{ if(!b.classList.contains('gone')) b.style.pointerEvents='auto'; });
       },500);
     });
 
@@ -1464,7 +1399,7 @@ startBattle = function(enemy) {
   });
 
   document.getElementById('dialog-battle').classList.remove('hidden');
-};
+}
 
 // ЛОВУШКА
 function triggerTrap() {
@@ -1816,23 +1751,18 @@ function runProgram(){
 /**
  * Отправка результата на сервер (очки считает api/score.php)
  */
-function submitPixelgameScore(completed = true) {
+async function submitPixelgameScore(completed = true) {
   if (state.scoreSubmitted) return;
   if (typeof submitScore !== 'function') return; // игра запущена вне сайта
   state.scoreSubmitted = true;
 
-  const elapsedMs = Math.max(0, Date.now() - (state.startedAtMs || Date.now()));
-  submitScore('pixelgame', {
-    level: state.currentLevel,
-    chests_opened: state.score,
-    total_chests: state.totalChests,
-    monster_battles_won: state.monsterBattlesWon,
-    monster_battles_total: state.monsterBattlesTotal,
-    hp_remaining: completed ? state.hp : 0,
-    elapsed_ms: elapsedMs,
-    direct_pts: completed ? state.pts : 0,
-    completed: completed,
-  }).then(res => {
+  // Сначала сервер закрывает партию (победу он засчитает, только если
+  // сам видел все сундуки открытыми), потом записываем итог.
+  // «Партия уже окончена» — сервер уже закрыл её сам (HP кончились).
+  try { await cqApi('finish', { completed: !!completed }); }
+  catch (e) { if (e.message !== 'Партия уже окончена') { console.error(e); return; } }
+
+  submitScore('pixelgame', {}).then(res => {
     if (!res) return;
     refreshPixelgameLeaderboard();
     // Проигрыш пишется в историю с нулём очков — плашку «очки сохранены»
@@ -1898,10 +1828,12 @@ async function startGame() {
   if (!state.levelData || state.levelData.level !== state.currentLevel) {
     await loadLevel(state.currentLevel);
   }
-  if (!state.monsterQuestions) {
-    await loadMonsterQuestions();
-  }
-  resetBattleQuestionSession();
+  // Подписанный ран (античит, общий js/leaderboard.js) и партия на сервере
+  if (typeof pingGame !== 'function') throw new Error('Не загрузился модуль сайта');
+  await pingGame('pixelgame');
+  cqRun = JSON.parse(sessionStorage.getItem('gc_run_pixelgame') || 'null');
+  if (!cqRun || !cqRun.run_id) throw new Error('Сервер не выдал партию');
+  await cqApi('start', { level: state.currentLevel });
   state.hp=state.maxHp; state.score=0; state.inventory=[];
   state.keys={}; state.invincible=0; state.player.slow=0;
   // Сброс метрик
@@ -1910,8 +1842,6 @@ async function startGame() {
   state.monsterBattlesTotal=0;
   state.startedAtMs=Date.now();
   state.scoreSubmitted=false;
-  // Регистрируем игровой ран на сервере (античит-токен, общий js/leaderboard.js)
-  if (typeof pingGame === 'function') pingGame('pixelgame');
    state.gameActive = true;
   cancelAnimationFrame(state.animFrame);
   resizeCanvas(); initMap(); buildTextures();
@@ -2030,10 +1960,7 @@ document.getElementById('btn-gameover-restart').addEventListener('click',async (
   try {
     await startGame();
   } catch (error) {
-    console.error(error);
-    showLoadError('ОШИБКА ЗАГРУЗКИ', 'Не удалось перезапустить уровень из-за ошибки загрузки данных.',
-      `<div style="text-align:left">Попробуй:<ul style="text-align:left;margin-top:6px"><li>Запустить локальный сервер (<code>npx http-server</code> или <code>python -m http.server</code>).</li><li>Проверить файл <strong>data/levels/level${state.currentLevel}.json</strong>.</li></ul></div>`
-    );
+    handleLevelLoadError(state.currentLevel, error);
   }
 });
 document.getElementById('btn-restart').addEventListener('click',()=>{cancelAnimationFrame(state.animFrame);showScreen('menu');

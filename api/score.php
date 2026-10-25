@@ -11,6 +11,9 @@ require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/game_security.php';
 require_once __DIR__ . '/../includes/glitch.php';
 require_once __DIR__ . '/../includes/network.php';
+require_once __DIR__ . '/../includes/millionaire.php';
+require_once __DIR__ . '/../includes/sorter.php';
+require_once __DIR__ . '/../includes/codequest.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -137,138 +140,66 @@ function gc_compute_score(string $gameId, array $payload, int $startedAt = 0, ar
     }
 
     if ($gameId === 'sorter') {
-        if (!gc_require_keys($payload, ['level', 'correct_total', 'errors_total', 'correct_by_level', 'elapsed_ms'])) {
-            return ['ok' => false, 'error' => 'Invalid payload'];
-        }
-
-        // 'lose' — проигрыш: жизни кончились раньше, чем набрана цель.
-        // Очки за уже разобранные блоки всё равно засчитываются.
-        // Старые клиенты поля result не шлют — считаем такой запрос победой.
-        $result = (string)($payload['result'] ?? 'win');
-        if (!in_array($result, ['win', 'lose'], true)) {
-            return ['ok' => false, 'error' => 'Invalid result'];
-        }
-        $level = gc_int($payload['level'], 1, 3, -1);
-        $correctTotal = gc_int($payload['correct_total'], 0, 20, -1);
-        $errorsTotal = gc_int($payload['errors_total'], 0, 3, -1); // 3 = все жизни потрачены (проигрыш)
-        $elapsed = gc_int($payload['elapsed_ms'], 0, 3600_000, -1);
-        if ($level < 0 || $correctTotal < 0 || $errorsTotal < 0 || $elapsed < 0) return ['ok' => false, 'error' => 'Invalid stats'];
-
-        $targets = [1 => 10, 2 => 15, 3 => 20];
-        $lives = 3; // одинаково на всех уровнях; каждая ошибка стоит жизни
-        $target = $targets[$level];
-
-        if ($result === 'win') {
-            // Победа возможна только при полностью набранной цели
-            // и при том, что жизни ещё оставались.
-            if ($correctTotal !== $target) return ['ok' => false, 'error' => 'Invalid correct_total'];
-            if ($errorsTotal >= $lives) return ['ok' => false, 'error' => 'Too many errors'];
-        } else {
-            // Проигрыш наступает ровно тогда, когда потрачены все жизни.
-            // Это условие не даёт «сдаться пораньше» и забрать очки:
-            // без трёх ошибок игра не заканчивается.
-            if ($errorsTotal !== $lives) return ['ok' => false, 'error' => 'Invalid loss state'];
-            if ($correctTotal >= $target) return ['ok' => false, 'error' => 'Loss with target reached'];
-        }
-        if (!is_array($payload['correct_by_level'])) return ['ok' => false, 'error' => 'Invalid correct_by_level'];
-
-        $c1 = gc_int($payload['correct_by_level'][1] ?? $payload['correct_by_level']['1'] ?? 0, 0, $target, -1);
-        $c2 = gc_int($payload['correct_by_level'][2] ?? $payload['correct_by_level']['2'] ?? 0, 0, $target, -1);
-        $c3 = gc_int($payload['correct_by_level'][3] ?? $payload['correct_by_level']['3'] ?? 0, 0, $target, -1);
-        if ($c1 < 0 || $c2 < 0 || $c3 < 0) return ['ok' => false, 'error' => 'Invalid breakdown'];
-        if (($c1 + $c2 + $c3) !== $correctTotal) return ['ok' => false, 'error' => 'Breakdown mismatch'];
-        if ($level === 1 && ($c2 > 0 || $c3 > 0)) return ['ok' => false, 'error' => 'Invalid levels for LVL1'];
-        if ($level === 2 && ($c3 > 0)) return ['ok' => false, 'error' => 'Invalid levels for LVL2'];
-
-        $score = ($c1 * 15) + ($c2 * 20) + ($c3 * 25) - ($errorsTotal * 5);
-        if ($score < 0) $score = 0;
-        $minMs = (int)(($correctTotal + $errorsTotal) * 350);
-        if ($serverElapsed < max(2000, $minMs)) return ['ok' => false, 'error' => 'Too fast'];
-
-        return ['ok' => true, 'score' => $score, 'meta' => [
-            'level' => $level,
-            'result' => $result,
-            'correct_total' => $correctTotal,
-            'errors_total' => $errorsTotal,
-            'correct_by_level' => ['1' => $c1, '2' => $c2, '3' => $c3],
-            'elapsed_ms' => $serverElapsed,
+        // «Сортировщик» ведёт сервер (api/sorter.php): каждый блок проверен
+        // там же. Из payload браузера не берётся ничего.
+        $st = $run['sorter'] ?? null;
+        if (!is_array($st)) return ['ok' => false, 'error' => 'Run not started'];
+        if (empty($st['finished'])) return ['ok' => false, 'error' => 'Run not finished'];
+        $answered = (int)$st['correct'] + (int)$st['errors'];
+        // Каждый блок — не меньше 0.35 с до ответа и 0.4 с до следующего
+        if ($answered > 0 && $serverElapsed < (int)($answered * 750)) return ['ok' => false, 'error' => 'Too fast'];
+        $bl = (array)$st['by_level'];
+        return ['ok' => true, 'score' => max(0, (int)$st['score']), 'meta' => [
+            'level'            => (int)$st['level'],
+            'result'           => !empty($st['won']) ? 'win' : 'lose',
+            'correct_total'    => (int)$st['correct'],
+            'errors_total'     => (int)$st['errors'],
+            'correct_by_level' => ['1' => (int)($bl['1'] ?? 0), '2' => (int)($bl['2'] ?? 0), '3' => (int)($bl['3'] ?? 0)],
+            'elapsed_ms'       => $serverElapsed,
         ]];
     }
 
     if ($gameId === 'millionaire') {
-        if (!gc_require_keys($payload, ['reached', 'won', 'elapsed_ms'])) {
-            return ['ok' => false, 'error' => 'Invalid payload'];
-        }
-        $reached = gc_int($payload['reached'], 1, 15, -1);
-        $won = (bool)$payload['won'];
-        $elapsed = gc_int($payload['elapsed_ms'], 0, 7200_000, -1);
-        if ($reached < 0 || $elapsed < 0) return ['ok' => false, 'error' => 'Invalid stats'];
-
-        if ($won) {
-            if ($reached !== 15) return ['ok' => false, 'error' => 'Win mismatch'];
-            $score = 1000;
-        } else {
-            $score = ($reached >= 10) ? 320 : (($reached >= 5) ? 10 : 0);
-        }
-
-        if ($serverElapsed < $reached * 1200) return ['ok' => false, 'error' => 'Too fast'];
-        return ['ok' => true, 'score' => $score, 'meta' => ['reached' => $reached, 'won' => $won, 'elapsed_ms' => $serverElapsed]];
+        // «Миллионера» ведёт сервер (api/millionaire.php): вопросы, ответы
+        // и подсказки — там. Из payload браузера не берётся ничего.
+        $m = $run['millionaire'] ?? null;
+        if (!is_array($m)) return ['ok' => false, 'error' => 'Run not started'];
+        if (empty($m['finished'])) return ['ok' => false, 'error' => 'Run not finished'];
+        $answered = (int)$m['right'] + (int)$m['wrong'];
+        // Каждый ответ сервер принимает не раньше чем через 0.8 с после выдачи,
+        // плюс анимация «думаем» и пояснение — честная партия длится дольше.
+        if ($answered > 0 && $serverElapsed < (int)($answered * 1500)) return ['ok' => false, 'error' => 'Too fast'];
+        $score = mil_score($m);
+        return ['ok' => true, 'score' => $score, 'meta' => [
+            'reached'    => min(MIL_TOTAL, (int)$m['right'] + (empty($m['won']) ? 1 : 0)),
+            'won'        => !empty($m['won']),
+            'correct'    => (int)$m['right'],
+            'elapsed_ms' => $serverElapsed,
+        ]];
     }
 
     if ($gameId === 'pixelgame') {
-        if (!gc_require_keys($payload, [
-            'level', 'chests_opened', 'total_chests',
-            'monster_battles_won', 'monster_battles_total', 'hp_remaining',
-            'elapsed_ms', 'direct_pts', 'completed',
-        ])) {
-            return ['ok' => false, 'error' => 'Invalid payload'];
-        }
-
-        $level      = gc_int($payload['level'], 1, 4, -1);
-        $chests     = gc_int($payload['chests_opened'], 0, 5, -1);
-        $total      = gc_int($payload['total_chests'], 1, 5, -1);
-        $battlesWon = gc_int($payload['monster_battles_won'], 0, 6, -1);  // max 6 врагов на карте
-        $battlesAll = gc_int($payload['monster_battles_total'], 0, 100, -1);
-        $hp         = gc_int($payload['hp_remaining'], 0, 5, -1); // 0 = игрок погиб (проигрыш)
-        $elapsed    = gc_int($payload['elapsed_ms'], 0, 7200_000, -1);
-        $directPts  = gc_int($payload['direct_pts'], 0, 99999, -1);
-        $completed  = $payload['completed'] === true;
-
-        if ($level < 0 || $chests < 0 || $total < 0
-            || $battlesWon < 0 || $battlesAll < 0 || $hp < 0 || $elapsed < 0 || $directPts < 0) {
-            return ['ok' => false, 'error' => 'Invalid stats'];
-        }
-        if ($battlesWon > $battlesAll) return ['ok' => false, 'error' => 'Battles mismatch'];
-
-        if (!$completed) {
-            // Проигрыш: HP кончились, уровень не пройден. Пишем попытку в историю
-            // с нулём очков. Проверку времени здесь не делаем — умереть можно быстро,
-            // а накрутить нечего: за проигрыш начисляется ровно 0.
-            if ($hp !== 0) return ['ok' => false, 'error' => 'Invalid loss state'];
-            $score = 0;
-        } else {
-            // Очки только за победу: уровень пройден, все сундуки собраны, игрок жив
-            if ($hp < 1) return ['ok' => false, 'error' => 'Invalid win state'];
-            if ($chests !== $total) return ['ok' => false, 'error' => 'Chests mismatch'];
-            $minMs = max(15000, $total * 4000 + $battlesAll * 2000);
+        // CodeQuest ведёт сервер (api/pixelgame.php): каждый ответ сундука и
+        // боя проверен там же, там же начислены очки. Из payload не берётся ничего.
+        $g = $run['pixelgame'] ?? null;
+        if (!is_array($g)) return ['ok' => false, 'error' => 'Run not started'];
+        if (empty($g['finished'])) return ['ok' => false, 'error' => 'Run not finished'];
+        $battles = count((array)$g['battles']);
+        if (!empty($g['won'])) {
+            // Пройти лабиринт с сундуками и врагами быстрее нельзя
+            $minMs = max(15000, (int)$g['total_chests'] * 4000 + $battles * 2000);
             if ($serverElapsed < $minMs) return ['ok' => false, 'error' => 'Too fast'];
-
-            // Cap очков: только победные битвы дают очки (battlesWon, не battlesAll)
-            // Это закрывает вектор: накрутить battlesAll чтобы раздуть разрешённый максимум
-            $maxPossible = ($total * 20) + ($battlesWon * 15);
-            $score = max(0, min($directPts, $maxPossible));
         }
-
-        return ['ok' => true, 'score' => $score, 'meta' => [
-            'level' => $level,
-            'result' => $completed ? 'win' : 'lose',
-            'chests_opened' => $chests,
-            'total_chests' => $total,
-            'monster_battles_won' => $battlesWon,
-            'monster_battles_total' => $battlesAll,
-            'hp_remaining' => $hp,
-            'elapsed_ms' => $serverElapsed,
-            'direct_pts' => $directPts,
+        return ['ok' => true, 'score' => cq_score($g), 'meta' => [
+            'level'                 => (int)$g['level'],
+            'result'                => !empty($g['won']) ? 'win' : 'lose',
+            'chests_opened'         => (int)$g['opened'],
+            'total_chests'          => (int)$g['total_chests'],
+            'monster_battles_won'   => (int)$g['battles_won'],
+            'monster_battles_total' => $battles,
+            'hp_remaining'          => (int)$g['hp'],
+            'elapsed_ms'            => $serverElapsed,
+            'direct_pts'            => (int)$g['pts'],
         ]];
     }
 

@@ -8,13 +8,17 @@
  * обрабатывает оба источника).
  *
  * Источник: Redis-кэш → PostgreSQL → JSON-фолбэк (cached_read_pixelgame_level).
+ *
+ * Игроку уровень отдаётся БЕЗ правильных ответов: вопросы сундуков
+ * проверяет сервер (api/pixelgame.php). Полные данные — только
+ * вошедшему в админку: они нужны редактору уровней.
  */
 
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
 header('Cache-Control: no-store');
 
-require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/codequest.php';
 
 $level = (int)($_GET['level'] ?? 0);
 if ($level < 1 || $level > 100) {
@@ -30,4 +34,5 @@ if (!is_array($data) || empty($data)) {
     exit;
 }
 
-echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+$isAdmin = !empty($_SESSION['gc_admin_auth']);
+echo json_encode($isAdmin ? $data : cq_public_level($data), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

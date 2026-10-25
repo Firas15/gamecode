@@ -221,111 +221,34 @@ const LEVELS = [
   { id: 3, name: 'ЭКСПЕРТ', cssClass: 'l3', stars: '★★★', desc: 'Продвинутый',      speed: 130, target: 20, maxErrors: 3, lives: 3, allowedLevels: [1, 2, 3] },
 ];
 
-// Каждое понятие:
-//   text     — текст на падающем блоке
-//   category — id категории (должен совпадать с CATEGORIES)
-//   hint     — подсказка, показывается при ошибке
-//   level    — сложность: 1 = лёгкий, 2 = средний, 3 = сложный
-const CONCEPTS = [
-  // ── Функции (уровень 1) ──────────────────────────────
-  { text: 'print()',    category: 'functions',  hint: 'print() — выводит данные на экран',           level: 1 },
-  { text: 'len()',      category: 'functions',  hint: 'len() — возвращает длину объекта',            level: 1 },
-  { text: 'input()',    category: 'functions',  hint: 'input() — получает ввод от пользователя',     level: 1 },
-  { text: 'range()',    category: 'functions',  hint: 'range() — генерирует последовательность чисел', level: 1 },
-  { text: 'int()',      category: 'functions',  hint: 'int() — преобразует значение в целое число',  level: 1 },
-  { text: 'str()',      category: 'functions',  hint: 'str() — преобразует значение в строку',       level: 1 },
-  // ── Функции (уровень 2) ──────────────────────────────
-  { text: 'type()',     category: 'functions',  hint: 'type() — возвращает тип объекта',             level: 2 },
-  { text: 'list()',     category: 'functions',  hint: 'list() — создаёт список',                     level: 2 },
-  { text: 'sum()',      category: 'functions',  hint: 'sum() — сумма всех элементов',                level: 2 },
-  { text: 'max()',      category: 'functions',  hint: 'max() — наибольшее значение',                 level: 2 },
-  { text: 'min()',      category: 'functions',  hint: 'min() — наименьшее значение',                 level: 2 },
-  // ── Функции (уровень 3) ──────────────────────────────
-  { text: 'sorted()',   category: 'functions',  hint: 'sorted() — возвращает отсортированный список', level: 3 },
-  { text: 'enumerate()',category: 'functions',  hint: 'enumerate() — добавляет счётчик к итерируемому', level: 3 },
-  { text: 'zip()',      category: 'functions',  hint: 'zip() — объединяет несколько итерируемых',    level: 3 },
-  { text: 'map()',      category: 'functions',  hint: 'map() — применяет функцию к каждому элементу', level: 3 },
-  { text: 'filter()',   category: 'functions',  hint: 'filter() — отбирает элементы по условию',       level: 3 },
-  { text: 'round()',    category: 'functions',  hint: 'round() — округляет число до нужной точности',  level: 2 },
-  { text: 'abs()',      category: 'functions',  hint: 'abs() — возвращает модуль числа',               level: 2 },
-  { text: 'any()',      category: 'functions',  hint: 'any() — True, если хотя бы один элемент истинен', level: 3 },
-  { text: 'all()',      category: 'functions',  hint: 'all() — True, если все элементы истинны',       level: 3 },
+// Понятия (текст, правильная корзина, подсказка) знает только сервер:
+// includes/sorter_concepts.php. Браузер получает текст блока, сообщает,
+// куда его бросили, и узнаёт результат — см. api/sorter.php.
+const API = '../../api/sorter.php';
+let run = null;   // { run_id, run_token } — выдаёт api/ping-game.php
 
-  // ── Операторы (уровень 1) ────────────────────────────
-  { text: '+',          category: 'operators',  hint: '+ — сложение или конкатенация строк',         level: 1 },
-  { text: '-',          category: 'operators',  hint: '- — вычитание',                               level: 1 },
-  { text: '*',          category: 'operators',  hint: '* — умножение',                               level: 1 },
-  { text: '/',          category: 'operators',  hint: '/ — деление (результат всегда float)',         level: 1 },
-  { text: '==',         category: 'operators',  hint: '== — проверка на равенство',                  level: 1 },
-  { text: '=',          category: 'operators',  hint: '= — присваивание значения переменной',        level: 1 },
-  // ── Операторы (уровень 2) ────────────────────────────
-  { text: '//',         category: 'operators',  hint: '// — целочисленное деление (без остатка)',     level: 2 },
-  { text: '%',          category: 'operators',  hint: '% — остаток от деления',                      level: 2 },
-  { text: '**',         category: 'operators',  hint: '** — возведение в степень',                   level: 2 },
-  { text: '!=',         category: 'operators',  hint: '!= — не равно',                               level: 2 },
-  { text: '+=',         category: 'operators',  hint: '+= — сложение с присваиванием (x += 1)',      level: 2 },
-  // ── Операторы (уровень 3) ────────────────────────────
-  { text: 'in',         category: 'operators',  hint: 'in — проверяет вхождение в коллекцию',        level: 3 },
-  { text: 'not in',     category: 'operators',  hint: 'not in — проверяет отсутствие в коллекции',   level: 3 },
-  { text: 'is',         category: 'operators',  hint: 'is — проверяет идентичность объектов',        level: 3 },
-  { text: 'is not',     category: 'operators',  hint: 'is not — проверяет, что объекты не идентичны', level: 3 },
-  { text: '<=',         category: 'operators',  hint: '<= — меньше или равно',                        level: 1 },
-  { text: '>=',         category: 'operators',  hint: '>= — больше или равно',                         level: 1 },
-  { text: '*=',         category: 'operators',  hint: '*= — умножение с присваиванием (x *= 2)',      level: 2 },
-  { text: '/=',         category: 'operators',  hint: '/= — деление с присваиванием (x /= 2)',        level: 2 },
+async function api(action, extra) {
+  if (!run) throw new Error('Партия не начата');
+  const res = await fetch(API, {
+    method: 'POST', credentials: 'same-origin', cache: 'no-store',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(Object.assign({ action, run_id: run.run_id, run_token: run.run_token }, extra || {})),
+  });
+  let data = null;
+  try { data = await res.json(); } catch (e) { /* не JSON */ }
+  if (!res.ok || !data || data.ok !== true) throw new Error((data && data.error) || ('HTTP ' + res.status));
+  return data;
+}
 
-  // ── Типы данных (уровень 1) ──────────────────────────
-  { text: 'int',        category: 'data_types', hint: 'int — целое число, например: 42',             level: 1 },
-  { text: 'float',      category: 'data_types', hint: 'float — число с точкой, например: 3.14',      level: 1 },
-  { text: 'str',        category: 'data_types', hint: 'str — строка, например: "Hello"',             level: 1 },
-  { text: 'bool',       category: 'data_types', hint: 'bool — логический тип: True или False',       level: 1 },
-  { text: 'list',       category: 'data_types', hint: 'list — изменяемый список: [1, 2, 3]',         level: 1 },
-  { text: 'True',       category: 'data_types', hint: 'True — булево значение «истина»',              level: 1 },
-  { text: 'False',      category: 'data_types', hint: 'False — булево значение «ложь»',               level: 1 },
-  // ── Типы данных (уровень 2) ──────────────────────────
-  { text: 'tuple',      category: 'data_types', hint: 'tuple — неизменяемый кортеж: (1, 2, 3)',      level: 2 },
-  { text: 'dict',       category: 'data_types', hint: 'dict — словарь пар ключ–значение: {"a": 1}',  level: 2 },
-  { text: 'set',        category: 'data_types', hint: 'set — множество уникальных элементов',        level: 2 },
-  { text: 'None',       category: 'data_types', hint: 'None — отсутствие значения',                  level: 2 },
-  // ── Типы данных (уровень 3) ──────────────────────────
-  { text: 'complex',    category: 'data_types', hint: 'complex — комплексное число: 3+4j',           level: 3 },
-  { text: 'frozenset',  category: 'data_types', hint: 'frozenset — неизменяемое множество',          level: 3 },
-  { text: 'bytes',      category: 'data_types', hint: 'bytes — последовательность байтов',           level: 3 },
-  { text: 'bytearray',  category: 'data_types', hint: 'bytearray — изменяемая последовательность байтов', level: 3 },
-  { text: 'memoryview', category: 'data_types', hint: 'memoryview — доступ к буферу без копирования', level: 3 },
-
-  // ── Циклы (уровень 1) ────────────────────────────────
-  { text: 'for',              category: 'loops', hint: 'for — цикл перебора элементов',              level: 1 },
-  { text: 'while',            category: 'loops', hint: 'while — цикл, пока условие истинно',         level: 1 },
-  { text: 'for i in range():', category: 'loops', hint: 'for i in range() — цикл со счётчиком',      level: 1 },
-  { text: 'for x in list:',   category: 'loops', hint: 'for x in list: — перебор элементов списка',  level: 1 },
-  // ── Циклы (уровень 2) ────────────────────────────────
-  { text: 'break',      category: 'loops',      hint: 'break — выход из цикла',                      level: 2 },
-  { text: 'continue',   category: 'loops',      hint: 'continue — пропуск текущей итерации',         level: 2 },
-  { text: 'pass',       category: 'loops',      hint: 'pass — заглушка, ничего не делает',           level: 2 },
-  { text: 'else in loop', category: 'loops',    hint: 'else в цикле — выполняется, если цикл не прерван break', level: 3 },
-  // ── Циклы (уровень 3) ────────────────────────────────
-  { text: 'while True:', category: 'loops',     hint: 'while True: — бесконечный цикл, прервать break', level: 3 },
-  { text: 'for k,v in d.items():', category: 'loops', hint: 'перебор пар ключ–значение словаря',     level: 3 },
-  { text: 'for i, x in enumerate(list):', category: 'loops', hint: 'перебор списка с индексом и значением', level: 2 },
-
-  // ── Условия (уровень 1) ──────────────────────────────
-  { text: 'if',         category: 'conditions', hint: 'if — условное выполнение блока',              level: 1 },
-  { text: 'else',       category: 'conditions', hint: 'else — блок при ложном условии',              level: 1 },
-  { text: 'elif',       category: 'conditions', hint: 'elif — дополнительное условие (else if)',      level: 1 },
-  { text: 'and',        category: 'conditions', hint: 'and — логическое «и»: оба условия должны быть истинны', level: 1 },
-  { text: 'or',         category: 'conditions', hint: 'or — логическое «или»: хотя бы одно истинно', level: 1 },
-  // ── Условия (уровень 2) ──────────────────────────────
-  { text: 'not',        category: 'conditions', hint: 'not — инвертирует булево значение',           level: 2 },
-  { text: 'if x > 0:',  category: 'conditions', hint: 'пример условной конструкции',                 level: 2 },
-  { text: 'if x in arr:', category: 'conditions', hint: 'проверка, что элемент содержится в коллекции', level: 2 },
-  { text: 'if x is None:', category: 'conditions', hint: 'проверка, что переменная не содержит значение', level: 2 },
-  // ── Условия (уровень 3) ──────────────────────────────
-  { text: 'try/except', category: 'conditions', hint: 'try/except — обработка исключений (ошибок)',  level: 3 },
-  { text: 'match/case', category: 'conditions', hint: 'match/case — сопоставление с образцом (Python 3.10+)', level: 3 },
-  { text: 'try/except/finally', category: 'conditions', hint: 'finally — блок, который выполнится всегда', level: 3 },
-  { text: 'if ... else ...', category: 'conditions', hint: 'тернарный оператор: value_if_true if cond else value_if_false', level: 3 },
-];
+function serverError(e) {
+  console.error(e);
+  cancelAnimationFrame(game.animFrameId);
+  clearTimeout(game.spawnTimerId);
+  removeCurrentBlock();
+  game.over = true;
+  showToast('err', '✗ Нет связи с сервером', 'Партия прервана — попробуй ещё раз');
+  showScreen('s-menu');
+}
 
 
 /* 5. ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ */
@@ -428,11 +351,27 @@ function initMenu() {
 
 let game = {};
 
-function startLevel(levelId) {
+let starting = false;
+
+async function startLevel(levelId) {
+  if (starting) return;
   const levelData = LEVELS.find(l => l.id === levelId);
 
-  // Берём только понятия нужной сложности
-  const availableConcepts = CONCEPTS.filter(c => levelData.allowedLevels.includes(c.level));
+  // Партию ведёт сервер: подписанный ран + старт уровня
+  starting = true;
+  try {
+    if (typeof pingGame !== 'function') throw new Error('не загрузился модуль сайта');
+    await pingGame('sorter');
+    run = JSON.parse(sessionStorage.getItem('gc_run_sorter') || 'null');
+    if (!run || !run.run_id) throw new Error('сервер не выдал партию');
+    await api('start', { level: levelId });
+  } catch (e) {
+    starting = false;
+    run = null;
+    showToast('err', '✗ Не получилось начать игру', e.message);
+    return;
+  }
+  starting = false;
 
   // Сбрасываем состояние в начальное
   game = {
@@ -443,13 +382,13 @@ function startLevel(levelId) {
     lives:      levelData.lives,
     errorLog:   [],      // список ошибок для экрана результатов
     paused:     false,
-    pool:       shuffle(availableConcepts), // перемешанный список понятий
-    startedAtMs: Date.now(),
-    correctByLevel: { 1: 0, 2: 0, 3: 0 },
+    over:       false,   // партия окончена (решил сервер)
+    answering:  false,   // ответ по текущему блоку уже ушёл на сервер
+    spawning:   false,   // ждём следующий блок от сервера
 
     // Текущий падающий блок
     blockElement: null,  // DOM-элемент блока
-    currentConcept: null,// объект понятия из CONCEPTS
+    currentConcept: null,// { index, text } — от сервера
 
     // Координаты блока
     blockX: 0,
@@ -469,7 +408,6 @@ function startLevel(levelId) {
   buildBaskets();
   refreshHUD();
   showScreen('s-game');
-  pingGame('sorter');
   spawnBlock();
 }
 
@@ -506,14 +444,32 @@ function buildBaskets() {
 
 /* 10. ПАДАЮЩИЙ БЛОК */
 
-function spawnBlock() {
+async function spawnBlock() {
   // Не создаём блок если пауза или игра не идёт
-  if (game.paused || !game.pool.length) return;
+  if (game.paused || game.over || game.spawning) return;
 
   removeCurrentBlock();
 
-  // Берём следующее понятие из перемешанного пула (без повторов в сессии)
-  game.currentConcept = game.pool.pop();
+  // Следующее понятие выдаёт сервер — только текст, без корзины
+  game.spawning = true;
+  let next;
+  try { next = await api('next'); }
+  catch (e) {
+    game.spawning = false;
+    // Сервер просит подождать — повторим чуть позже
+    if (e.message === 'Слишком рано') { game.spawnTimerId = setTimeout(spawnBlock, 300); return; }
+    serverError(e); return;
+  }
+  game.spawning = false;
+  if (game.over || !document.getElementById('s-game') || document.getElementById('s-game').classList.contains('out')) return;
+  if (next.empty) { finishGame(next.won ? 'win' : 'lose'); return; }
+  if (game.paused) { game.pendingConcept = next; return; }
+  showBlock(next);
+}
+
+function showBlock(concept) {
+  game.currentConcept = concept;
+  game.answering = false;
 
   // Случайная горизонтальная позиция
   const fieldWidth = document.getElementById('field').clientWidth;
@@ -523,7 +479,7 @@ function spawnBlock() {
   // Создаём DOM-элемент блока
   const block = document.createElement('div');
   block.className   = 'block';
-  block.textContent = game.currentConcept.text;
+  block.textContent = concept.text;
   block.style.left  = game.blockX + 'px';
   block.style.top   = game.blockY + 'px';
   block.draggable   = false;
@@ -557,9 +513,9 @@ function animateFall(timestamp) {
   const fieldHeight = document.getElementById('field').clientHeight;
 
   if (game.blockY > fieldHeight) {
-    // Блок выпал за нижний край — это ошибка
+    // Блок выпал за нижний край — это ошибка (засчитывает сервер)
     playSoundMissed();
-    handleMistake(game.currentConcept, true);
+    submitAnswer(null, null);
   } else {
     // Запрашиваем следующий кадр
     game.animFrameId = requestAnimationFrame(animateFall);
@@ -645,22 +601,40 @@ function handleDrop(categoryId, basketElement) {
 
   cancelAnimationFrame(game.animFrameId);
   game.isDragging = false;
+  submitAnswer(categoryId, basketElement);
+}
 
-  if (game.currentConcept.category === categoryId) {
-    handleCorrect(game.currentConcept, categoryId, basketElement);
-  } else {
-    handleMistake(game.currentConcept, false);
-  }
+// Куда брошен блок (null — упал), сообщаем серверу; он решает, верно ли
+async function submitAnswer(categoryId, basketElement) {
+  const concept = game.currentConcept;
+  if (!concept || game.answering) return;
+  game.answering = true;
+  cancelAnimationFrame(game.animFrameId);
+  if (game.blockElement) game.blockElement.style.visibility = 'hidden';
+
+  let r;
+  const send = () => api('answer', { index: concept.index, category: categoryId });
+  try {
+    try { r = await send(); }
+    catch (e) {
+      // Совсем мгновенный бросок сервер просит повторить чуть позже
+      if (e.message !== 'Слишком рано') throw e;
+      await new Promise(res => setTimeout(res, 400));
+      r = await send();
+    }
+  } catch (e) { serverError(e); return; }
+
+  game.score   = r.score;
+  game.correct = r.correct_count;
+  game.errors  = r.errors;
+  const info = { text: r.text, hint: r.hint, level: r.level, points: r.points };
+  if (r.correct) handleCorrect(info, categoryId, basketElement, r);
+  else handleMistake(info, !!r.missed && categoryId === null, r);
 }
 
 // Правильный ответ
-function handleCorrect(concept, categoryId, basketElement) {
-  game.correct++;
-  game.score += 10 + concept.level * 5; // уровень сложности даёт бонус
-  if (game.correctByLevel && typeof concept.level === 'number') {
-    const lv = concept.level;
-    if (lv === 1 || lv === 2 || lv === 3) game.correctByLevel[lv] = (game.correctByLevel[lv] || 0) + 1;
-  }
+function handleCorrect(concept, categoryId, basketElement, r) {
+  // Счёт и прогресс уже посчитал сервер (submitAnswer)
   playSoundCorrect();
 
   // Обновляем счётчик в корзине
@@ -690,12 +664,13 @@ function handleCorrect(concept, categoryId, basketElement) {
   }
 
   showToast('ok', `✓ ${concept.text}`, concept.hint);
-  showScoreBurst('+' + (10 + concept.level * 5), true);
+  showScoreBurst('+' + concept.points, true);
   removeCurrentBlock();
   refreshHUD();
 
-  // Победа?
-  if (game.correct >= game.level.target) {
+  // Победа? (решил сервер)
+  if (r.finished) {
+    game.over = true;
     playSoundWin();
     setTimeout(() => finishGame('win'), 600);
     return;
@@ -706,9 +681,8 @@ function handleCorrect(concept, categoryId, basketElement) {
 
 // Ошибка (неверная корзина или блок упал)
 // missed = true означает, что блок упал вниз без попытки
-function handleMistake(concept, missed) {
-  game.errors++;
-  game.score = Math.max(0, game.score - 5); // штраф, но не ниже нуля
+function handleMistake(concept, missed, r) {
+  // Штраф и жизни уже посчитал сервер (submitAnswer)
   game.errorLog.push({ text: concept.text, hint: concept.hint });
   playSoundWrong();
 
@@ -720,16 +694,17 @@ function handleMistake(concept, missed) {
   shakeElement(document.querySelector('.hud'));
 
   // Анимируем потерю жизни и уменьшаем счётчик
-  animateHeartLoss(game.lives - 1, game.level.lives);
-  game.lives--;
+  animateHeartLoss(r.lives, game.level.lives);
+  game.lives = r.lives;
 
   removeCurrentBlock();
   refreshHUD();
 
-  // Конец игры?
-  if (game.lives <= 0 || game.errors > game.level.maxErrors) {
+  // Конец игры? (решил сервер)
+  if (r.finished) {
+    game.over = true;
     playSoundGameOver();
-    setTimeout(() => finishGame('lose'), 550);
+    setTimeout(() => finishGame(r.won ? 'win' : 'lose'), 550);
     return;
   }
 
@@ -772,15 +747,8 @@ function finishGame(result) {
   // Отправляем результат и при победе, и при проигрыше:
   // набранные очки засчитываются, даже если жизни кончились раньше цели.
   {
-    const elapsedMs = Math.max(0, Date.now() - (game.startedAtMs || Date.now()));
-    submitScore('sorter', {
-      level: game.level?.id || 1,
-      result: result === 'win' ? 'win' : 'lose',
-      correct_total: game.correct,
-      errors_total: game.errors,
-      correct_by_level: game.correctByLevel || { 1: 0, 2: 0, 3: 0 },
-      elapsed_ms: elapsedMs,
-    }).then(res => {
+    // Итог берётся из партии, которую вёл сервер — payload не нужен
+    submitScore('sorter', {}).then(res => {
       if (!res) return;
       if (typeof res.total_game_score === 'number') {
         showToast('ok', `🏆 Очки добавлены! Всего в игре: ${res.total_game_score}`);
@@ -840,7 +808,12 @@ function togglePause() {
       // Блок на экране — возобновляем падение
       game.lastTimestamp = null;
       game.animFrameId = requestAnimationFrame(animateFall);
-    } else {
+    } else if (game.pendingConcept) {
+      // Блок пришёл с сервера во время паузы — показываем его
+      const c = game.pendingConcept;
+      game.pendingConcept = null;
+      showBlock(c);
+    } else if (!game.answering) {
       // Блока нет — запускаем новый
       game.spawnTimerId = setTimeout(spawnBlock, 400);
     }
@@ -853,6 +826,8 @@ function togglePause() {
 document.getElementById('btn-pause').onclick = () => togglePause();
 
 document.getElementById('btn-esc').onclick = () => {
+  game.over = true;
+  clearTimeout(game.spawnTimerId);
   cancelAnimationFrame(game.animFrameId);
   removeCurrentBlock();
   showScreen('s-menu');
@@ -866,6 +841,8 @@ document.getElementById('btn-retry').onclick = () => {
 };
 
 document.getElementById('btn-menu').onclick = () => {
+  game.over = true;
+  clearTimeout(game.spawnTimerId);
   cancelAnimationFrame(game.animFrameId);
   removeCurrentBlock();
   showScreen('s-menu');
@@ -877,6 +854,8 @@ document.addEventListener('keydown', e => {
     if (!menuScreen.classList.contains('out')) {
       window.location.href = '../../index.html';
     } else {
+      game.over = true;
+      clearTimeout(game.spawnTimerId);
       cancelAnimationFrame(game.animFrameId);
       removeCurrentBlock();
       showScreen('s-menu');

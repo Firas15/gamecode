@@ -1,13 +1,22 @@
 <?php
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/csrf.php';
+require_once dirname(__DIR__) . '/includes/rate_limit.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $login = trim($_POST['login'] ?? '');
-    $pass  = $_POST['password'] ?? '';
-    if ($login === ADMIN_LOGIN && $pass === ADMIN_PASSWORD) {
+    $login = trim((string)($_POST['login'] ?? ''));
+    $pass  = (string)($_POST['password'] ?? '');
+    // Подбор пароля админки: 5 неверных попыток за 15 минут с одного IP
+    $ip = gc_client_ip();
+    $rlBlocked = gc_rl_blocked('admin_ip', $ip, 5);
+    $ok = !$rlBlocked
+        && ADMIN_PASSWORD !== ''
+        && hash_equals((string)ADMIN_LOGIN, $login)
+        && hash_equals((string)ADMIN_PASSWORD, $pass);
+    if ($ok) {
+        gc_rl_clear('admin_ip', $ip);
         // Новый идентификатор сессии на вход: закрывает подмену
         // сессии и заодно выдаёт куку с новыми параметрами
         // (HttpOnly, SameSite) тем, кто уже был залогинен.
@@ -17,7 +26,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: dashboard.php');
         exit;
     }
-    $error = 'Неверный логин или пароль';
+    if ($rlBlocked) {
+        $error = gc_rl_message(gc_rl_wait('admin_ip', $ip));
+    } else {
+        gc_rl_hit('admin_ip', $ip, 900);
+        $error = 'Неверный логин или пароль';
+    }
 }
 if (adminIsLoggedIn()) { header('Location: dashboard.php'); exit; }
 ?>

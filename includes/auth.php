@@ -3,6 +3,7 @@
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/assets.php';
 require_once __DIR__ . '/shop.php';
+require_once __DIR__ . '/rate_limit.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_set_cookie_params(['path' => '/', 'httponly' => true, 'samesite' => 'Lax']);
@@ -74,6 +75,12 @@ function gc_attach_pending_score(int $userId): void {
 function registerUser(string $nickname, string $password, string $confirm, string $secretQuestion = '', string $secretAnswer = ''): array {
     $nickname = trim($nickname);
 
+    // Не больше 10 новых аккаунтов в час с одного IP (каждый получает
+    // приветственные монеты — без лимита их можно было бы фармить)
+    $ip = gc_client_ip();
+    if (gc_rl_blocked('reg_ip', $ip, 10))
+        return ['error' => gc_rl_message(gc_rl_wait('reg_ip', $ip))];
+
     if (strlen($nickname) < 3 || strlen($nickname) > 24)
         return ['error' => 'Никнейм: от 3 до 24 символов'];
     if (!preg_match('/^[a-zA-Z0-9_\-а-яёА-ЯЁ]+$/u', $nickname))
@@ -91,7 +98,9 @@ function registerUser(string $nickname, string $password, string $confirm, strin
 
     $hash = password_hash($password, PASSWORD_DEFAULT);
     $user = createUser($nickname, $hash, trim($secretQuestion), trim($secretAnswer));
+    gc_rl_hit('reg_ip', $ip, 3600);
 
+    session_regenerate_id(true);
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['nickname'] = $user['nickname'];
     gc_shop_grant_welcome((int)$user['id']);
@@ -101,6 +110,13 @@ function registerUser(string $nickname, string $password, string $confirm, strin
 
 function resetPassword(string $nickname, string $secretAnswer, string $newPassword, string $confirmPassword): array {
     $nickname = trim($nickname);
+
+    // Ответ на секретный вопрос подобрать проще пароля, поэтому лимит строже:
+    // 5 неверных ответов в час на аккаунт и 10 в час с одного IP.
+    $ip = gc_client_ip();
+    foreach ([['reset_ip', $ip, 10], ['reset_nick', $nickname, 5]] as [$b, $subj, $lim]) {
+        if (gc_rl_blocked($b, $subj, $lim)) return ['error' => gc_rl_message(gc_rl_wait($b, $subj))];
+    }
 
     if (strlen($newPassword) < 6)
         return ['error' => 'Новый пароль: минимум 6 символов'];
@@ -112,8 +128,12 @@ function resetPassword(string $nickname, string $secretAnswer, string $newPasswo
         return ['error' => 'Пользователь не найден'];
     if (empty($user['secret_question']) || (empty($user['secret_answer_hash']) && empty($user['secret_answer'])))
         return ['error' => 'У этого аккаунта не задан секретный вопрос. Обратитесь к администратору.'];
-    if (!gamecode_secret_answer_matches($user, $secretAnswer))
+    if (!gamecode_secret_answer_matches($user, $secretAnswer)) {
+        gc_rl_hit('reset_ip', $ip, 3600);
+        gc_rl_hit('reset_nick', $nickname, 3600);
         return ['error' => 'Неверный ответ на секретный вопрос'];
+    }
+    gc_rl_clear('reset_nick', $nickname);
 
     $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
     updateUser($user['id'], ['password_hash' => $newHash]);
@@ -122,13 +142,27 @@ function resetPassword(string $nickname, string $secretAnswer, string $newPasswo
 
 function loginUser(string $nickname, string $password): array {
     $nickname = trim($nickname);
+
+    // Подбор пароля: 10 неверных попыток за 15 минут на аккаунт
+    // и 20 с одного IP. Удачный вход обнуляет счётчик аккаунта.
+    $ip = gc_client_ip();
+    foreach ([['login_ip', $ip, 20], ['login_nick', $nickname, 10]] as [$b, $subj, $lim]) {
+        if (gc_rl_blocked($b, $subj, $lim)) return ['error' => gc_rl_message(gc_rl_wait($b, $subj))];
+    }
+
     $user = findUserByNick($nickname);
 
-    if (!$user || !password_verify($password, $user['password_hash']))
+    if (!$user || !password_verify($password, $user['password_hash'])) {
+        gc_rl_hit('login_ip', $ip, 900);
+        gc_rl_hit('login_nick', $nickname, 900);
         return ['error' => 'Неверный никнейм или пароль'];
+    }
     if (!empty($user['banned']))
         return ['error' => 'Account banned'];
 
+    gc_rl_clear('login_nick', $nickname);
+    // Новый идентификатор сессии на вход — защита от подмены сессии
+    session_regenerate_id(true);
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['nickname'] = $user['nickname'];
     gc_attach_pending_score((int)$user['id']);

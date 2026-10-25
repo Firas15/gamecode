@@ -41,7 +41,10 @@ git log --oneline -1 origin/main
 git reset --hard --quiet origin/main
 chmod +x scripts/*.sh docker/entrypoint.sh 2>/dev/null || true
 
-if docker compose --profile https up -d --build web; then
+# --pull: базовый образ php:8.2-apache тоже обновляется — иначе
+# исправления безопасности PHP не приезжают (см. Dockerfile).
+if docker compose --profile https build --pull web \
+   && docker compose --profile https up -d web; then
     echo "$REMOTE" > "$STATE/deployed"
     rm -f "$STATE/failed"
     docker image prune -f >/dev/null 2>&1 || true   # старые безымянные образы, место на диске

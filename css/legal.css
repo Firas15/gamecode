@@ -1,0 +1,57 @@
+/* ============================================================
+   Юридические страницы: политика и согласие (pages/privacy.html,
+   pages/consent.html). Весь текст — пиксельным шрифтом, как на
+   всём сайте; размер и межстрочный интервал подобраны так, чтобы
+   длинный документ оставался читаемым и на телефоне.
+   ============================================================ */
+.page-hero .page-title { font-size: clamp(14px, 3.2vw, 26px); letter-spacing: 3px; word-break: break-word; }
+
+.legal-doc {
+  max-width: 860px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 36px 40px;
+  /* пиксельный шрифт широкий: длинные слова и адреса переносим,
+     иначе на телефоне строка вылезает за экран */
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+.legal-doc .block-title { margin: 34px 0 14px; color: var(--cyan); }
+.legal-doc .block-title:first-of-type { margin-top: 18px; }
+.legal-doc p,
+.legal-doc li {
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  line-height: 2.2;
+  letter-spacing: 0.3px;
+  color: var(--text-main);
+}
+.legal-doc p { margin: 0 0 16px; }
+.legal-doc ul { margin: 0 0 14px; padding-left: 0; list-style: none; }
+.legal-doc li { position: relative; padding-left: 22px; margin-bottom: 10px; }
+.legal-doc li::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 0.85em;
+  width: 7px;
+  height: 7px;
+  background: var(--cyan);
+}
+.legal-doc strong { color: var(--text-bright); font-weight: normal; }
+.legal-doc a { color: var(--cyan); text-decoration: none; border-bottom: 1px dashed rgba(0, 229, 255, 0.5); }
+.legal-doc a:hover { border-bottom-style: solid; }
+.legal-meta {
+  font-family: var(--font-pixel) !important;
+  font-size: 9px !important;
+  letter-spacing: 1px;
+  color: var(--text-dim) !important;
+  margin-bottom: 8px !important;
+}
+
+@media (max-width: 768px) {
+  .legal-doc { padding: 24px 16px; }
+  .legal-doc p,
+  .legal-doc li { font-size: 10px; line-height: 2.1; letter-spacing: 0; }
+  .legal-doc .block-title { margin-top: 28px; }
+}

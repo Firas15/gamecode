@@ -264,8 +264,7 @@ $regDate  = date('d.m.Y', strtotime($user['created_at']));
   <link rel="stylesheet" href="<?= htmlspecialchars(asset_url('../css/auth.css', 'css/auth.css'), ENT_QUOTES, 'UTF-8') ?>"/>
   <link rel="stylesheet" href="<?= htmlspecialchars(asset_url('../css/shop.css', 'css/shop.css'), ENT_QUOTES, 'UTF-8') ?>"/>
   <link rel="stylesheet" href="../css/mobile.css"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/fonts.css"/>
   <script>window.AUTH_ROOT = '../';</script>
 </head>
 <body>
@@ -742,6 +741,7 @@ $regDate  = date('d.m.Y', strtotime($user['created_at']));
     <div class="gc-footer-row">
       <a class="gc-footer-soc gc-footer-soc--tg" href="https://t.me/gamecodeproject" target="_blank" rel="noopener">Telegram</a>
       <a class="gc-footer-soc gc-footer-soc--vk" href="https://vk.ru/club238066032" target="_blank" rel="noopener">ВКонтакте</a>
+      <a class="gc-footer-soc gc-footer-soc--mail" href="mailto:gamecodepixel@mail.ru" title="gamecodepixel@mail.ru">Почта</a>
       <span class="gc-footer-sep" aria-hidden="true"></span>
       <a class="gc-footer-partner" href="https://itgorky.ru/" target="_blank" rel="noopener" title="ITGorky — ИТ-карта Нижнего Новгорода. Партнёр проекта">
         <img src="../img/itgorky-mascot.png" alt="" width="70" height="36" loading="lazy"/>
@@ -750,8 +750,8 @@ $regDate  = date('d.m.Y', strtotime($user['created_at']));
     </div>
     <div class="gc-footer-legal">
       <span>© 2026 GAMECODE</span>
-      <span class="gc-footer-doc" title="Скоро">Политика конфиденциальности</span>
-      <span class="gc-footer-doc" title="Скоро">Согласие на обработку данных</span>
+      <a class="gc-footer-doc" href="../pages/privacy.html">Политика конфиденциальности</a>
+      <a class="gc-footer-doc" href="../pages/consent.html">Согласие на обработку данных</a>
     </div>
   </footer>
 

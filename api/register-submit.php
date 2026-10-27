@@ -16,7 +16,7 @@ $confirm  = $_POST['confirm'] ?? '';
 $question = $_POST['secret_question'] ?? '';
 $answer   = $_POST['secret_answer'] ?? '';
 
-$result = registerUser($nick, $pass, $confirm, $question, $answer);
+$result = registerUser($nick, $pass, $confirm, $question, $answer, !empty($_POST['consent']), !empty($_POST['age_ok']));
 
 if (isset($result['ok'])) {
     echo json_encode(['ok' => true, 'redirect' => 'profile.php?new=1']);

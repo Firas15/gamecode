@@ -72,8 +72,18 @@ function gc_attach_pending_score(int $userId): void {
     }
 }
 
-function registerUser(string $nickname, string $password, string $confirm, string $secretQuestion = '', string $secretAnswer = ''): array {
+// Редакция текста согласия (pages/consent.html). Меняется — меняем и дату.
+const GC_CONSENT_VERSION = '2026-10-27';
+
+function registerUser(string $nickname, string $password, string $confirm, string $secretQuestion = '', string $secretAnswer = '', bool $consent = false, bool $ageOk = false): array {
     $nickname = trim($nickname);
+
+    // Согласие на обработку персональных данных — отдельной галочкой,
+    // не отмеченной заранее (152-ФЗ). Без него аккаунт не создаём.
+    if (!$consent)
+        return ['error' => 'Отметь согласие на обработку персональных данных'];
+    if (!$ageOk)
+        return ['error' => 'Подтверди, что тебе есть 14 лет или согласие дал родитель'];
 
     // Не больше 10 новых аккаунтов в час с одного IP (каждый получает
     // приветственные монеты — без лимита их можно было бы фармить)
@@ -99,6 +109,11 @@ function registerUser(string $nickname, string $password, string $confirm, strin
     $hash = password_hash($password, PASSWORD_DEFAULT);
     $user = createUser($nickname, $hash, trim($secretQuestion), trim($secretAnswer));
     gc_rl_hit('reg_ip', $ip, 3600);
+    // Когда и в какой редакции дано согласие — на случай вопросов
+    gamecode_pg_exec(
+        'UPDATE users SET consent_at = NOW(), consent_version = $2 WHERE id = $1',
+        [(int)$user['id'], GC_CONSENT_VERSION]
+    );
 
     session_regenerate_id(true);
     $_SESSION['user_id'] = $user['id'];

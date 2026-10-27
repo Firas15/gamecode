@@ -614,3 +614,17 @@
   .gc-balance { font-size: 8px; padding: 7px 7px; gap: 5px; border-width: 1px; }
   .gc-coin { width: 14px; height: 14px; }
 }
+
+/* Согласие на обработку ПД в регистрации: две отдельные галочки,
+   по умолчанию не отмечены. Текст длиннее обычной подписи —
+   крупнее и с переносами, галочка прижата к первой строке. */
+.auth-consent { display: flex; flex-direction: column; gap: 14px; margin-top: 2px; }
+.auth-consent-label {
+  align-items: flex-start;
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  line-height: 1.9;
+  color: var(--text-main);
+}
+.auth-consent-label .auth-checkbox-custom { margin-top: 1px; }
+.auth-consent-label .auth-link { color: var(--cyan); text-decoration: underline; text-underline-offset: 3px; }

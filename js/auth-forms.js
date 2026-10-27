@@ -163,6 +163,17 @@
         answer.focus();
         return;
       }
+      // Согласие на обработку ПД — без него сервер аккаунт не создаст
+      const consent = form.querySelector('input[name="consent"]');
+      if (consent && !consent.checked) {
+        setGlobalError(errGlobal, 'Отметь согласие на обработку персональных данных');
+        return;
+      }
+      const ageOk = form.querySelector('input[name="age_ok"]');
+      if (ageOk && !ageOk.checked) {
+        setGlobalError(errGlobal, 'Подтверди, что тебе есть 14 лет или согласие дал родитель');
+        return;
+      }
 
       const btn = form.querySelector('button[type="submit"]');
       const prev = btn ? btn.textContent : '';

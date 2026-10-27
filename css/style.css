@@ -903,6 +903,9 @@ kbd {
 .gc-footer-soc--tg::before { background: var(--cyan); }
 .gc-footer-soc--vk { border-color: rgba(74, 140, 255, 0.6); }
 .gc-footer-soc--vk::before { background: #4a8cff; }
+.gc-footer-soc--mail { border-color: rgba(245, 216, 0, 0.5); }
+.gc-footer-soc--mail::before { background: var(--yellow); }
+.gc-footer-soc--mail:hover { color: var(--yellow); border-color: var(--yellow); box-shadow: 0 0 14px rgba(245, 216, 0, 0.25); }
 .gc-footer-soc--tg:hover { color: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 14px rgba(0, 229, 255, 0.25); }
 .gc-footer-soc--vk:hover { color: #7aa8ff; border-color: #4a8cff; box-shadow: 0 0 14px rgba(74, 140, 255, 0.25); }
 
@@ -1042,7 +1045,8 @@ span.gc-footer-doc { opacity: 0.55; cursor: default; }
   }
   .gc-footer-nav a:last-child { border-right: 1px solid var(--border-blue); }
   .gc-footer-sep { display: none; }
-  .gc-footer-row { gap: 10px; }
+  .gc-footer-row { gap: 8px; }
+  .gc-footer-soc { padding: 10px 10px; font-size: 8px; gap: 6px; }
   .gc-footer-partner { width: 100%; justify-content: center; margin-top: 6px; }
   .gc-footer-legal { flex-direction: column; align-items: center; gap: 14px; }
   /* кнопка чата-помощника висит в правом нижнем углу — не даём

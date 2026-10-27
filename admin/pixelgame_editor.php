@@ -10,7 +10,7 @@ requireAdmin();
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PIXELGAME // MAP EDITOR — Admin</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap');
+  @import url('../css/fonts.css');
 
   :root {
     --px-bg:       #0a0a0f;

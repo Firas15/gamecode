@@ -1,5 +1,15 @@
 name: gamecode
 
+# Журналы контейнеров (в них IP-адреса посетителей) не растут бесконечно:
+# не больше 3 файлов по 10 МБ на контейнер. Раз в месяц их ещё и
+# очищает scripts/clear-logs.sh — так в политике обещан срок
+# хранения журналов не дольше одного месяца (pages/privacy.html).
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   web:
     build:
@@ -7,6 +17,7 @@ services:
       dockerfile: Dockerfile
     image: gamecode-web:latest
     restart: unless-stopped
+    logging: *logging
     ports:
       # По умолчанию сайт смотрит наружу сам. При включении HTTPS
       # в .env ставится WEB_BIND=127.0.0.1 и WEB_PORT=8080 — тогда
@@ -43,6 +54,7 @@ services:
   db:
     image: postgres:18-alpine
     restart: unless-stopped
+    logging: *logging
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-gamecode}
       POSTGRES_USER: ${POSTGRES_USER:-gamecode_user}
@@ -62,6 +74,7 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
+    logging: *logging
     command: ["redis-server", "--appendonly", "yes", "--save", "300", "10"]
     volumes:
       - gc_redis:/data
@@ -77,6 +90,7 @@ services:
     image: nginx:alpine
     profiles: ["https"]
     restart: unless-stopped
+    logging: *logging
     ports:
       - "80:80"
       - "443:443"
@@ -98,6 +112,7 @@ services:
     image: certbot/certbot:latest
     profiles: ["https"]
     restart: unless-stopped
+    logging: *logging
     volumes:
       - gc_certs:/etc/letsencrypt
       - gc_acme:/var/www/certbot

@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $confirm  = $_POST['confirm']         ?? '';
     $question = $_POST['secret_question'] ?? '';
     $answer   = $_POST['secret_answer']   ?? '';
-    $result   = registerUser($nick, $pass, $confirm, $question, $answer);
+    $result   = registerUser($nick, $pass, $confirm, $question, $answer, !empty($_POST['consent']), !empty($_POST['age_ok']));
     if (isset($result['ok'])) {
         header('Location: profile.php?new=1');
         exit;
@@ -30,13 +30,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Регистрация — Game Code</title>
-  <link rel="icon" href="../../img/ICON.PNG" type="image/png">
+  <link rel="icon" href="../img/ICON.PNG" type="image/png">
   <link rel="stylesheet" href="<?= htmlspecialchars(asset_url('../css/style.css', 'css/style.css'), ENT_QUOTES, 'UTF-8') ?>"/>
   <link rel="stylesheet" href="<?= htmlspecialchars(asset_url('../css/pages.css', 'css/pages.css'), ENT_QUOTES, 'UTF-8') ?>"/>
   <link rel="stylesheet" href="<?= htmlspecialchars(asset_url('../css/auth.css', 'css/auth.css'), ENT_QUOTES, 'UTF-8') ?>"/>
   <link rel="stylesheet" href="../css/mobile.css"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/fonts.css"/>
   <script>window.AUTH_ROOT = '../';</script>
 </head>
 <body>
@@ -223,6 +222,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <p class="auth-hint pixel-text">Запомни ответ — он понадобится для сброса пароля. Регистр не важен.</p>
         </div>
 
+        <!-- Согласие на обработку ПД — отдельные галочки, не отмечены заранее -->
+        <div class="auth-consent">
+          <label class="auth-toggle-label auth-consent-label">
+            <input type="checkbox" name="consent" value="1"/>
+            <span class="auth-checkbox-custom"></span>
+            <span>Я даю <a href="consent.html" target="_blank" class="auth-link">согласие на обработку персональных данных</a> и ознакомлен с <a href="privacy.html" target="_blank" class="auth-link">политикой конфиденциальности</a></span>
+          </label>
+          <label class="auth-toggle-label auth-consent-label">
+            <input type="checkbox" name="age_ok" value="1"/>
+            <span class="auth-checkbox-custom"></span>
+            <span>Мне исполнилось 14 лет, или согласие за меня даёт мой родитель (законный представитель)</span>
+          </label>
+        </div>
+
         <button type="submit" class="auth-submit pixel-text">[ СОЗДАТЬ АККАУНТ ]</button>
 
         <div class="auth-alt pixel-text">
@@ -249,6 +262,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="gc-footer-row">
       <a class="gc-footer-soc gc-footer-soc--tg" href="https://t.me/gamecodeproject" target="_blank" rel="noopener">Telegram</a>
       <a class="gc-footer-soc gc-footer-soc--vk" href="https://vk.ru/club238066032" target="_blank" rel="noopener">ВКонтакте</a>
+      <a class="gc-footer-soc gc-footer-soc--mail" href="mailto:gamecodepixel@mail.ru" title="gamecodepixel@mail.ru">Почта</a>
       <span class="gc-footer-sep" aria-hidden="true"></span>
       <a class="gc-footer-partner" href="https://itgorky.ru/" target="_blank" rel="noopener" title="ITGorky — ИТ-карта Нижнего Новгорода. Партнёр проекта">
         <img src="../img/itgorky-mascot.png" alt="" width="70" height="36" loading="lazy"/>
@@ -257,8 +271,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     <div class="gc-footer-legal">
       <span>© 2026 GAMECODE</span>
-      <span class="gc-footer-doc" title="Скоро">Политика конфиденциальности</span>
-      <span class="gc-footer-doc" title="Скоро">Согласие на обработку данных</span>
+      <a class="gc-footer-doc" href="../pages/privacy.html">Политика конфиденциальности</a>
+      <a class="gc-footer-doc" href="../pages/consent.html">Согласие на обработку данных</a>
     </div>
   </footer>
 

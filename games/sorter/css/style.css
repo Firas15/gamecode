@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url('../../../css/fonts.css');
 
 /* RESET & VARIABLES */
 *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; image-rendering:pixelated }

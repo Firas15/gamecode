@@ -245,7 +245,17 @@
   <div class="gc-footer-row">
     <a class="gc-footer-soc gc-footer-soc--tg" href="https://t.me/gamecodeproject" target="_blank" rel="noopener">Telegram</a>
     <a class="gc-footer-soc gc-footer-soc--vk" href="https://vk.ru/club238066032" target="_blank" rel="noopener">ВКонтакте</a>
-    <a class="gc-footer-soc gc-footer-soc--mail" href="mailto:gamecodepixel@mail.ru" title="gamecodepixel@mail.ru">Почта</a>
+    <details class="gc-footer-mail">
+      <summary class="gc-footer-soc gc-footer-soc--mail">Почта</summary>
+      <div class="gc-footer-mail-pop" role="dialog" aria-label="Почта для связи">
+        <p class="gc-footer-mail-title">Есть вопрос или идея? Напиши нам:</p>
+        <p class="gc-footer-mail-addr">gamecodepixel@mail.ru</p>
+        <div class="gc-footer-mail-actions">
+          <button type="button" class="gc-footer-mail-btn" onclick="gcCopyMail(this)">Копировать</button>
+          <a class="gc-footer-mail-btn gc-footer-mail-btn--go" href="mailto:gamecodepixel@mail.ru">Написать</a>
+        </div>
+      </div>
+    </details>
     <span class="gc-footer-sep" aria-hidden="true"></span>
     <a class="gc-footer-partner" href="https://itgorky.ru/" target="_blank" rel="noopener" title="ITGorky — ИТ-карта Нижнего Новгорода. Партнёр проекта">
       <img src="../../img/itgorky-mascot.png" alt="" width="70" height="36" loading="lazy"/>
@@ -257,6 +267,19 @@
     <a class="gc-footer-doc" href="../../pages/privacy.html">Политика конфиденциальности</a>
     <a class="gc-footer-doc" href="../../pages/consent.html">Согласие на обработку данных</a>
   </div>
+  <script>
+    /* подсказка с почтой в подвале: копирование адреса и закрытие по клику мимо */
+    window.gcCopyMail = window.gcCopyMail || function (btn) {
+      var mail = 'gamecodepixel@mail.ru';
+      var done = function () { btn.textContent = 'Скопировано'; setTimeout(function () { btn.textContent = 'Копировать'; }, 1600); };
+      if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(mail).then(done, function () {}); return; }
+      var t = document.createElement('textarea'); t.value = mail; t.style.position = 'fixed'; t.style.opacity = '0';
+      document.body.appendChild(t); t.select(); try { document.execCommand('copy'); done(); } catch (e) {} t.remove();
+    };
+    document.addEventListener('click', function (e) {
+      document.querySelectorAll('details.gc-footer-mail[open]').forEach(function (d) { if (!d.contains(e.target)) d.removeAttribute('open'); });
+    });
+  </script>
 </footer>
 
 <script src="../../js/pixels-bg.js"></script>

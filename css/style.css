@@ -903,11 +903,78 @@ kbd {
 .gc-footer-soc--tg::before { background: var(--cyan); }
 .gc-footer-soc--vk { border-color: rgba(74, 140, 255, 0.6); }
 .gc-footer-soc--vk::before { background: #4a8cff; }
-.gc-footer-soc--mail { border-color: rgba(245, 216, 0, 0.5); }
+.gc-footer-soc--mail { border-color: rgba(245, 216, 0, 0.5); font-family: var(--font-pixel); }
 .gc-footer-soc--mail::before { background: var(--yellow); }
 .gc-footer-soc--mail:hover { color: var(--yellow); border-color: var(--yellow); box-shadow: 0 0 14px rgba(245, 216, 0, 0.25); }
 .gc-footer-soc--tg:hover { color: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 14px rgba(0, 229, 255, 0.25); }
 .gc-footer-soc--vk:hover { color: #7aa8ff; border-color: #4a8cff; box-shadow: 0 0 14px rgba(74, 140, 255, 0.25); }
+
+/* почта: кнопка-summary и всплывающая подсказка над рядом кнопок */
+.gc-footer-row { position: relative; }
+.gc-footer-mail { display: inline-block; position: relative; }   /* подсказка — над самой кнопкой */
+.gc-footer-mail > summary { list-style: none; cursor: pointer; user-select: none; }
+.gc-footer-mail > summary::-webkit-details-marker { display: none; }
+.gc-footer-mail[open] > summary { color: var(--yellow); border-color: var(--yellow); }
+.gc-footer-mail-pop {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 14px);
+  transform: translateX(-50%);
+  z-index: 20;
+  width: min(340px, calc(100vw - 32px));
+  padding: 18px 16px 16px;
+  background: var(--bg-dark);
+  border: 1px solid var(--yellow);
+  box-shadow: 0 0 0 3px var(--bg-dark), 0 0 0 4px rgba(245, 216, 0, 0.35), 0 12px 30px rgba(0, 0, 0, 0.6);
+  text-align: center;
+  animation: gcMailPop 0.15s ease-out;
+}
+/* пиксельный «хвостик» вниз, к кнопкам */
+.gc-footer-mail-pop::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  width: 12px;
+  height: 12px;
+  background: var(--bg-dark);
+  border-right: 1px solid var(--yellow);
+  border-bottom: 1px solid var(--yellow);
+  transform: translateX(-50%) rotate(45deg);
+}
+@keyframes gcMailPop { from { opacity: 0; transform: translate(-50%, 6px); } to { opacity: 1; transform: translate(-50%, 0); } }
+.gc-footer-mail-title {
+  font-size: 8px;
+  line-height: 1.9;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+.gc-footer-mail-addr {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--yellow);
+  margin-bottom: 14px;
+  user-select: all;           /* одним кликом выделяется весь адрес */
+  overflow-wrap: anywhere;
+}
+.gc-footer-mail-actions { display: flex; justify-content: center; gap: 10px; }
+.gc-footer-mail-btn {
+  flex: 1;
+  padding: 10px 8px;
+  border: 1px solid var(--border-blue);
+  background: var(--bg-card2);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-bright);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.gc-footer-mail-btn:hover { border-color: var(--yellow); color: var(--yellow); }
+.gc-footer-mail-btn--go { border-color: rgba(245, 216, 0, 0.6); }
 
 .gc-footer-sep { width: 1px; height: 34px; background: var(--border-blue); margin: 0 6px; }
 
@@ -1046,6 +1113,9 @@ span.gc-footer-doc { opacity: 0.55; cursor: default; }
   .gc-footer-nav a:last-child { border-right: 1px solid var(--border-blue); }
   .gc-footer-sep { display: none; }
   .gc-footer-row { gap: 8px; }
+  /* на телефоне подсказка — по центру ряда, чтобы не вылезала за экран */
+  .gc-footer-mail { position: static; }
+  .gc-footer-mail-pop::after { display: none; }
   .gc-footer-soc { padding: 10px 10px; font-size: 8px; gap: 6px; }
   .gc-footer-partner { width: 100%; justify-content: center; margin-top: 6px; }
   .gc-footer-legal { flex-direction: column; align-items: center; gap: 14px; }

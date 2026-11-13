@@ -31,22 +31,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'delete' && !empty($_POST['user_id'])) {
-        $uid   = (int)$_POST['user_id'];
-        $users = readUsersAdmin();
-        $nick  = '';
-        $users = array_filter($users, function($u) use ($uid, &$nick) {
-            if ((int)$u['id'] === $uid) { $nick = $u['nickname']; return false; }
-            return true;
-        });
-        writeUsersAdmin(array_values($users));
-        writeLog('Удалён пользователь', $nick);
-        $msg = "Пользователь «{$nick}» удалён."; $msgType = 'success';
+        // Удаляем одну строку по id. Раньше таблица пользователей
+        // перезаписывалась целиком — см. комментарий в includes/db.php.
+        $uid  = (int)$_POST['user_id'];
+        $user = findUserById($uid);
+        $nick = $user['nickname'] ?? '';
+        if ($user && deleteUser($uid)) {
+            cache_invalidate_user($uid, $nick);
+            cache_invalidate_leaderboards_all();
+            writeLog('Удалён пользователь', $nick);
+            $msg = "Пользователь «{$nick}» удалён."; $msgType = 'success';
+        } else {
+            $msg = 'Не удалось удалить пользователя.'; $msgType = 'error';
+        }
     }
     // Выдача и списание пиксель коинов.
     //
-    // Идёт мимо readUsersAdmin()/writeUsersAdmin(): те переписывают
-    // таблицу пользователей целиком по фиксированному списку колонок,
-    // в котором coins нет, — баланс бы просто не сохранился.
     // gc_shop_admin_adjust() делает атомарный UPDATE и не пускает в минус.
     if ($_POST['action'] === 'coins' && !empty($_POST['user_id'])) {
         $uid  = (int)$_POST['user_id'];
@@ -119,10 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $after = gc_admin_game_points($uid, $game);
 
                 // best_score у пользователя — сумма всех очков, как в api/score.php
-                $totalRows = gamecode_pg_query_all(
-                    'SELECT COALESCE(SUM(score), 0) AS total FROM scores WHERE user_id = $1', [$uid]
-                );
-                updateUser($uid, ['best_score' => (int)($totalRows[0]['total'] ?? 0)]);
+                gamecode_user_sync_best_score($uid);
 
                 cache_invalidate_leaderboard($game);
                 cache_invalidate_user($uid, $nick);
@@ -137,20 +134,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     }
     if ($_POST['action'] === 'ban' && !empty($_POST['user_id'])) {
-        $uid   = (int)$_POST['user_id'];
-        $users = readUsersAdmin();
-        $nick  = '';
-        foreach ($users as &$u) {
-            if ((int)$u['id'] === $uid) {
-                $u['banned'] = !empty($u['banned']) ? 0 : 1;
-                $nick = $u['nickname'];
-                $status = $u['banned'] ? 'заблокирован' : 'разблокирован';
-                break;
-            }
-        } unset($u);
-        writeUsersAdmin($users);
-        writeLog("Пользователь {$status}", $nick);
-        $msg = "Пользователь «{$nick}» {$status}."; $msgType = 'success';
+        // Меняем флаг у одной строки, остальных пользователей не трогаем.
+        $uid  = (int)$_POST['user_id'];
+        $user = findUserById($uid);
+        if ($user && updateUser($uid, ['banned' => empty($user['banned'])])) {
+            $nick   = $user['nickname'];
+            $status = empty($user['banned']) ? 'заблокирован' : 'разблокирован';
+            cache_invalidate_user($uid, $nick);
+            writeLog("Пользователь {$status}", $nick);
+            $msg = "Пользователь «{$nick}» {$status}."; $msgType = 'success';
+        } else {
+            $msg = 'Не удалось изменить блокировку.'; $msgType = 'error';
+        }
     }
 }
 

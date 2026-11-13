@@ -5,10 +5,8 @@ if (file_exists(dirname(__DIR__) . '/config.php')) {
     require_once dirname(__DIR__) . '/config.php';
 }
 
-define('USERS_FILE', dirname(__DIR__) . '/data/users.json');
 define('GAMES_FILE', dirname(__DIR__) . '/data/games.json');
 define('NEWS_FILE', dirname(__DIR__) . '/data/news.json');
-define('SCORES_FILE', dirname(__DIR__) . '/data/scores.json');
 define('LOG_FILE', dirname(__DIR__) . '/data/admin_log.json');
 define('CHAT_FAQ_FILE', dirname(__DIR__) . '/data/chat_faq.json');
 
@@ -186,32 +184,6 @@ function gamecode_user_from_row(array $row): array {
         'banned' => gamecode_db_bool($row['banned'] ?? false),
         'created_at' => (string)($row['created_at'] ?? date('Y-m-d H:i:s')),
         'updated_at' => (string)($row['updated_at'] ?? date('Y-m-d H:i:s')),
-    ];
-}
-
-function gamecode_user_to_row(array $user): array {
-    $secretAnswerHash = (string)($user['secret_answer_hash'] ?? '');
-    if ($secretAnswerHash === '' && !empty($user['secret_answer'])) {
-        $secretAnswerHash = password_hash((string)$user['secret_answer'], PASSWORD_DEFAULT);
-    }
-
-    $nickname = (string)($user['nickname'] ?? '');
-
-    return [
-        'id' => (int)($user['id'] ?? 0),
-        'nickname' => $nickname,
-        'password_hash' => (string)($user['password_hash'] ?? ''),
-        'bio' => (string)($user['bio'] ?? ''),
-        'favorite_lang' => (string)($user['favorite_lang'] ?? ''),
-        'favorite_game' => (string)($user['favorite_game'] ?? ''),
-        'games_played' => (int)($user['games_played'] ?? 0),
-        'best_score' => (int)($user['best_score'] ?? 0),
-        'avatar_emoji' => (string)($user['avatar_emoji'] ?? 'avatar1'),
-        'secret_question' => (string)($user['secret_question'] ?? ''),
-        'secret_answer_hash' => $secretAnswerHash,
-        'banned' => gamecode_db_bool($user['banned'] ?? false),
-        'created_at' => (string)($user['created_at'] ?? date('Y-m-d H:i:s')),
-        'updated_at' => (string)($user['updated_at'] ?? date('Y-m-d H:i:s')),
     ];
 }
 
@@ -543,274 +515,142 @@ function gamecode_chat_faq_save_items(array $items): bool {
     return false;
 }
 
+/* ============================================================
+   ПОЛЬЗОВАТЕЛИ
+
+   Каждая функция трогает ровно те строки, о которых её просят.
+
+   Раньше updateUser() читал ВСЮ таблицу, менял одного человека и
+   отдавал список writeUsers(), а тот удалял из базы всех, кого в
+   списке не оказалось, и перезаписывал остальных. Звалось это на
+   каждый старт игры и каждое сохранение очков, отсюда:
+     - два запроса одновременно затирали друг другу значения:
+       из 10 одновременных стартов игры засчитывались 2;
+     - аккаунт, созданный между чтением и записью, удалялся;
+     - если чтение на миг возвращало пустой список, запись
+       удаляла всех пользователей.
+   Теперь это точечные UPDATE/DELETE по id, а счётчики меняет сама
+   база. Запасного чтения из data/users.json больше нет: при сбое
+   базы честная ошибка лучше, чем работа с пустым или старым списком.
+   ============================================================ */
+
+/** Все пользователи — только для списков в админке. */
 function readUsers(): array {
-    $rows = gamecode_pg_query_all(
-        'SELECT id, nickname, password_hash, bio, favorite_lang, favorite_game, games_played, best_score, avatar_emoji, secret_question, secret_answer_hash, banned, created_at, updated_at
-         FROM users
-         ORDER BY id ASC'
-    );
-
-    if ($rows !== false) {
-        if (!empty($rows)) {
-            $users = [];
-            foreach ($rows as $row) {
-                $users[] = gamecode_user_from_row($row);
-            }
-            return $users;
-        }
-    }
-
-    $backup = gamecode_json_read(USERS_FILE);
-    if (!is_array($backup)) {
-        return [];
-    }
-
-    $users = [];
-    foreach ($backup as $row) {
-        if (!is_array($row)) {
-            continue;
-        }
-        $users[] = gamecode_user_from_row($row);
-    }
-    return $users;
-}
-
-function writeUsers(array $users): void {
-    $users = array_values($users);
-    $backupRows = [];
-    foreach ($users as $user) {
-        if (is_array($user)) {
-            $backupRows[] = gamecode_user_to_row($user);
-        }
-    }
-    $conn = gamecode_pg_connection();
-    if (!$conn) {
-        return;
-    }
-
-    if (@pg_query($conn, 'BEGIN') === false) {
-        return;
-    }
-
-    $existingRows = gamecode_pg_query_all('SELECT id FROM users ORDER BY id ASC');
-    $existingIds = [];
-    if (is_array($existingRows)) {
-        foreach ($existingRows as $row) {
-            $existingIds[] = (int)($row['id'] ?? 0);
-        }
-    }
-
-    $keepIds = [];
-    foreach ($users as $user) {
-        if (is_array($user)) {
-            $keepIds[] = (int)($user['id'] ?? 0);
-        }
-    }
-
-    $removedIds = array_values(array_diff($existingIds, $keepIds));
-    if (!empty($removedIds)) {
-        $literal = '{' . implode(',', array_map('intval', $removedIds)) . '}';
-        if (@pg_query_params($conn, 'DELETE FROM users WHERE id = ANY($1::int[])', [$literal]) === false) {
-            @pg_query($conn, 'ROLLBACK');
-            return;
-        }
-    }
-
-    $ok = true;
-    foreach ($users as $user) {
-        if (!is_array($user)) {
-            continue;
-        }
-
-        $row = gamecode_user_to_row($user);
-        $sql = '
-            INSERT INTO users (
-                id, nickname, password_hash, bio, favorite_lang, favorite_game, games_played,
-                best_score, avatar_emoji, secret_question, secret_answer_hash, banned, created_at, updated_at
-            )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())
-            ON CONFLICT (id) DO UPDATE SET
-                nickname = EXCLUDED.nickname,
-                password_hash = EXCLUDED.password_hash,
-                bio = EXCLUDED.bio,
-                favorite_lang = EXCLUDED.favorite_lang,
-                favorite_game = EXCLUDED.favorite_game,
-                games_played = EXCLUDED.games_played,
-                best_score = EXCLUDED.best_score,
-                avatar_emoji = EXCLUDED.avatar_emoji,
-                secret_question = EXCLUDED.secret_question,
-                secret_answer_hash = EXCLUDED.secret_answer_hash,
-                banned = EXCLUDED.banned,
-                created_at = EXCLUDED.created_at,
-                updated_at = NOW()
-        ';
-
-        $params = [
-            $row['id'],
-            $row['nickname'],
-            $row['password_hash'],
-            $row['bio'],
-            $row['favorite_lang'],
-            $row['favorite_game'],
-            $row['games_played'],
-            $row['best_score'],
-            $row['avatar_emoji'],
-            $row['secret_question'],
-            $row['secret_answer_hash'],
-            $row['banned'] ? 't' : 'f',
-            $row['created_at'],
-        ];
-
-        if (gamecode_pg_exec($sql, $params) === false) {
-            $ok = false;
-            break;
-        }
-    }
-
-    if ($ok) {
-        @pg_query($conn, 'COMMIT');
-        return;
-    }
-
-    @pg_query($conn, 'ROLLBACK');
+    $rows = gamecode_pg_query_all('SELECT * FROM users ORDER BY id ASC');
+    return is_array($rows) ? array_map('gamecode_user_from_row', $rows) : [];
 }
 
 function findUserByNick(string $nickname): ?array {
     $rows = gamecode_pg_query_all(
-        'SELECT id, nickname, password_hash, bio, favorite_lang, favorite_game, games_played, best_score, avatar_emoji, secret_question, secret_answer_hash, banned, created_at, updated_at
-         FROM users
-         WHERE LOWER(nickname) = LOWER($1)
-         LIMIT 1',
+        'SELECT * FROM users WHERE LOWER(nickname) = LOWER($1) LIMIT 1',
         [$nickname]
     );
-
-    if (is_array($rows) && !empty($rows)) {
-        return gamecode_user_from_row($rows[0]);
-    }
-
-    foreach (readUsers() as $user) {
-        if (strtolower((string)($user['nickname'] ?? '')) === strtolower($nickname)) {
-            return $user;
-        }
-    }
-    return null;
+    return (is_array($rows) && !empty($rows)) ? gamecode_user_from_row($rows[0]) : null;
 }
 
 function findUserById(int $id): ?array {
-    $rows = gamecode_pg_query_all(
-        'SELECT id, nickname, password_hash, bio, favorite_lang, favorite_game, games_played, best_score, avatar_emoji, secret_question, secret_answer_hash, banned, created_at, updated_at
-         FROM users
-         WHERE id = $1
-         LIMIT 1',
-        [$id]
-    );
-
-    if (is_array($rows) && !empty($rows)) {
-        return gamecode_user_from_row($rows[0]);
-    }
-
-    foreach (readUsers() as $user) {
-        if ((int)($user['id'] ?? 0) === $id) {
-            return $user;
-        }
-    }
-    return null;
+    $rows = gamecode_pg_query_all('SELECT * FROM users WHERE id = $1 LIMIT 1', [$id]);
+    return (is_array($rows) && !empty($rows)) ? gamecode_user_from_row($rows[0]) : null;
 }
 
+/**
+ * Создаёт пользователя. Возвращает его строку или пустой массив,
+ * если запись не удалась (например, ник заняли в ту же секунду).
+ */
 function createUser(string $nickname, string $passwordHash, string $secretQuestion = '', string $secretAnswer = ''): array {
-    $secretAnswerHash = password_hash($secretAnswer, PASSWORD_DEFAULT);
-    $user = [
-        'nickname' => $nickname,
-        'password_hash' => $passwordHash,
-        'bio' => '',
-        'favorite_lang' => '',
-        'favorite_game' => '',
-        'games_played' => 0,
-        'best_score' => 0,
-        'avatar_emoji' => 'avatar1',
-        'secret_question' => $secretQuestion,
-        'secret_answer_hash' => $secretAnswerHash,
-        'banned' => false,
-        'created_at' => date('Y-m-d H:i:s'),
-        'updated_at' => date('Y-m-d H:i:s'),
+    $rows = gamecode_pg_query_all(
+        'INSERT INTO users (nickname, password_hash, secret_question, secret_answer_hash, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, NOW(), NOW())
+         RETURNING *',
+        [$nickname, $passwordHash, $secretQuestion, password_hash($secretAnswer, PASSWORD_DEFAULT)]
+    );
+    return (is_array($rows) && !empty($rows)) ? gamecode_user_from_row($rows[0]) : [];
+}
+
+/**
+ * Меняет перечисленные поля одного пользователя одним UPDATE.
+ * Поля вне списка пропускаются: имя колонки никогда не приходит
+ * из запроса, но белый список дешевле, чем разбираться потом.
+ * 'secret_answer' сохраняется только хешем.
+ */
+function updateUser(int $id, array $fields): bool {
+    static $allowed = [
+        'password_hash', 'bio', 'favorite_lang', 'favorite_game', 'avatar_emoji',
+        'games_played', 'best_score', 'banned', 'secret_question', 'secret_answer_hash',
     ];
 
-    $conn = gamecode_pg_connection();
-    if ($conn) {
-        $sql = '
-            INSERT INTO users (
-                nickname, password_hash, bio, favorite_lang, favorite_game, games_played,
-                best_score, avatar_emoji, secret_question, secret_answer_hash, banned, created_at, updated_at
-            )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), NOW())
-            RETURNING id, nickname, password_hash, bio, favorite_lang, favorite_game, games_played,
-                      best_score, avatar_emoji, secret_question, secret_answer_hash, banned, created_at, updated_at
-        ';
-
-        $params = [
-            $user['nickname'],
-            $user['password_hash'],
-            $user['bio'],
-            $user['favorite_lang'],
-            $user['favorite_game'],
-            $user['games_played'],
-            $user['best_score'],
-            $user['avatar_emoji'],
-            $user['secret_question'],
-            $user['secret_answer_hash'],
-            'f',
-        ];
-
-        $rows = gamecode_pg_query_all($sql, $params);
-        if (is_array($rows) && !empty($rows)) {
-            $created = gamecode_user_from_row($rows[0]);
-            return $created;
-        }
+    if (array_key_exists('secret_answer', $fields)) {
+        $fields['secret_answer_hash'] = password_hash((string)$fields['secret_answer'], PASSWORD_DEFAULT);
+        unset($fields['secret_answer']);
     }
 
-    $users = readUsers();
-    $maxId = 0;
-    foreach ($users as $existing) {
-        $maxId = max($maxId, (int)($existing['id'] ?? 0));
-    }
-    $user['id'] = $maxId + 1;
-    $users[] = $user;
-    writeUsers($users);
-    return $user;
-}
-
-function updateUser(int $id, array $fields): void {
-    $users = readUsers();
-    foreach ($users as &$user) {
-        if ((int)($user['id'] ?? 0) !== $id) {
+    $set = [];
+    $params = [$id];
+    foreach ($fields as $key => $value) {
+        if (!in_array($key, $allowed, true)) {
             continue;
         }
-
-        foreach ($fields as $key => $value) {
-            if ($key === 'secret_answer') {
-                $user['secret_answer_hash'] = password_hash((string)$value, PASSWORD_DEFAULT);
-                $user['secret_answer'] = (string)$value;
-                continue;
-            }
-            $user[$key] = $value;
+        if ($key === 'banned') {
+            $value = gamecode_db_bool($value) ? 't' : 'f';
+        } elseif ($key === 'games_played' || $key === 'best_score') {
+            $value = (int)$value;
+        } else {
+            $value = (string)$value;
         }
-        $user['updated_at'] = date('Y-m-d H:i:s');
-        break;
+        $params[] = $value;
+        $set[] = $key . ' = $' . count($params);
     }
-    unset($user);
+    if (empty($set) || $id <= 0) {
+        return false;
+    }
 
-    writeUsers($users);
+    $sql = 'UPDATE users SET ' . implode(', ', $set) . ', updated_at = NOW() WHERE id = $1';
+    return gamecode_pg_exec($sql, $params) !== false;
+}
+
+/**
+ * +1 к «сыграно игр». Прибавляет сама база, поэтому десять запросов
+ * одновременно дают +10, а не затирают друг друга.
+ * Возвращает новое значение или 0, если пользователя нет.
+ */
+function gamecode_user_bump_games_played(int $id): int {
+    $rows = gamecode_pg_query_all(
+        'UPDATE users SET games_played = games_played + 1, updated_at = NOW()
+         WHERE id = $1
+         RETURNING games_played',
+        [$id]
+    );
+    return (is_array($rows) && !empty($rows)) ? (int)$rows[0]['games_played'] : 0;
+}
+
+/**
+ * users.best_score — сумма всех очков игрока. Считает и записывает
+ * база одним запросом: значение не устареет по дороге через PHP.
+ */
+function gamecode_user_sync_best_score(int $id): int {
+    $rows = gamecode_pg_query_all(
+        'UPDATE users
+         SET best_score = (SELECT COALESCE(SUM(score), 0) FROM scores WHERE user_id = $1),
+             updated_at = NOW()
+         WHERE id = $1
+         RETURNING best_score',
+        [$id]
+    );
+    return (is_array($rows) && !empty($rows)) ? (int)$rows[0]['best_score'] : 0;
+}
+
+/** Удаляет одного пользователя. Его очки остаются с user_id = NULL. */
+function deleteUser(int $id): bool {
+    if ($id <= 0) {
+        return false;
+    }
+    return gamecode_pg_exec('DELETE FROM users WHERE id = $1', [$id]) !== false;
 }
 
 function gamecode_secret_answer_matches(array $user, string $answer): bool {
     $answer = trim($answer);
     $hash = (string)($user['secret_answer_hash'] ?? '');
-    if ($hash !== '') {
-        return password_verify($answer, $hash);
-    }
-
-    $legacy = strtolower(trim((string)($user['secret_answer'] ?? '')));
-    return $legacy !== '' && $legacy === strtolower($answer);
+    return $hash !== '' && password_verify($answer, $hash);
 }
 
 /**
@@ -1175,126 +1015,28 @@ function writeLog(string $action, string $detail = ''): void {
     writeAdminLog($log);
 }
 
-function readScores(): array {
-    $rows = gamecode_pg_query_all(
-        'SELECT id, user_id, game_id, score, meta, created_at, updated_at
-         FROM scores
-         ORDER BY id ASC'
-    );
-
-    if (is_array($rows) && !empty($rows)) {
-        $scores = [];
-        foreach ($rows as $row) {
-            $scores[] = gamecode_score_from_row($row);
-        }
-        return $scores;
-    }
-
-    $backup = gamecode_json_read(SCORES_FILE);
-    if (!is_array($backup)) {
-        return [];
-    }
-
-    $scores = [];
-    foreach ($backup as $item) {
-        if (!is_array($item)) {
-            continue;
-        }
-        $scores[] = gamecode_score_from_row($item);
-    }
-    return $scores;
-}
-
-function writeScores(array $scores): bool {
-    $scores = array_values($scores);
-    $conn = gamecode_pg_connection();
-    if (!$conn) {
-        return true;
-    }
-
-    if (@pg_query($conn, 'BEGIN') === false) {
-        return false;
-    }
-
-    if (@pg_query($conn, 'DELETE FROM scores') === false) {
-        @pg_query($conn, 'ROLLBACK');
-        return false;
-    }
-
-    $ok = true;
-    foreach ($scores as $entry) {
-        if (!is_array($entry)) {
-            continue;
-        }
-
-        $meta = $entry['meta'] ?? [];
-        if (!is_string($meta)) {
-            $meta = json_encode($meta, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        }
-        if ($meta === false || $meta === null) {
-            $meta = '{}';
-        }
-
-        $sql = '
-            INSERT INTO scores (user_id, game_id, score, meta, created_at, updated_at)
-            VALUES ($1, $2, $3, $4::jsonb, $5, $6)
-        ';
-        $params = [
-            isset($entry['user_id']) ? (int)$entry['user_id'] : null,
-            (string)($entry['game_id'] ?? ''),
-            (int)($entry['score'] ?? 0),
-            is_string($meta) ? $meta : '{}',
-            (string)($entry['created_at'] ?? date('Y-m-d H:i:s')),
-            (string)($entry['updated_at'] ?? date('Y-m-d H:i:s')),
-        ];
-
-        if (gamecode_pg_exec($sql, $params) === false) {
-            $ok = false;
-            break;
-        }
-    }
-
-    if ($ok) {
-        @pg_query($conn, 'COMMIT');
-        return true;
-    }
-
-    @pg_query($conn, 'ROLLBACK');
-    return false;
-}
-
+/**
+ * Записывает один результат. Возвращает сохранённую строку или
+ * пустой массив, если запись не удалась.
+ *
+ * Раньше при неудачной вставке функция читала ВСЕ очки и звала
+ * writeScores(), которая делала DELETE FROM scores и вставляла всё
+ * заново: сбой чтения в этот момент стирал таблицу очков целиком.
+ * Теперь неудача — это просто неудача, и вызывающий код её видит.
+ */
 function addScore(int $userId, string $gameId, int $score, array $meta = []): array {
-    $now = date('Y-m-d H:i:s');
-    $conn = gamecode_pg_connection();
-    if ($conn) {
-        $sql = '
-            INSERT INTO scores (user_id, game_id, score, meta, created_at, updated_at)
-            VALUES ($1, $2, $3, $4::jsonb, $5, $6)
-            RETURNING id, user_id, game_id, score, meta, created_at, updated_at
-        ';
-        $metaJson = json_encode($meta, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        if ($metaJson === false) {
-            $metaJson = '{}';
-        }
-        $rows = gamecode_pg_query_all($sql, [$userId, $gameId, $score, $metaJson, $now, $now]);
-        if (is_array($rows) && !empty($rows)) {
-            $entry = gamecode_score_from_row($rows[0]);
-            return $entry;
-        }
+    $metaJson = json_encode($meta, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($metaJson === false) {
+        $metaJson = '{}';
     }
 
-    $entry = [
-        'user_id' => $userId,
-        'game_id' => $gameId,
-        'score' => $score,
-        'meta' => $meta,
-        'created_at' => $now,
-        'updated_at' => $now,
-    ];
-    $scores = readScores();
-    $scores[] = $entry;
-    writeScores($scores);
-    return $entry;
+    $rows = gamecode_pg_query_all(
+        'INSERT INTO scores (user_id, game_id, score, meta, created_at, updated_at)
+         VALUES ($1, $2, $3, $4::jsonb, NOW(), NOW())
+         RETURNING id, user_id, game_id, score, meta, created_at, updated_at',
+        [$userId, $gameId, $score, $metaJson]
+    );
+    return (is_array($rows) && !empty($rows)) ? gamecode_score_from_row($rows[0]) : [];
 }
 
 // PIXELGAME — контент игры (уровни, вопросы монстров)
@@ -1445,8 +1187,4 @@ function adminAvatarFileKey(array $u): string {
 
 function readUsersAdmin(): array {
     return readUsers();
-}
-
-function writeUsersAdmin(array $users): void {
-    writeUsers($users);
 }

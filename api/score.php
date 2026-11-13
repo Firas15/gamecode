@@ -309,15 +309,13 @@ cache_invalidate_leaderboard($gameId);
 // Очки при этом не расходуются: таблица лидеров живёт своей шкалой.
 $coinsEarned = gc_shop_award_coins($userId, $score);
 
-// Сумма всех очков пользователя ПОСЛЕ сохранения — SQL вместо readScores()
-$afterRows = gamecode_pg_query_all(
-    'SELECT COALESCE(SUM(score), 0) AS total FROM scores WHERE user_id = $1',
-    [$userId]
-);
-$totalAll = (int)($afterRows[0]['total'] ?? 0);
-updateUser($userId, ['best_score' => $totalAll]);
+// users.best_score — сумма всех очков игрока. Считает и записывает база
+// одним запросом, только для этого пользователя.
+gamecode_user_sync_best_score($userId);
 
-cache_invalidate_user($userId, $_SESSION['user_nickname'] ?? '');
+// Ник в сессии лежит под ключом 'nickname'. Здесь стояло 'user_nickname' —
+// такого ключа нет, и кэш «ник → игрок» не сбрасывался.
+cache_invalidate_user($userId, (string)($_SESSION['nickname'] ?? ''));
 
 $totalAfterGame = $totalBeforeGame + $score;
 

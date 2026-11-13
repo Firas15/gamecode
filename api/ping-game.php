@@ -39,13 +39,14 @@ $userId   = $isGuest ? 0 : (int)$_SESSION['user_id'];
 $newCount = 0;
 
 if (!$isGuest) {
-    $user = findUserById($userId);
-    if (!$user) {
+    // +1 делает сама база одним запросом. Раньше значение читалось,
+    // увеличивалось в PHP и записывалось обратно вместе со всей таблицей
+    // пользователей: из десяти одновременных стартов засчитывались два.
+    $newCount = gamecode_user_bump_games_played($userId);
+    if ($newCount === 0) {
         echo json_encode(['error' => 'User not found']);
         exit;
     }
-    $newCount = (int)($user['games_played'] ?? 0) + 1;
-    updateUser($userId, ['games_played' => $newCount]);
 }
 
 $runId = bin2hex(random_bytes(16));

@@ -62,14 +62,11 @@ function gc_attach_pending_score(int $userId): void {
     // ради сохранения очков, получил бы очки без монет.
     gc_shop_award_coins($userId, $score);
 
-    $user = findUserById($userId);
-    if ($user) {
-        updateUser($userId, [
-            'games_played' => (int)($user['games_played'] ?? 0) + 1,
-            'best_score'   => (int)($user['best_score'] ?? 0) + $score,
-        ]);
-        cache_invalidate_user($userId, (string)($user['nickname'] ?? ''));
-    }
+    // Партию гость сыграл без аккаунта, счётчик за неё ещё не рос.
+    // Оба значения меняет сама база — см. комментарий в includes/db.php.
+    gamecode_user_bump_games_played($userId);
+    gamecode_user_sync_best_score($userId);
+    cache_invalidate_user($userId, (string)($_SESSION['nickname'] ?? ''));
 }
 
 // Редакция текста согласия (pages/consent.html). Меняется — меняем и дату.
@@ -108,6 +105,8 @@ function registerUser(string $nickname, string $password, string $confirm, strin
 
     $hash = password_hash($password, PASSWORD_DEFAULT);
     $user = createUser($nickname, $hash, trim($secretQuestion), trim($secretAnswer));
+    if (empty($user['id']))
+        return ['error' => 'Не удалось создать аккаунт. Попробуй ещё раз.'];
     gc_rl_hit('reg_ip', $ip, 3600);
     // Когда и в какой редакции дано согласие — на случай вопросов
     gamecode_pg_exec(
@@ -151,8 +150,10 @@ function resetPassword(string $nickname, string $secretAnswer, string $newPasswo
     gc_rl_clear('reset_nick', $nickname);
 
     $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
-    updateUser($user['id'], ['password_hash' => $newHash]);
-    return ['ok' => true, 'question' => $user['secret_question']];
+    if (!updateUser((int)$user['id'], ['password_hash' => $newHash]))
+        return ['error' => 'Не удалось сохранить новый пароль. Попробуй ещё раз.'];
+    cache_invalidate_user((int)$user['id'], (string)$user['nickname']);
+    return ['ok' => true];
 }
 
 function loginUser(string $nickname, string $password): array {
@@ -222,7 +223,9 @@ function updateProfile(int $userId, array $data): array {
     }
 
     if (empty($fields)) return ['error' => 'Нечего обновлять'];
-    updateUser($userId, $fields);
+    if (!updateUser($userId, $fields)) {
+        return ['error' => 'Не удалось сохранить профиль. Попробуй ещё раз.'];
+    }
 
     // Тот же кэш, что и в магазине: аватар из формы профиля точно так же
     // попадает в строки лидерборда. Заодно сбрасываем кэш самого

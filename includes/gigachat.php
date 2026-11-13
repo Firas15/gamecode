@@ -7,7 +7,8 @@
  *                        (Base64 от client_id:client_secret). Пусто — ИИ выключен,
  *                        бот отвечает только из FAQ, как раньше.
  *   GIGACHAT_SCOPE     — GIGACHAT_API_PERS (физлицо), GIGACHAT_API_B2B или _CORP.
- *   GIGACHAT_MODEL     — GigaChat (самая дешёвая), GigaChat-Pro, GigaChat-Max…
+ *   GIGACHAT_MODEL     — GigaChat-2 (самая дешёвая, Lite), GigaChat-2-Pro, GigaChat-2-Max.
+ *                        Список: GET /v1/models. На api.giga.chat старого имени «GigaChat» нет.
  *   GIGACHAT_PARALLEL  — сколько запросов можно слать одновременно.
  *                        Физлицу Сбер разрешает один поток — значит 1.
  *   GIGACHAT_OAUTH_URL, GIGACHAT_API_URL — адреса; менять не нужно
@@ -186,7 +187,7 @@ function gc_gigachat_chat(array $messages, int $maxTokens = 500): array {
 
     try {
         $payload = json_encode([
-            'model'              => gc_ai_env('GIGACHAT_MODEL', 'GigaChat'),
+            'model'              => gc_ai_env('GIGACHAT_MODEL', 'GigaChat-2'),
             'messages'           => $messages,
             'stream'             => false,
             'max_tokens'         => $maxTokens,

@@ -48,7 +48,7 @@ if ($path === '/chat') {
     $ban = str_contains($last, 'мок-бан');
     echo json_encode([
         'choices' => [[
-            'message' => ['role' => 'assistant', 'content' => $ban ? 'Не люблю менять тему.' : "**Тестовый ответ:** ты спросил «{$last}».\n```python\nprint(1)\n```"],
+            'message' => ['role' => 'assistant', 'content' => $ban ? 'Не люблю менять тему.' : "**Это тестовый ответ** локальной копии — на сайте здесь ответит нейросеть. Ты спросил: «{$last}».\n\nВот так выглядит код в ответе. Цикл `while` повторяет действия, пока условие истинно:\n\n```python\ni = 0\nwhile i < 3:\n    print(i)  # выводим число\n    i += 1\n```\n\nВыведет 0, 1, 2."],
             'index' => 0,
             'finish_reason' => $ban ? 'blacklist' : 'stop',
         ]],

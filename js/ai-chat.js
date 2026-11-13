@@ -65,18 +65,22 @@
 
       <section class="ai-chat__panel" id="aiChatPanel" aria-hidden="true">
         <header class="ai-chat__header">
-          <div>
-            <div class="ai-chat__title">Пиксель</div>
-            <div class="ai-chat__status" id="aiChatStatus">онлайн</div>
+          <div class="ai-chat__portrait">
+            <img class="ai-chat__portrait-img" src="${IMG_BASE}/chat-bot.png" alt="" />
+          </div>
+          <div class="ai-chat__hero">
+            <div class="ai-chat__title">ПИКСЕЛЬ</div>
+            <div class="ai-chat__level">LV.99 · ПОМОЩНИК</div>
+            <div class="ai-chat__hp" aria-hidden="true"><i></i></div>
           </div>
           <div class="ai-chat__actions">
-            <button class="ai-chat__admin-btn hidden" id="aiChatAdminBtn" type="button">FAQ ADMIN</button>
-            <button class="ai-chat__close" id="aiChatClose" aria-label="Закрыть чат">×</button>
+            <button class="ai-chat__admin-btn hidden" id="aiChatAdminBtn" type="button">FAQ</button>
+            <button class="ai-chat__close" id="aiChatClose" type="button" aria-label="Закрыть чат">✕</button>
           </div>
         </header>
 
+        <div class="ai-chat__messages" id="aiChatMessages" aria-live="polite"></div>
         <div class="ai-chat__quick" id="aiChatQuick"></div>
-        <div class="ai-chat__messages" id="aiChatMessages"></div>
 
         <form class="ai-chat__form" id="aiChatForm">
           <input
@@ -86,9 +90,10 @@
             autocomplete="off"
             maxlength="500"
             placeholder="Напиши вопрос..."
+            aria-label="Вопрос Пикселю"
           />
           <button class="ai-chat__send" id="aiChatSend" type="submit">
-            <span class="ai-chat__send-text">Отправить</span>
+            <span class="ai-chat__send-text">ОК</span>
             <span class="ai-chat__send-loader" aria-hidden="true"></span>
           </button>
         </form>
@@ -127,6 +132,15 @@
     document.body.appendChild(root);
   }
 
+  // На телефоне шрифт поля крупнее (16px, иначе iOS увеличивает страницу),
+  // и длинная подсказка в него не помещается
+  function fitInputPlaceholder() {
+    const input = document.getElementById("aiChatInput");
+    if (input && window.matchMedia("(max-width: 640px)").matches) {
+      input.placeholder = "Вопрос...";
+    }
+  }
+
   function normalizeBotIconPath() {
     const icon = document.querySelector(".ai-chat__fab-icon");
     if (icon) {
@@ -151,12 +165,44 @@
     localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(trimmed));
   }
 
+  /**
+   * Текст сообщения → HTML. Всё экранируется; из разметки понимаем только
+   * блоки кода между ``` (первая строка — язык) и `код` внутри строки.
+   * Незакрытый блок (ответ обрезан) показывается кодом до конца.
+   */
+  function formatMessage(text) {
+    const parts = String(text || "").split("```");
+    let html = "";
+    parts.forEach((part, i) => {
+      if (i % 2 === 1) {
+        let code = part.replace(/^[ \t]*\r?\n/, "");
+        let lang = "";
+        const m = part.match(/^([a-zA-Z0-9+#-]{1,15})[ \t]*\r?\n/);
+        if (m) {
+          lang = m[1];
+          code = part.slice(m[0].length);
+        }
+        code = code.replace(/\s+$/, "");
+        if (!code) return;
+        const langAttr = lang ? ` data-lang="${escapeHtml(lang)}"` : "";
+        html += `<pre class="ai-chat__code"${langAttr}><code>${escapeHtml(code)}</code></pre>`;
+        return;
+      }
+      // Пустые строки на стыке с блоком кода не нужны — отступ даёт CSS
+      const t = part.replace(/^\s*\n/, "").replace(/\n\s*$/, "");
+      if (!t.trim()) return;
+      const inline = escapeHtml(t).replace(/`([^`\n]+)`/g, '<code class="ai-chat__icode">$1</code>');
+      html += `<p class="ai-chat__p">${inline}</p>`;
+    });
+    return html;
+  }
+
   function addMessage(role, content, shouldPersist = true) {
     const messagesEl = document.getElementById("aiChatMessages");
     const bubble = document.createElement("div");
     bubble.className = `ai-chat__msg ai-chat__msg--${role}`;
-    const who = role === "assistant" ? '<b class="ai-chat__who">Пиксель:</b> ' : "";
-    bubble.innerHTML = `${who}<span>${escapeHtml(content)}</span>`;
+    const tag = role === "assistant" ? "ПИКСЕЛЬ" : "ТЫ";
+    bubble.innerHTML = `<span class="ai-chat__tag">${tag}</span>${formatMessage(content)}`;
     messagesEl.appendChild(bubble);
     messagesEl.scrollTop = messagesEl.scrollHeight;
 
@@ -176,10 +222,9 @@
       typing.id = "aiChatTyping";
       typing.className = "ai-chat__msg ai-chat__msg--assistant ai-chat__typing";
       typing.innerHTML = `
-        <span class="ai-chat__typing-dots">
-          <i></i><i></i><i></i>
-        </span>
-        <small>печатает...</small>
+        <span class="ai-chat__tag">ПИКСЕЛЬ</span>
+        <span class="ai-chat__typing-dots"><i></i><i></i><i></i></span>
+        <span>думает...</span>
       `;
       messagesEl.appendChild(typing);
       messagesEl.scrollTop = messagesEl.scrollHeight;
@@ -485,6 +530,7 @@
   async function init() {
     if (!shouldRenderChat()) return;
     createUI();
+    fitInputPlaceholder();
     normalizeBotIconPath();
     renderQuickActions();
     restoreChatHistory();

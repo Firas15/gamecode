@@ -48,7 +48,7 @@ if ($path === '/chat') {
     $ban = str_contains($last, 'мок-бан');
     echo json_encode([
         'choices' => [[
-            'message' => ['role' => 'assistant', 'content' => $ban ? 'Не люблю менять тему.' : "**Ответ ИИ:** ты спросил «{$last}».\n```python\nprint(1)\n```"],
+            'message' => ['role' => 'assistant', 'content' => $ban ? 'Не люблю менять тему.' : "**Тестовый ответ:** ты спросил «{$last}».\n```python\nprint(1)\n```"],
             'index' => 0,
             'finish_reason' => $ban ? 'blacklist' : 'stop',
         ]],

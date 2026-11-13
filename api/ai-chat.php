@@ -1,6 +1,6 @@
 <?php
 /**
- * Чат-бот Pixel.
+ * Чат-бот Пиксель.
  *
  * Порядок ответа:
  *   1. Вопрос совпал с пунктом FAQ (быстрые кнопки, точная формулировка) —
@@ -143,7 +143,7 @@ function ai_pick_faq(string $message, array $faqMap): array {
 /** Системная инструкция: правила + справка о сайте + ответы FAQ. */
 function ai_system_prompt(array $faqMap): string {
     $rules = <<<TXT
-Ты — Pixel, дружелюбный помощник образовательного сайта GameCode (gmcode.ru). Ты чат-бот на нейросети GigaChat, а не человек; если спросят — так и скажи.
+Ты — Пиксель (Pixel), дружелюбный помощник образовательного сайта GameCode (gmcode.ru). Ты чат-бот на нейросети GigaChat, а не человек; если спросят — так и скажи.
 
 Правила:
 1. Отвечай по-русски, коротко и просто, как школьнику: обычно 1–5 предложений. Не используй разметку Markdown (звёздочки, решётки, таблицы). Код пиши простым текстом.
@@ -186,21 +186,29 @@ function ai_clean_reply(string $text): string {
     return $text;
 }
 
-/** Общий счётчик вопросов к ИИ за сутки. false — лимит исчерпан. */
+/**
+ * Общий счётчик вопросов к ИИ за сутки (по московскому времени, сброс в полночь).
+ * false — лимит исчерпан. Деньги важнее ответа: если Redis недоступен
+ * и посчитать нельзя, нейросеть не вызываем. AI_DAILY_LIMIT=0 — без ИИ.
+ */
 function ai_daily_take(int $limit): bool {
     $r = gamecode_redis();
     if (!$r || $limit <= 0) {
-        return true;
+        return false;
     }
     try {
-        $key = 'gamecode:ai:day:' . date('Ymd');
+        $day = (new DateTimeImmutable('now', new DateTimeZone('Europe/Moscow')))->format('Ymd');
+        $key = 'gamecode:ai:day:' . $day;
         $n = (int)$r->incr($key);
         if ($n === 1) {
             $r->expire($key, 2 * 86400);
         }
+        if ($n === $limit + 1) {
+            error_log('[GameCode AI] дневной лимит AI_DAILY_LIMIT=' . $limit . ' исчерпан');
+        }
         return $n <= $limit;
     } catch (\Throwable $e) {
-        return true;
+        return false;
     }
 }
 
@@ -253,9 +261,11 @@ if ($useAi) {
         if ($source === 'fallback') {
             $reply = 'Ты задал много вопросов подряд — нейросеть отдохнёт ещё ' . max(1, (int)ceil(gc_rl_wait('ai_ip', $ip) / 60)) . ' мин. Пока могу отвечать только на частые вопросы: выбери быструю кнопку.';
         }
-    } elseif (!ai_daily_take((int)gc_ai_env('AI_DAILY_LIMIT', '2000'))) {
+    } elseif (!ai_daily_take((int)gc_ai_env('AI_DAILY_LIMIT', '100'))) {
         $useAi = false;
-        error_log('[GameCode AI] дневной лимит AI_DAILY_LIMIT исчерпан');
+        if ($source === 'fallback') {
+            $reply = 'Нейросеть на сегодня ответила на все вопросы, которые могла, и отдыхает до полуночи. Пока могу отвечать только на частые вопросы: выбери быструю кнопку. А ещё можно написать нам: gamecodepixel@mail.ru или Telegram @gamecodeproject.';
+        }
     } else {
         gc_rl_hit('ai_ip', $ip, 3600);
     }

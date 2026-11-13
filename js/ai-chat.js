@@ -66,7 +66,7 @@
       <section class="ai-chat__panel" id="aiChatPanel" aria-hidden="true">
         <header class="ai-chat__header">
           <div>
-            <div class="ai-chat__title">Pixel</div>
+            <div class="ai-chat__title">Пиксель</div>
             <div class="ai-chat__status" id="aiChatStatus">онлайн</div>
           </div>
           <div class="ai-chat__actions">
@@ -155,7 +155,8 @@
     const messagesEl = document.getElementById("aiChatMessages");
     const bubble = document.createElement("div");
     bubble.className = `ai-chat__msg ai-chat__msg--${role}`;
-    bubble.innerHTML = `<span>${escapeHtml(content)}</span>`;
+    const who = role === "assistant" ? '<b class="ai-chat__who">Пиксель:</b> ' : "";
+    bubble.innerHTML = `${who}<span>${escapeHtml(content)}</span>`;
     messagesEl.appendChild(bubble);
     messagesEl.scrollTop = messagesEl.scrollHeight;
 
@@ -329,7 +330,7 @@
     if (!state.hasGreeted) {
       addMessage(
         "assistant",
-        "Привет! Я Pixel, помощник GameCode. Спроси про игры, теорию, рейтинг или программирование."
+        "Привет! Я Пиксель, помощник GameCode. Спроси про игры, теорию, рейтинг или программирование."
       );
       state.hasGreeted = true;
     }

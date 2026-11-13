@@ -2318,6 +2318,11 @@ span.gc-footer-doc { opacity: 0.55; cursor: default; }
   color: var(--text-main);
 }
 
+.ai-chat__who {
+  color: var(--cyan);
+  font-weight: normal;
+}
+
 .ai-chat__msg--user {
   align-self: flex-end;
   background: rgba(43, 16, 72, 0.85);

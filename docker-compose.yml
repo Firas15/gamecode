@@ -44,7 +44,7 @@ services:
       GIGACHAT_API_URL: ${GIGACHAT_API_URL:-}
       AI_ENABLED: ${AI_ENABLED:-1}
       AI_IP_HOURLY: ${AI_IP_HOURLY:-30}
-      AI_DAILY_LIMIT: ${AI_DAILY_LIMIT:-2000}
+      AI_DAILY_LIMIT: ${AI_DAILY_LIMIT:-100}
     volumes:
       - gc_data:/var/www/html/data
       - gc_news:/var/www/html/img/news

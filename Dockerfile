@@ -40,6 +40,15 @@ RUN set -eux; \
     a2enmod headers expires rewrite; \
     rm -rf /var/lib/apt/lists/* /tmp/pear
 
+
+# Корневой и промежуточный сертификаты Минцифры (Russian Trusted Root CA
+# и Sub CA): ими подписаны серверы GigaChat API. Без них чат-бот не
+# достучится до нейросети (ошибка TLS). Промежуточный сертификат
+# действует до 06.03.2027 — до этой даты заменить файл в docker/certs
+# новым с https://www.gosuslugi.ru/crt
+COPY docker/certs/*.crt /usr/local/share/ca-certificates/russian-trusted/
+RUN update-ca-certificates
+
 # Конфиги
 COPY docker/php.ini /usr/local/etc/php/conf.d/zz-gamecode.ini
 COPY docker/apache-vhost.conf /etc/apache2/sites-available/000-default.conf

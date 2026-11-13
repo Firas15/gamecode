@@ -2306,6 +2306,7 @@ span.gc-footer-doc { opacity: 0.55; cursor: default; }
   border: 1px solid var(--border-blue);
   animation: aiChatFade .2s ease;
   word-break: break-word;
+  white-space: pre-wrap;
   font-size: 9px;
   line-height: 1.8;
   letter-spacing: 0.25px;
@@ -2351,6 +2352,14 @@ span.gc-footer-doc { opacity: 0.55; cursor: default; }
   gap: 8px;
   padding: 12px;
   border-top: 1px solid var(--border-blue);
+}
+
+.ai-chat__note {
+  padding: 0 12px 10px;
+  font-size: 7px;
+  line-height: 1.7;
+  color: var(--text-muted, #8aa0c0);
+  opacity: .85;
 }
 
 .ai-chat__input {

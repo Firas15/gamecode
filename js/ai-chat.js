@@ -92,6 +92,7 @@
             <span class="ai-chat__send-loader" aria-hidden="true"></span>
           </button>
         </form>
+        <div class="ai-chat__note">Отвечает нейросеть GigaChat — она может ошибаться. Не пиши в чат пароль, телефон и другие личные данные.</div>
       </section>
 
       <section class="ai-chat-admin hidden" id="aiChatAdmin">
@@ -328,7 +329,7 @@
     if (!state.hasGreeted) {
       addMessage(
         "assistant",
-        "Привет! Я AI-ассистент GameCode. Помогу с играми, теорией, демо и поддержкой."
+        "Привет! Я Pixel, помощник GameCode. Спроси про игры, теорию, рейтинг или программирование."
       );
       state.hasGreeted = true;
     }

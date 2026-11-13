@@ -2237,20 +2237,28 @@ span.gc-footer-doc { opacity: 0.55; cursor: default; }
 }
 
 .ai-chat__portrait {
+  /* 65 = 59 спрайта + 2×3 отступа: спрайт встаёт ровно, без сдвига
+     на полпикселя (сдвиг размыл бы его) */
   flex: none;
-  width: 60px;
-  height: 60px;
+  width: 65px;
+  height: 65px;
   padding: 3px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
   background: #2b1a55;
   box-shadow: 0 -3px 0 0 var(--yellow), 0 3px 0 0 var(--yellow), -3px 0 0 0 var(--yellow), 3px 0 0 0 var(--yellow);
 }
 
+/* Спрайт 59×51 в «родных» пикселях рисунка и показывается 1:1 (на экранах
+   с двойной плотностью — ровно 2:2). Любое дробное масштабирование
+   пиксель-арта размывает его — поэтому размеры заданы точно. */
 .ai-chat__portrait-img {
   display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 50% 70%;
+  flex: none;
+  width: 59px;
+  height: 51px;
   image-rendering: pixelated;
   animation: aiBob 1.6s steps(2) infinite;
 }
@@ -2291,7 +2299,7 @@ span.gc-footer-doc { opacity: 0.55; cursor: default; }
   align-self: flex-start;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
 }
 
 .ai-chat__admin-btn {
@@ -2302,6 +2310,69 @@ span.gc-footer-doc { opacity: 0.55; cursor: default; }
   padding: 6px 7px;
   cursor: pointer;
   box-shadow: 0 3px 0 #a88f00;
+}
+
+.ai-chat__clear {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--rpg-white);
+  cursor: pointer;
+}
+
+.ai-chat__clear svg {
+  width: 11px;
+  height: 12px;
+  image-rendering: pixelated;
+}
+
+.ai-chat__clear:hover,
+.ai-chat__clear:focus-visible {
+  color: var(--yellow);
+  outline: none;
+}
+
+.ai-chat__clear.is-armed {
+  color: var(--pink);
+}
+
+.ai-chat__clear.is-armed svg {
+  animation: aiBlink .5s steps(1) infinite;
+}
+
+/* Подсказка в пиксельном стиле вместо системной */
+.ai-chat__clear::after {
+  content: attr(data-tip);
+  position: absolute;
+  top: calc(100% + 8px);
+  right: -4px;
+  z-index: 2;
+  padding: 6px 8px;
+  white-space: nowrap;
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  line-height: 1;
+  color: #1a1240;
+  background: var(--yellow);
+  box-shadow: 0 3px 0 #a88f00;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ai-chat__clear:hover::after,
+.ai-chat__clear:focus-visible::after,
+.ai-chat__clear.is-armed::after {
+  opacity: 1;
+}
+
+.ai-chat__clear.is-armed::after {
+  background: var(--pink);
+  color: #fff;
+  box-shadow: 0 3px 0 #9b1c36;
 }
 
 .ai-chat__close {
@@ -2803,7 +2874,6 @@ span.gc-footer-doc { opacity: 0.55; cursor: default; }
   }
 
   .ai-chat__header { padding: 12px 10px 10px; gap: 10px; }
-  .ai-chat__portrait { width: 48px; height: 48px; }
   .ai-chat__messages { padding: 18px 12px 8px; }
   .ai-chat__quick { margin: 4px 12px 10px; padding: 6px 10px; }
   .ai-chat__quick-btn { font-size: 7px; padding: 2px 0 2px 14px; }

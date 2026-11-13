@@ -66,7 +66,7 @@
       <section class="ai-chat__panel" id="aiChatPanel" aria-hidden="true">
         <header class="ai-chat__header">
           <div class="ai-chat__portrait">
-            <img class="ai-chat__portrait-img" src="${IMG_BASE}/chat-bot.png" alt="" />
+            <img class="ai-chat__portrait-img" src="${IMG_BASE}/pixel-portrait.png" width="59" height="51" alt="" />
           </div>
           <div class="ai-chat__hero">
             <div class="ai-chat__title">ПИКСЕЛЬ</div>
@@ -75,6 +75,11 @@
           </div>
           <div class="ai-chat__actions">
             <button class="ai-chat__admin-btn hidden" id="aiChatAdminBtn" type="button">FAQ</button>
+            <button class="ai-chat__clear" id="aiChatClear" type="button" aria-label="Стереть историю" data-tip="Стереть историю">
+              <svg viewBox="0 0 11 12" width="22" height="24" shape-rendering="crispEdges" aria-hidden="true">
+                <path fill="currentColor" d="M4 0h3v1h4v2H0V1h4zM1 4h9v8H1zm2 2v4h1V6zm2 0v4h1V6zm2 0v4h1V6z" fill-rule="evenodd"/>
+              </svg>
+            </button>
             <button class="ai-chat__close" id="aiChatClose" type="button" aria-label="Закрыть чат">✕</button>
           </div>
         </header>
@@ -366,19 +371,55 @@
     state.hasGreeted = true;
   }
 
+  function greet() {
+    addMessage(
+      "assistant",
+      "Привет! Я Пиксель, помощник GameCode. Спроси про игры, теорию, рейтинг или программирование."
+    );
+    state.hasGreeted = true;
+  }
+
+  // Первое нажатие — «точно стереть?», второе в течение 3 секунд — стираем.
+  // Без confirm(): окно браузера выбивается из пиксельного стиля.
+  let clearArmTimer = 0;
+  async function onClearClick() {
+    const btn = document.getElementById("aiChatClear");
+    if (!btn.classList.contains("is-armed")) {
+      btn.classList.add("is-armed");
+      btn.dataset.tip = "Нажми ещё раз";
+      clearTimeout(clearArmTimer);
+      clearArmTimer = setTimeout(() => {
+        btn.classList.remove("is-armed");
+        btn.dataset.tip = "Стереть историю";
+      }, 3000);
+      return;
+    }
+    clearTimeout(clearArmTimer);
+    btn.classList.remove("is-armed");
+    btn.dataset.tip = "Стереть историю";
+
+    state.localHistory = [];
+    try {
+      localStorage.removeItem(CHAT_STORAGE_KEY);
+    } catch {}
+    document.getElementById("aiChatMessages").innerHTML = "";
+    greet();
+    try {
+      await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "reset" }),
+      });
+    } catch {}
+  }
+
   function openPanel() {
     const panel = document.getElementById("aiChatPanel");
     panel.classList.add("is-open");
     panel.setAttribute("aria-hidden", "false");
     state.opened = true;
 
-    if (!state.hasGreeted) {
-      addMessage(
-        "assistant",
-        "Привет! Я Пиксель, помощник GameCode. Спроси про игры, теорию, рейтинг или программирование."
-      );
-      state.hasGreeted = true;
-    }
+    if (!state.hasGreeted) greet();
   }
 
   function closePanel() {
@@ -451,6 +492,7 @@
     });
 
     close.addEventListener("click", closePanel);
+    document.getElementById("aiChatClear").addEventListener("click", () => void onClearClick());
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();

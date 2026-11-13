@@ -224,17 +224,25 @@ function ai_daily_take(int $limit): bool {
 
 // ── Запрос ──
 
+$payload = json_decode((string)file_get_contents('php://input'), true);
+if (!is_array($payload)) {
+    ai_chat_error(400, 'Неверный JSON');
+}
+
+// Кнопка «стереть историю»: забываем разговор и на сервере,
+// иначе нейросеть продолжила бы помнить старые сообщения
+if (($payload['action'] ?? '') === 'reset') {
+    unset($_SESSION['ai_chat_history']);
+    echo json_encode(['ok' => true], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 $lastAt = (int)($_SESSION['ai_chat_last_at'] ?? 0);
 $now = time();
 if ($lastAt > 0 && ($now - $lastAt) < 2) {
     ai_chat_error(429, 'Слишком часто. Подожди пару секунд.');
 }
 $_SESSION['ai_chat_last_at'] = $now;
-
-$payload = json_decode((string)file_get_contents('php://input'), true);
-if (!is_array($payload)) {
-    ai_chat_error(400, 'Неверный JSON');
-}
 
 $message = trim((string)($payload['message'] ?? ''));
 if ($message === '') {

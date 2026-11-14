@@ -248,8 +248,9 @@ if ($isOwn) {
     $ownedTitles = array_values(array_filter(gc_shop_by_kind('title'), fn($i) => !empty($i['free']) || in_array($i['id'], $ownedItems, true)));
 }
 
-$langs    = ['','Python','C++','JavaScript','Java','Go','Rust','TypeScript','C#','PHP','Kotlin'];
-$games    = ['','Кто хочет стать программистом','Сетевой маршрут','Сортировщик','Внутри компьютера'];
+// Те же списки проверяет сервер (includes/auth.php)
+$langs    = array_merge([''], GC_PROFILE_LANGS);
+$games    = array_merge([''], GC_PROFILE_GAMES);
 $regDate  = date('d.m.Y', strtotime($user['created_at']));
 ?>
 <!DOCTYPE html>
@@ -547,7 +548,7 @@ $regDate  = date('d.m.Y', strtotime($user['created_at']));
     <div class="content-block" style="animation-delay:0.1s">
       <h2 class="block-title">[ О СЕБЕ ]</h2>
       <?php if (!empty($user['bio'])): ?>
-        <p class="block-text pixel-text"><?= nl2br(htmlspecialchars($user['bio'])) ?></p>
+        <p class="block-text pixel-text profile-bio"><?= nl2br(htmlspecialchars($user['bio'])) ?></p>
       <?php endif; ?>
       <?php if (!empty($user['favorite_lang'])): ?>
         <div class="profile-tags" style="margin-top:12px;">
@@ -662,10 +663,10 @@ $regDate  = date('d.m.Y', strtotime($user['created_at']));
             id="bio"
             name="bio"
             placeholder="Расскажи пару слов о себе..."
-            maxlength="300"
+            maxlength="<?= GC_BIO_MAX_CHARS ?>"
             rows="4"
           ><?= htmlspecialchars($user['bio']) ?></textarea>
-          <p class="auth-hint pixel-text"><span id="bioCount"><?= strlen($user['bio']) ?></span>/300</p>
+          <p class="auth-hint pixel-text"><span id="bioCount"><?= mb_strlen($user['bio']) ?></span>/<?= GC_BIO_MAX_CHARS ?> · не больше <?= GC_BIO_MAX_LINES ?> строк</p>
         </div>
 
         <div class="profile-form-row">

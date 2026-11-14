@@ -195,13 +195,39 @@ function logoutUser(): void {
     session_destroy();
 }
 
+// Варианты для профиля. Форма (pages/profile.php) строится из этих же
+// списков, а сервер принимает только их — подставить своё значение,
+// поправив форму в браузере, нельзя.
+const GC_PROFILE_LANGS = ['Python', 'C++', 'Go', 'JavaScript', 'Java', 'Rust', 'TypeScript', 'C#', 'PHP', 'Kotlin'];
+const GC_PROFILE_GAMES = ['Сортировщик', 'Сетевой маршрут', 'Кто хочет стать программистом', 'Внутри компьютера', 'Глюк-атака'];
+const GC_BIO_MAX_CHARS = 150;
+const GC_BIO_MAX_LINES = 4;
+
+/** «О себе»: не длиннее GC_BIO_MAX_CHARS символов и GC_BIO_MAX_LINES строк. */
+function gc_profile_clean_bio(string $bio): string {
+    $bio = str_replace(["\r\n", "\r"], "\n", $bio);
+    // Управляющие символы (кроме перевода строки) и невидимые разделители
+    $bio = preg_replace('/[\x00-\x09\x0B-\x1F\x7F\x{200B}-\x{200F}\x{2028}-\x{202E}\x{FEFF}]/u', '', $bio) ?? '';
+    $lines = array_map('rtrim', explode("\n", trim($bio)));
+    $lines = array_slice(array_values(array_filter($lines, static fn($l) => $l !== '')), 0, GC_BIO_MAX_LINES);
+    return trim(mb_substr(implode("\n", $lines), 0, GC_BIO_MAX_CHARS));
+}
+
 function updateProfile(int $userId, array $data): array {
-    $allowed = ['bio', 'favorite_lang', 'favorite_game', 'avatar_emoji'];
     $fields = [];
-    foreach ($allowed as $key) {
-        if (isset($data[$key])) {
-            $fields[$key] = substr(trim($data[$key]), 0, 300);
-        }
+    if (isset($data['bio'])) {
+        $fields['bio'] = gc_profile_clean_bio((string)$data['bio']);
+    }
+    if (isset($data['favorite_lang'])) {
+        $v = trim((string)$data['favorite_lang']);
+        $fields['favorite_lang'] = in_array($v, GC_PROFILE_LANGS, true) ? $v : '';
+    }
+    if (isset($data['favorite_game'])) {
+        $v = trim((string)$data['favorite_game']);
+        $fields['favorite_game'] = in_array($v, GC_PROFILE_GAMES, true) ? $v : '';
+    }
+    if (isset($data['avatar_emoji'])) {
+        $fields['avatar_emoji'] = mb_substr(trim((string)$data['avatar_emoji']), 0, 100);
     }
 
     // Аватар приходит из формы, а форма — из браузера: без этой проверки

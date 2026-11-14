@@ -1198,3 +1198,10 @@
     color: var(--cyan, #00e5ff);
     text-decoration: underline;
 }
+
+/* «О себе» в профиле: даже слово без пробелов («1000000…») переносится,
+   а не вылезает за рамку блока */
+.profile-bio {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}

@@ -238,7 +238,7 @@ $users = array_reverse($users);
             <img src="../img/avatars/<?= htmlspecialchars(adminAvatarFileKey($u)) ?>.png" alt="" class="adm-user-avatar" width="36" height="36" loading="lazy"/>
           </td>
           <td class="pixel"><?= htmlspecialchars($u['nickname']) ?></td>
-          <td class="dim"><?= htmlspecialchars(substr($u['bio'] ?? '', 0, 40)) ?><?= strlen($u['bio'] ?? '') > 40 ? '...' : '' ?></td>
+          <td class="dim"><?= htmlspecialchars(mb_substr($u['bio'] ?? '', 0, 40)) ?><?= mb_strlen($u['bio'] ?? '') > 40 ? '...' : '' ?></td>
           <td class="pixel dim"><?= htmlspecialchars($u['favorite_lang'] ?? '—') ?></td>
           <td>
             <?php if (!gc_shop_ready()): ?>

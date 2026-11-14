@@ -70,8 +70,7 @@
           </div>
           <div class="ai-chat__hero">
             <div class="ai-chat__title">ПИКСЕЛЬ</div>
-            <div class="ai-chat__level">LV.99 · ПОМОЩНИК</div>
-            <div class="ai-chat__hp" aria-hidden="true"><i></i></div>
+            <div class="ai-chat__level">ПОМОЩНИК</div>
           </div>
           <div class="ai-chat__actions">
             <button class="ai-chat__admin-btn hidden" id="aiChatAdminBtn" type="button">FAQ</button>
@@ -216,6 +215,15 @@
       state.localHistory = state.localHistory.slice(-MAX_LOCAL_MESSAGES);
       saveLocalHistory(state.localHistory);
     }
+    updateQuickVisibility();
+  }
+
+  // Быстрые вопросы нужны, пока разговор не начат: после первого вопроса
+  // они только отнимают место. После «стереть историю» появляются снова.
+  function updateQuickVisibility() {
+    const quick = document.getElementById("aiChatQuick");
+    if (!quick) return;
+    quick.classList.toggle("hidden", state.localHistory.some((m) => m.role === "user"));
   }
 
   function showTyping(show) {
@@ -366,6 +374,7 @@
 
   function restoreChatHistory() {
     state.localHistory = loadLocalHistory();
+    updateQuickVisibility();
     if (state.localHistory.length === 0) return;
     state.localHistory.forEach((msg) => addMessage(msg.role, msg.content, false));
     state.hasGreeted = true;

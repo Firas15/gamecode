@@ -150,7 +150,7 @@
   }
 
   .hero-title {
-    font-size: clamp(18px, 6vw, 36px);
+    font-size: clamp(22px, 8.4vw, 56px);
     letter-spacing: 2px;
   }
 
@@ -169,9 +169,12 @@
     gap: 12px;
   }
   .hstat-card { padding: 18px 12px; gap: 10px; }
-  .hstat-label { font-size: clamp(8px, 2.5vw, 11px); line-height: 1.6; }
-  .hstat-value { font-size: clamp(26px, 8vw, 40px); }
-  .hstat-sublabel { font-size: clamp(8px, 2vw, 11px); }
+  .hstat-label { font-size: clamp(11px, 2.8vw, 14px); line-height: 1.6; }
+  .hstat-value { font-size: clamp(34px, 9vw, 48px); }
+  .hstat-sublabel { font-size: clamp(11px, 2.8vw, 14px); }
+  .hstat-users .hstat-label,
+  .hstat-users .hstat-sublabel,
+  .hstat-top > .hstat-label { font-size: clamp(12px, 3.4vw, 16px); }
 
   /* Carousel */
   .carousel-section {
@@ -364,7 +367,7 @@
   :root { --header-h: 56px; }
 
   .hero { min-height: 240px; padding: 44px 14px 28px; }
-  .hero-title { font-size: clamp(16px, 7vw, 28px); letter-spacing: 1px; }
+  .hero-title { font-size: clamp(22px, 9vw, 40px); letter-spacing: 1px; }
   .hero-sub { font-size: clamp(8px, 2.5vw, 11px); letter-spacing: 1px; }
 
   .main { padding: 20px 10px 50px; }
@@ -401,7 +404,7 @@
   .games-grid { grid-template-columns: 1fr; }
   .sidebar { width: min(88vw, 280px); }
 
-  .hero-title { font-size: clamp(14px, 8vw, 24px); }
+  .hero-title { font-size: clamp(20px, 9vw, 32px); }
   .hero-sub   { font-size: 8px; letter-spacing: 0.5px; }
 
   .site-title .logo { max-width: 36vw; font-size: 9px; }

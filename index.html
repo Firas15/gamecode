@@ -85,19 +85,14 @@
     <div class="header-right"><div id="auth-widget"></div></div>
   </header>
 
+  <!-- Фон hero и карточек — мерцающие пиксельные звёзды в цветах сайта (js/hero-sky.js) -->
+  <div class="hero-wrap" id="heroWrap">
+  <canvas class="hero-sky" aria-hidden="true"></canvas>
+
   <section class="hero">
-    <div class="hero-bg">
-      <div class="scanlines"></div>
-      <div class="grid-lines"></div>
-    </div>
     <div class="hero-content">
-      <div class="glitch-wrapper">
-        <h2 class="hero-title glitch" data-text="GAMECODE">GAMECODE</h2>
-      </div>
+      <h2 class="hero-title" aria-label="GameCode"><span class="hero-title-game">GAME</span><span class="hero-title-code">CODE</span></h2>
       <p class="hero-sub pixel-text accent">Программирование через игру — лучший способ учиться</p>
-    </div>
-    <div class="floating-pixels">
-      <span></span><span></span><span></span><span></span><span></span>
     </div>
   </section>
 
@@ -107,7 +102,7 @@
       <div class="hstat-card hstat-users">
         <div class="hstat-corner hstat-corner-tl"></div>
         <div class="hstat-corner hstat-corner-br"></div>
-        <div class="hstat-label pixel-text" style="margin-top:22px;">Нашим сайтом<br/>пользуются уже:</div>
+        <div class="hstat-label pixel-text">Нашим сайтом<br/>пользуются уже:</div>
         <div class="hstat-value pixel-text cyan" id="hs-user-count" style="margin-top:8px;">...</div>
         <div class="hstat-sublabel pixel-text" style="margin-top:8px;">человек!</div>
       </div>
@@ -123,6 +118,7 @@
 
     </div>
   </section>
+  </div>
 
   <main class="main" id="games">
 
@@ -274,6 +270,7 @@
 
   
   <script>document.write('<script src="' + window.__assetUrl('js/pixels-bg.js') + '"><\/script>')</script>
+  <script>document.write('<script src="' + window.__assetUrl('js/hero-sky.js') + '"><\/script>')</script>
   <script>document.write('<script src="' + window.__assetUrl('js/data.js') + '"><\/script>')</script>
   <script>document.write('<script src="' + window.__assetUrl('js/carousel.js') + '"><\/script>')</script>
   <script>document.write('<script src="' + window.__assetUrl('js/news-carousel.js') + '"><\/script>')</script>

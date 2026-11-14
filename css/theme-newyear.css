@@ -1,0 +1,81 @@
+/* ============================================================
+   Новогодняя тема. Подключается из js/theme.js только когда
+   в админке выбрана тема «Новогодняя». Картинки снега и гирлянды
+   js/theme.js рисует на лету и передаёт через переменные --ny-*.
+   ============================================================ */
+
+/* ── Снег, лежащий на карточках ── */
+.ny-cap {
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  top: -11px;
+  height: 24px;
+  z-index: 3;
+  pointer-events: none;
+  background: var(--ny-cap) repeat-x 0 0;
+  image-rendering: pixelated;
+}
+
+/* ── Гирлянда под шапкой сайта ── */
+.ny-garland {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 26px;
+  pointer-events: none;
+  z-index: 1;
+}
+.ny-garland i {
+  position: absolute;
+  inset: 0;
+  background-repeat: repeat-x;
+  image-rendering: pixelated;
+}
+.ny-wire { background-image: var(--ny-wire); }
+.ny-b1   { background-image: var(--ny-bulbs1); animation: ny-blink 1.8s steps(1) infinite; }
+.ny-b2   { background-image: var(--ny-bulbs2); animation: ny-blink 1.8s steps(1) infinite -0.6s; }
+.ny-b3   { background-image: var(--ny-bulbs3); animation: ny-blink 1.8s steps(1) infinite -1.2s; }
+.ny-b1, .ny-b2, .ny-b3 { filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.35)); }
+
+@keyframes ny-blink {
+  0%      { opacity: 1; }
+  66.66%  { opacity: 0.25; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ny-b1, .ny-b2, .ny-b3 { animation: none; }
+}
+
+/* ── Гекон в шапке: картинки другой высоты ── */
+/* Портрет в окне чата: 59×59 вместо 59×51 — сверху место для шапки */
+.ai-chat__portrait-img.ny-hat { height: 59px; }
+/* Маскот в подвале: голова того же размера, что и без шапки */
+.gc-footer-partner img.ny-hat { height: 54px; }
+
+/* ── Сосульки по бокам футера: свисают прямо из-под полосы снега ──
+   Снег .ny-cap сплошной до 4px от верха футера; сосульки начинаются
+   на 1px выше, поэтому между ними нет тёмной щели. */
+.ny-icicles {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 3px;
+  height: 42px;
+  pointer-events: none;
+  z-index: 4;
+}
+.ny-icicles i {
+  position: absolute;
+  top: 0;
+  width: min(360px, 45%);
+  height: 42px;
+  background: var(--ny-ice) no-repeat 0 0 / 360px 42px;
+  image-rendering: pixelated;
+}
+.ny-ice-l { left: 0; }
+.ny-ice-r { right: 0; transform: scaleX(-1); }
+
+/* Цветные квадратики в центре верха футера в новогодней теме не нужны — там снег */
+.footer > .gc-footer-pix { display: none; }

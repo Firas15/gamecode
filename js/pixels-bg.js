@@ -8,6 +8,9 @@
  *
  * 10 кадров в секунду: мерцанию ступеньками больше не нужно. У тех, кто
  * отключил анимации в системе, звёзды просто стоят.
+ *
+ * В новогодней теме (js/theme.js) вместо звёзд тихо падает снег —
+ * тоже заметно тусклее, чем в hero.
  */
 (function () {
   'use strict';
@@ -16,8 +19,14 @@
   const DENSITY = 15000;        // одна звезда на столько px² экрана
   const LEVELS = [0.38, 0.2, 0.07];   // яркость: втрое тише, чем в hero
   const PALETTE = ['#00e5ff', '#00e5ff', '#b24bff', '#b24bff', '#39ff14', '#f5d800', '#ff4d6d', '#ff8c1a'];
-  const pick = () => PALETTE[Math.floor(Math.random() * PALETTE.length)];
+  const SNOW = ['#ffffff', '#e6f3ff', '#bfe9ff', '#9cc7ef'];
+  const SNOW_DENSITY = 9000;
+  const pick = (a = PALETTE) => a[Math.floor(Math.random() * a.length)];
   const snap = (v) => Math.round(v / P) * P;
+  const themeNow = () => {
+    if (document.documentElement.dataset.theme) return document.documentElement.dataset.theme;
+    try { return localStorage.getItem('gc_theme') || 'original'; } catch (e) { return 'original'; }
+  };
 
   function init() {
     const canvas = document.createElement('canvas');
@@ -28,7 +37,16 @@
     if (!canvas.getContext) return;
 
     const still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let W = 0, H = 0, ctx = null, stars = [], raf = 0, last = 0;
+    let W = 0, H = 0, ctx = null, stars = [], flakes = [], snow = false, raf = 0, last = 0;
+
+    function newFlake(anyY) {
+      const big = Math.random() < 0.2;
+      return {
+        x: Math.random() * W, y: anyY ? Math.random() * H : -P * 2,
+        s: big ? P * 2 : P, v: big ? 1.1 + Math.random() * 0.5 : 0.5 + Math.random() * 0.5,
+        sway: Math.random() * Math.PI * 2, col: pick(SNOW), a: big ? 0.4 : 0.28,
+      };
+    }
 
     function size() {
       W = window.innerWidth; H = window.innerHeight;
@@ -41,7 +59,13 @@
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.imageSmoothingEnabled = false;
 
-      stars = [];
+      stars = []; flakes = [];
+      snow = themeNow() === 'newyear';
+      if (snow) {
+        const m = Math.min(220, Math.round(W * H / SNOW_DENSITY));
+        for (let i = 0; i < m; i++) flakes.push(newFlake(true));
+        return;
+      }
       const n = Math.min(160, Math.round(W * H / DENSITY));
       for (let i = 0; i < n; i++) {
         stars.push({
@@ -54,6 +78,14 @@
 
     function draw(t) {
       ctx.clearRect(0, 0, W, H);
+      if (snow) {
+        for (const f of flakes) {
+          ctx.globalAlpha = f.a; ctx.fillStyle = f.col;
+          ctx.fillRect(snap(f.x + Math.sin(f.sway) * 6), snap(f.y), f.s, f.s);
+        }
+        ctx.globalAlpha = 1;
+        return;
+      }
       for (const s of stars) {
         const k = Math.sin(t * 0.001 * s.speed + s.phase);
         const lvl = k > 0.6 ? 0 : k > -0.2 ? 1 : 2;
@@ -69,16 +101,27 @@
       ctx.globalAlpha = 1;
     }
 
+    // Звёздам хватает 10 кадров в секунду, снегу нужно 25 — он движется
     function frame(t) {
       raf = requestAnimationFrame(frame);
-      if (t - last < 100) return;
+      if (t - last < (snow ? 40 : 100)) return;
       last = t;
+      if (snow) {
+        for (let i = 0; i < flakes.length; i++) {
+          const f = flakes[i];
+          f.y += f.v; f.sway += 0.03;
+          if (f.y > H) flakes[i] = newFlake(false);
+        }
+      }
       draw(t);
     }
 
     size();
     draw(0);
     if (!still) raf = requestAnimationFrame(frame);
+
+    // Тему сменили — перерисовываем: звёзды ↔ снег
+    window.addEventListener('gc:theme', () => { size(); draw(performance.now()); });
 
     // Перестраиваем только при смене ширины: на телефоне высота окна
     // меняется от адресной строки, и звёзды не должны прыгать

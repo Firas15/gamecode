@@ -1,3 +1,15 @@
+// Тема оформления (оригинальная / новогодняя) — js/theme.js.
+// Подгружаем её отсюда: auth.js есть на всех страницах сайта, кроме игр,
+// а в играх тема и не нужна. Адрес берём от самого auth.js — вместе с ?v=.
+(function () {
+  var me = document.currentScript;
+  if (!me || !me.src || document.getElementById('gc-theme-js')) return;
+  var s = document.createElement('script');
+  s.id = 'gc-theme-js';
+  s.src = me.src.replace(/auth\.js(\?.*)?$/, 'theme.js$1');
+  document.head.appendChild(s);
+})();
+
 (function() {
   const ROOT    = (window.AUTH_ROOT || '').replace(/\/$/, '');
   const API_URL = ROOT + '/api/check-auth.php';

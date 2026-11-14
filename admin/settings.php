@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/csrf.php';
+require_once dirname(__DIR__) . '/includes/site_theme.php';
 requireAdmin();
 
 $msg = ''; $msgType = '';
@@ -9,6 +10,16 @@ $configFile = __DIR__ . '/config.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     admin_csrf_check();
     $action = $_POST['action'] ?? '';
+
+    if ($action === 'set_theme') {
+        $theme = (string)($_POST['theme'] ?? '');
+        if (gc_set_site_theme($theme)) {
+            writeLog('Тема сайта', GC_THEMES[$theme]);
+            $msg = 'Тема «' . GC_THEMES[$theme] . '» включена. Посетители увидят её при следующем открытии страницы.'; $msgType = 'success';
+        } else {
+            $msg = 'Не удалось сменить тему'; $msgType = 'error';
+        }
+    }
 
     if ($action === 'change_password') {
         $current = $_POST['current_pass'] ?? '';
@@ -71,6 +82,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <?php if ($msg): ?>
   <div class="adm-alert adm-alert-<?= $msgType ?> pixel"><?= htmlspecialchars($msg) ?></div>
   <?php endif; ?>
+
+  <!-- Тема оформления сайта -->
+  <?php $curTheme = gc_site_theme(); ?>
+  <div class="adm-panel" style="margin-bottom:20px">
+    <div class="adm-panel-header"><span class="pixel">🎨 ТЕМА САЙТА</span></div>
+    <form method="POST" style="padding:20px 24px; display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
+      <?= admin_csrf_field() ?>
+      <input type="hidden" name="action" value="set_theme"/>
+      <?php foreach (GC_THEMES as $key => $label): ?>
+        <button type="submit" name="theme" value="<?= htmlspecialchars($key) ?>"
+          class="<?= $key === $curTheme ? 'adm-btn-primary' : 'adm-btn' ?> pixel"
+          <?= $key === $curTheme ? 'disabled' : '' ?>>
+          <?= $key === $curTheme ? '● ' : '○ ' ?><?= htmlspecialchars(mb_strtoupper($label)) ?>
+        </button>
+      <?php endforeach; ?>
+      <span class="pixel dim" style="font-size:9px; line-height:1.8">Сейчас: <?= htmlspecialchars(GC_THEMES[$curTheme]) ?>. В играх тема не меняется.</span>
+    </form>
+  </div>
 
   <div class="adm-two-col">
     <!-- Смена логина -->

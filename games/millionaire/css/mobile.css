@@ -1,323 +1,120 @@
-/*  КТО ХОЧЕТ СТАТЬ ПРОГРАММИСТОМ — MOBILE.CSS */
+/* ============================================================
+   КТО ХОЧЕТ СТАТЬ ПРОГРАММИСТОМ — планшеты и телефоны
+   На телефоне лестница не помещается сбоку: вместо неё — полоска
+   из 15 ступеней под HUD. Ответы — в один столбец.
+   ============================================================ */
 
-/* TABLET (max-width: 1024px) */
-@media (max-width: 1024px) {
-
-  .prize-ladder-col {
-    width: 180px;
-    flex-shrink: 0;
-  }
-  .ladder-item { font-size: 8px; padding: 4px 8px; }
-
-  .cs-info { padding: 36px 28px; }
-}
-
-/* PHABLET (max-width: 900px) */
 @media (max-width: 900px) {
-  
-  .prize-ladder-col { display: none; }
-
-  .game-content {
-    padding: 8px;
-    gap: 8px;
-  }
-
-  .question-box {
-    padding: 20px 16px;
-  }
-
-  .question-text {
-    font-size: clamp(11px, 3.2vw, 15px);
-    line-height: 1.7;
-  }
-
-  .answers-grid {
-    gap: 8px;
-  }
-
-  .answer-btn {
-    min-height: 48px;
-    font-size: clamp(9px, 2.5vw, 11px);
-    padding: 10px 12px;
-  }
-
-  .hints-row {
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .hint-btn {
-    flex: 0 0 auto;
-    min-width: 80px;
-    min-height: 44px;
-    font-size: 8px;
-  }
-
-  /* Menu */
-  .menu-prize-ladder {
-    max-width: 340px;
-    padding: 14px 18px;
-  }
-  .menu-title {
-    font-size: clamp(11px, 3vw, 16px);
-  }
-
-  .game-header {
-    height: auto;
-    min-height: 0;
-    padding: 10px 12px 8px;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 8px 12px;
-    align-items: center;
-  }
-  .header-left,
-  .header-right {
-    min-width: 0;
-    gap: 10px;
-  }
-  .header-left {
-    align-items: center;
-    flex-wrap: nowrap;
-  }
-  .question-counter {
-    min-width: 0;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  #q-num {
-    font-size: 9px;
-    white-space: nowrap;
-  }
-  .difficulty-badge,
-  .lang-badge {
-    font-size: 6px;
-    padding: 3px 6px;
-  }
-  .header-right {
-    justify-content: flex-end;
-    flex-wrap: nowrap;
-  }
-  .header-timer,
-  .current-prize,
-  .safe-prize {
-    min-width: 0;
-  }
-  .header-timer .timer-value,
-  .prize-amount,
-  .safe-amount {
-    font-size: 11px;
-  }
+  .ladder { display: none; }
+  .steps { display: grid; }
+  .game-main { padding: 14px 16px 18px; gap: 12px; }
 }
 
-/* MOBILE (max-width: 700px) */
-@media (max-width: 700px) {
-  .game-header {
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      "left right"
-      "counter counter";
-    padding: 8px 10px;
-    gap: 8px 10px;
-  }
-  .header-left {
-    grid-area: left;
-    gap: 8px;
-  }
-  .header-right {
-    grid-area: right;
-    gap: 10px;
-    justify-self: end;
-  }
-  .question-counter {
-    grid-area: counter;
-    gap: 6px;
-    width: 100%;
-    justify-content: space-between;
-    align-items: center;
-  }
-  #q-num {
-    font-size: 8px;
-    min-width: 0;
-  }
-  .btn-esc {
-    padding: 8px 9px;
-    font-size: 7px;
-    min-height: 32px;
-  }
-  .header-timer .timer-label,
-  .prize-label,
-  .safe-label {
-    font-size: 5px;
-  }
-  .header-timer .timer-value,
-  .prize-amount,
-  .safe-amount {
-    font-size: 10px;
-  }
-  .game-body {
-    top: 76px;
-  }
+@media (max-width: 760px) {
+  body { font-size: 9px; }
+  .back-btn { top: 10px; left: 8px; font-size: 7px; padding: 8px 10px; }
+  .sound-btn { top: 10px; right: 8px; font-size: 7px; padding: 8px; }
 
-  .answers-grid {
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
+  #s-menu { padding: 62px 14px 30px; gap: 22px; }
+  .menu-title { font-size: 17px; letter-spacing: 1px; }
+  .menu-subtitle { font-size: 8px; line-height: 1.8; }
+  .menu-facts { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .fact { padding: 16px 8px; gap: 10px; }
+  .fact-n { font-size: 20px; }
+  .fact-l { font-size: 7px; }
+  .btn-big { font-size: 12px; padding: 18px 28px; }
 
-  .answer-btn {
-    min-height: 48px;
-    font-size: clamp(9px, 3vw, 11px);
-    padding: 10px 14px;
-    line-height: 1.5;
-  }
+  #s-howto { padding: 52px 12px 30px; }
+  .howto-box { padding: 18px 14px; gap: 16px; }
+  .howto-title { font-size: 13px; }
+  .howto-list { font-size: 9px; gap: 12px; }
+  .howto-list li { padding-left: 18px; }
+  .howto-sub { font-size: 9px; }
+  .howto-hints { grid-template-columns: 1fr; gap: 8px; }
+  .howto-hint { padding: 10px 12px; gap: 12px; }
+  .howto-hint .px-ico { width: 24px; height: 24px; }
+  .howto-hint b { font-size: 9px; }
+  .howto-hint span { font-size: 8px; }
+  .howto-ladder { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .hl-cell { font-size: 8px; padding: 7px 8px; }
+  .howto-box .btn-prim { font-size: 10px; padding: 14px 22px; }
 
-  /* Back button */
-  .back-btn {
-    min-height: 36px;
-    display: inline-flex;
-    align-items: center;
-    padding: 8px 12px;
-    font-size: 8px;
-  }
+  /* HUD: цифры сверху, таймер — второй строкой во всю ширину */
+  .hud { padding: 8px 10px; gap: 8px; flex-wrap: wrap; }
+  .hud-col { gap: 14px; }
+  .hud-col--right { gap: 8px; }
+  .hud-mid { order: 3; flex-basis: 100%; max-width: none; }
+  .hud-val { font-size: 11px; }
+  .hud-lbl { font-size: 6px; }
+  .btn-esc { font-size: 7px; padding: 8px; }
+  .shield-on { font-size: 0; padding: 6px; }
+  .timer { gap: 8px; }
+  .timer-bar { height: 10px; }
+  .timer-val { font-size: 11px; min-width: 24px; }
+  .steps { padding: 6px 10px; gap: 2px; }
+  .st { height: 6px; }
 
-  /* Game bottom section */
-  .game-bottom {
-    max-height: 78vh;
-    overflow-y: auto;
-    padding: 10px 10px;
-    -webkit-overflow-scrolling: touch;
-  }
+  .game-main { padding: 10px 10px 14px; gap: 10px; }
+  .q-tab { padding: 7px 10px; }
+  .q-file { font-size: 7px; }
+  .q-diff { font-size: 6px; padding: 3px 6px; }
+  .q-text { font-size: 11px; line-height: 1.9; padding: 14px 14px 16px; min-height: 0; }
 
-  .question-box { padding: 16px 14px; }
-  .question-text {
-    font-size: clamp(10px, 3.5vw, 14px);
-    line-height: 1.7;
-  }
+  .answers { grid-template-columns: 1fr; gap: 8px; }
+  .ans { min-height: 54px; padding: 10px 12px 10px 10px; gap: 12px; font-size: 10px; line-height: 1.7; }
+  .ans-key { width: 26px; height: 26px; font-size: 10px; }
+  .ans-pct { font-size: 10px; }
+  .ans.gone .ans-txt::after { font-size: 8px; }
 
-  .hints-row {
-    gap: 6px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .hint-btn {
-    flex: 1 1 calc(33% - 8px);
-    min-height: 44px;
-    font-size: 8px;
-    text-align: center;
-  }
+  .status { min-height: 44px; }
+  .status-msg { font-size: 8px; line-height: 1.8; }
+  .confirm { gap: 8px; }
+  .confirm-q { font-size: 9px; flex-basis: 100%; text-align: center; }
+  .confirm .btn-prim, .confirm .btn-sec { padding: 11px 16px; font-size: 9px; flex: 1; }
 
-  /* Compact menu */
-  #s-menu {
-    padding: 16px 12px;
-    gap: 20px;
-    overflow-y: auto;
-    justify-content: flex-start;
-    padding-top: 60px; /* space for back btn */
-  }
-  .menu-hero { gap: 8px; }
-  .menu-icon { font-size: 40px; }
-  .menu-title { font-size: clamp(10px, 3.5vw, 15px); }
+  /* подсказки: иконка над названием, 4 в ряд */
+  .hints { gap: 6px; }
+  .hint { flex-direction: column; justify-content: center; gap: 8px; padding: 10px 4px; text-align: center; }
+  .hint .px-ico { width: 22px; height: 22px; }
+  .hint-name { font-size: 7px; }
+  .hint-desc { display: none; }
 
-  .menu-prize-ladder {
-    min-width: 0;
-    max-width: 100%;
-    width: 100%;
-    padding: 12px 14px;
-  }
-  .ladder-mini-item { font-size: 7px; }
+  .ov-box { padding: 20px 16px; gap: 14px; }
+  .exp-icon .px-ico { width: 40px; height: 40px; }
+  .exp-title { font-size: 13px; }
+  .exp-prize { font-size: 8px; }
+  .exp-text { font-size: 9px; line-height: 2; padding: 10px 12px; }
+  .ov-box .btn-prim, .ov-box .btn-sec { font-size: 9px; padding: 13px 18px; }
 
-  .btn-play {
-    width: 100%;
-    text-align: center;
-    padding: 14px 20px;
-    font-size: 11px;
-  }
+  #toasts { top: 74px; }
+  .toast { font-size: 8px; }
 
-  /* Result / end screens */
-  .result-title { font-size: clamp(14px, 4.5vw, 22px); }
-  .result-prize { font-size: clamp(20px, 7vw, 36px); }
-  .result-actions {
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-  }
-  .result-actions button,
-  .result-actions a {
-    width: 100%;
-    text-align: center;
-    min-height: 44px;
-  }
+  #s-result { padding: 46px 10px 30px; }
+  .result-box { padding: 18px 14px; gap: 16px; }
+  .result-head { gap: 14px; }
+  .result-icon .px-ico { width: 40px; height: 40px; }
+  .result-sub { font-size: 8px; }
+  .result-prize span { font-size: 28px; }
+  .result-prize small { font-size: 8px; }
+  .result-stats { grid-template-columns: repeat(2, 1fr); }
+  .rs .n { font-size: 13px; }
+  .rs .l { font-size: 7px; }
+  .result-btns .btn-prim, .result-btns .btn-sec { flex: 1 1 100%; font-size: 10px; }
 }
 
-/* SMALL PHONE (max-width: 480px) */
-@media (max-width: 480px) {
-  .game-header {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "left"
-      "counter"
-      "right";
-    justify-items: stretch;
-  }
-  .header-left {
-    justify-content: space-between;
-  }
-  .question-counter {
-    justify-content: flex-start;
-  }
-  .game-bottom {
-    max-height: min(72vh, 500px);
-    padding: 8px;
-  }
-  .header-right {
-    width: 100%;
-    justify-self: stretch;
-    justify-content: space-between;
-  }
-  .answer-btn {
-    font-size: clamp(8px, 3.2vw, 10px);
-    min-height: 44px;
-    padding: 8px 10px;
-  }
-  .question-text { font-size: clamp(9px, 3.8vw, 13px); }
-
-  .hints-row { gap: 5px; }
-  .hint-btn {
-    flex: 0 0 calc(33% - 6px);
-    font-size: 7px;
-    padding: 8px 4px;
-  }
-  .hint-icon { font-size: 14px; }
-
-  .back-btn { top: 6px; left: 6px; font-size: 7px; padding: 7px 10px; }
-
-  .game-body {
-    top: 108px;
-  }
+@media (max-width: 380px) {
+  .q-text { font-size: 10px; }
+  .ans { font-size: 9px; }
+  .hint-name { font-size: 6px; }
 }
 
-/* LANDSCAPE PHONE */
-@media (max-height: 500px) and (max-width: 900px) {
-  .game-bottom { max-height: 68vh; }
-  .question-box { padding: 10px 12px; }
-  .hints-row { margin-top: 6px; }
-  #s-menu {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding-top: 50px;
-    overflow-y: auto;
-  }
-  .menu-prize-ladder { max-width: 300px; }
-}
-
-/* TOUCH TARGETS */
-@media (hover: none) and (pointer: coarse) {
-  .answer-btn, .hint-btn, .btn-play, .back-btn {
-    min-height: 44px;
-  }
-  /* Remove hover-glow jank */
-  .answer-btn:hover { box-shadow: none; }
-  .answer-btn:active { opacity: 0.85; }
+/* Телефон боком: ужимаем вертикаль */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hud { padding: 6px 10px; flex-wrap: nowrap; }
+  .hud-mid { order: 0; flex-basis: auto; }
+  .steps { display: none; }
+  .q-text { padding: 10px 14px; }
+  .answers { grid-template-columns: 1fr 1fr; }
+  .ans { min-height: 44px; }
+  .status { min-height: 36px; }
 }

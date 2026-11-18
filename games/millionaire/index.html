@@ -2,7 +2,7 @@
 <html lang="ru" data-game-id="millionaire">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <title>Кто хочет стать программистом — Game Code</title>
   <script>
     (function () {
@@ -25,242 +25,168 @@
   </script>
   <script>
     document.write('<link rel="icon" href="' + window.__assetUrl('../../img/ICON.PNG') + '" type="image/png">');
-  </script>
-  <link rel="stylesheet" href="../../css/fonts.css"/>
-  <script>
     document.write('<link rel="stylesheet" href="' + window.__assetUrl('css/style.css') + '">');
     document.write('<link rel="stylesheet" href="' + window.__assetUrl('css/mobile.css') + '">');
     document.write('<link rel="stylesheet" href="' + window.__assetUrl('../../css/leaderboard.css') + '">');
-    // Рамки аватаров из магазина: виджет топа рисует их разметку,
-    // а описаны они в shop.css — без него это был просто пустой span.
+    // Рамки аватаров из магазина: виджет топа рисует их разметку, описаны они в shop.css
     document.write('<link rel="stylesheet" href="' + window.__assetUrl('../../css/shop.css') + '">');
   </script>
 </head>
 <body>
 
 <canvas id="stars-canvas"></canvas>
+<button class="sound-btn pixel-text" id="btn-sound" type="button" title="Звук">ЗВУК: ВКЛ</button>
 
-
+<!-- ======================= МЕНЮ ======================= -->
 <div id="s-menu" class="screen active">
-  <a href="../../index.html" class="back-btn">◄ НА ГЛАВНУЮ</a>
+  <a href="../../index.html" class="back-btn">&lt; НА ГЛАВНУЮ</a>
 
-  <div class="menu-hero">
+  <div class="menu-head">
     <h1 class="menu-title pixel-text">КТО ХОЧЕТ СТАТЬ<br/><span class="accent">ПРОГРАММИСТОМ?</span></h1>
-    <p class="menu-sub pixel-text">15 вопросов · Python &amp; C++ · 4 подсказки</p>
-    <div class="menu-version pixel-text">V2.0 — GameCode</div>
+    <p class="menu-subtitle pixel-text">Python и C++: 15 вопросов до 1000 очков</p>
   </div>
 
-  <div class="menu-prize-ladder">
-    <div class="prize-title pixel-text">// ТАБЛИЦА ВЫИГРЫШЕЙ</div>
-    <div class="ladder-mini" id="ladder-mini"></div>
+  <div class="menu-facts">
+    <div class="fact"><span class="fact-n pixel-text">15</span><span class="fact-l pixel-text">ВОПРОСОВ</span></div>
+    <div class="fact"><span class="fact-n pixel-text" style="--c: var(--yellow)">2</span><span class="fact-l pixel-text">НЕСГОРАЕМЫЕ<br/>СУММЫ</span></div>
+    <div class="fact"><span class="fact-n pixel-text" style="--c: var(--cyan)">4</span><span class="fact-l pixel-text">ПОДСКАЗКИ</span></div>
+    <div class="fact"><span class="fact-n pixel-text" style="--c: var(--pink)">60</span><span class="fact-l pixel-text">СЕКУНД<br/>НА ОТВЕТ</span></div>
   </div>
 
-  <button class="btn-play pixel-text" id="btn-play">[ НАЧАТЬ ИГРУ ]</button>
+  <div class="menu-actions">
+    <button class="btn-prim btn-big pixel-text" id="btn-play" type="button">[ НАЧАТЬ ИГРУ ]</button>
+    <button class="btn-sec pixel-text" id="btn-howto" type="button">[ КАК ИГРАТЬ ]</button>
+  </div>
 
   <div class="lb-widget" id="lb-millionaire"></div>
+</div>
 
-  <div class="menu-hints-preview pixel-text">
-    <span title="Право на ошибку">🛡 ОШИБКА</span>
-    <span title="50:50">⚡ 50:50</span>
-    <span title="Помощь зала">👥 ЗАЛ</span>
-    <span title="Заменить вопрос">🔄 ЗАМЕНА</span>
+<!-- ======================= КАК ИГРАТЬ ======================= -->
+<div id="s-howto" class="screen">
+  <div class="howto-box">
+    <h2 class="howto-title pixel-text">// КАК ИГРАТЬ</h2>
+    <canvas class="howto-pic" id="howto-pic" width="960" height="340" aria-hidden="true"></canvas>
+    <ul class="howto-list">
+      <li><b>15 вопросов</b> по Python и C++: сначала лёгкие, потом средние и сложные. За каждый верный ответ поднимаешься на ступень выше.</li>
+      <li><b>Выбери ответ и подтверди его</b> — случайный клик не засчитается. На каждый вопрос 60 секунд, время идёт и пока подтверждаешь.</li>
+      <li><b>Одна ошибка — конец игры.</b> Остаётся несгораемая сумма: после 5-го вопроса — 10 очков, после 10-го — 320.</li>
+      <li><b>Не уходи со вкладки</b> — смена вкладки засчитывается как проигрыш.</li>
+    </ul>
+    <div class="howto-sub pixel-text">// ПОДСКАЗКИ — КАЖДАЯ ОДИН РАЗ ЗА ИГРУ</div>
+    <div class="howto-hints" id="howto-hints"></div>
+    <div class="howto-sub pixel-text">// ЛЕСТНИЦА ВЫИГРЫША</div>
+    <div class="howto-ladder" id="howto-ladder"></div>
+    <button class="btn-prim pixel-text" id="btn-howto-back" type="button">[ ПОНЯТНО ]</button>
   </div>
 </div>
 
-
+<!-- ======================= ИГРА ======================= -->
 <div id="s-game" class="screen">
-
-  <!-- Верхняя панель -->
-  <header class="game-header">
-    <div class="header-left">
-      <button class="btn-esc pixel-text" id="btn-esc">[ В МЕНЮ ]</button>
-      <div class="question-counter">
-        <span class="pixel-text" id="q-num">ВОПРОС 1</span>
-        <span class="pixel-text difficulty-badge" id="q-diff"></span>
-        <span class="lang-badge pixel-text" id="q-lang"></span>
+  <div class="hud">
+    <div class="hud-col">
+      <div class="hud-item"><span class="hud-lbl pixel-text">ВОПРОС</span><span class="hud-val pixel-text" id="h-num">1/15</span></div>
+      <div class="hud-item"><span class="hud-lbl pixel-text">НА КОНУ</span><span class="hud-val hud-val--y pixel-text" id="h-prize">1</span></div>
+      <div class="hud-item"><span class="hud-lbl pixel-text">ГАРАНТИЯ</span><span class="hud-val pixel-text" id="h-safe">0</span></div>
+    </div>
+    <div class="hud-mid">
+      <div class="timer" id="timer">
+        <span class="timer-lbl pixel-text">ВРЕМЯ</span>
+        <div class="timer-bar"><div class="timer-fill" id="timer-fill"></div></div>
+        <span class="timer-val pixel-text" id="timer-val">60</span>
       </div>
     </div>
-    <div class="header-right">
-      <div class="header-timer pixel-text" title="На ответ — 60 секунд (пока вкладка открыта)">
-        <span class="timer-label">// ЛИМИТ</span>
-        <span class="timer-value" id="question-timer">60</span><span class="timer-suffix">с</span>
-      </div>
-      <div class="current-prize">
-        <span class="prize-label pixel-text">ТЕКУЩИЙ ПРИЗ</span>
-        <span class="prize-amount pixel-text" id="current-prize">0</span>
-      </div>
-      <div class="safe-prize">
-        <span class="safe-label pixel-text">ГАРАНТИЯ</span>
-        <span class="safe-amount pixel-text" id="safe-prize">0</span>
-      </div>
+    <div class="hud-col hud-col--right">
+      <span class="shield-on pixel-text hidden" id="shield-on" title="Право на ошибку активно"></span>
+      <button class="btn-esc pixel-text" id="btn-esc" type="button">[ МЕНЮ ]</button>
     </div>
-  </header>
+  </div>
+  <!-- телефон: вместо лестницы — полоска из 15 ступеней -->
+  <div class="steps" id="steps"></div>
 
-  
   <div class="game-body">
-
-  
     <div class="game-main">
-
-    
-      <div class="audience-zone" style="background-image: url('bg.jpg'); background-size: cover; background-position: center top; background-repeat: no-repeat; background-color: #080c14;">
-        <img src="bg.jpg" class="audience-bg-img" alt="" onerror="this.style.display='none'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;display:block;z-index:0;background:#080c14;"/>
-      </div>
-
-    
-      <div class="game-bottom">
-
-    
-        <div class="question-box" id="question-box">
-          <div class="question-number pixel-text" id="q-number-badge">01</div>
-          <div class="question-text" id="question-text"></div>
+      <div class="q-card" id="q-card">
+        <div class="q-tab">
+          <span class="q-file pixel-text" id="q-file">question_01.py</span>
+          <span class="q-diff pixel-text" id="q-diff">ЛЁГКИЙ</span>
         </div>
+        <div class="q-text pixel-text" id="q-text"></div>
+      </div>
 
-      
-        <div class="answers-grid" id="answers-grid">
-          <button class="answer-btn" id="ans-0" data-idx="0">
-            <span class="ans-letter pixel-text">A</span>
-            <span class="ans-text" id="ans-text-0"></span>
-          </button>
-          <button class="answer-btn" id="ans-1" data-idx="1">
-            <span class="ans-letter pixel-text">B</span>
-            <span class="ans-text" id="ans-text-1"></span>
-          </button>
-          <button class="answer-btn" id="ans-2" data-idx="2">
-            <span class="ans-letter pixel-text">C</span>
-            <span class="ans-text" id="ans-text-2"></span>
-          </button>
-          <button class="answer-btn" id="ans-3" data-idx="3">
-            <span class="ans-letter pixel-text">D</span>
-            <span class="ans-text" id="ans-text-3"></span>
-          </button>
+      <div class="answers" id="answers"></div>
+
+      <div class="status" id="status">
+        <div class="status-msg pixel-text" id="status-msg"></div>
+        <div class="confirm hidden" id="confirm">
+          <span class="confirm-q pixel-text">ОТВЕТ <b id="cf-letter">A</b> — ОКОНЧАТЕЛЬНЫЙ?</span>
+          <button class="btn-prim pixel-text" id="cf-yes" type="button">[ ДА ]</button>
+          <button class="btn-sec pixel-text" id="cf-no" type="button">[ НЕТ ]</button>
         </div>
-
-       
-        <div class="hints-bar">
-          <div class="hints-label pixel-text">// ПОДСКАЗКИ</div>
-          <div class="hints-row">
-            <button class="hint-btn" id="hint-immunity" title="Право на ошибку — одна ошибка не считается">
-              <span class="hint-icon">🛡️</span>
-              <span class="hint-name pixel-text">ОШИБКА</span>
-            </button>
-            <button class="hint-btn" id="hint-5050" title="50:50 — убрать два неверных ответа">
-              <span class="hint-icon">⚡</span>
-              <span class="hint-name pixel-text">50:50</span>
-            </button>
-            <button class="hint-btn" id="hint-audience" title="Помощь зала — статистика ответов">
-              <span class="hint-icon">👥</span>
-              <span class="hint-name pixel-text">ЗАЛ</span>
-            </button>
-            <button class="hint-btn" id="hint-swap" title="Заменить вопрос на другой того же уровня">
-              <span class="hint-icon">🔄</span>
-              <span class="hint-name pixel-text">ЗАМЕНА</span>
-            </button>
-          </div>
-        </div>
-
       </div>
+
+      <div class="hints" id="hints"></div>
     </div>
 
-   
-    <div class="prize-ladder-col">
-      <div class="ladder-title pixel-text">// ПРИЗЫ</div>
-      <div class="ladder-list" id="ladder-list"></div>
-    </div>
-
+    <aside class="ladder" id="ladder"></aside>
   </div>
 
-  <div class="audience-popup" id="audience-popup">
-    <div class="audience-inner">
-      <div class="audience-title pixel-text">// ГОЛОСОВАНИЕ ЗАЛА</div>
-      <div class="audience-bars" id="audience-bars"></div>
-      <button class="audience-close pixel-text" id="audience-close">[ ЗАКРЫТЬ ]</button>
+  <!-- пояснение после ответа -->
+  <div class="ov hidden" id="exp-ov">
+    <div class="ov-box exp-box" id="exp-box">
+      <div class="exp-icon" id="exp-icon"></div>
+      <div class="exp-title pixel-text" id="exp-title"></div>
+      <div class="exp-prize pixel-text" id="exp-prize"></div>
+      <div class="exp-text pixel-text" id="exp-text"></div>
+      <button class="btn-prim pixel-text" id="btn-next" type="button">[ ДАЛЕЕ ]</button>
     </div>
   </div>
 
- 
-  <div class="answer-confirm-overlay" id="answer-confirm" aria-hidden="true">
-    <div class="answer-confirm-box">
-      <div class="answer-confirm-title pixel-text">Подтвердить ответ?</div>
-      <div class="answer-confirm-preview">
-        <span class="answer-confirm-letter pixel-text" id="ac-letter">A</span>
-        <span class="answer-confirm-text" id="ac-text"></span>
-      </div>
-      <p class="answer-confirm-hint pixel-text">Случайный клик не засчитается, пока не нажмёшь «Да».</p>
-      <div class="answer-confirm-btns">
-        <button type="button" class="btn-prim pixel-text" id="ac-yes">[ ДА, ЭТО МОЙ ОТВЕТ ]</button>
-        <button type="button" class="btn-sec pixel-text" id="ac-no">[ НЕТ ]</button>
+  <!-- выход посреди партии -->
+  <div class="ov hidden" id="exit-ov">
+    <div class="ov-box">
+      <div class="exp-title pixel-text" style="color: var(--yellow)">ВЫЙТИ ИЗ ИГРЫ?</div>
+      <div class="exp-text pixel-text" id="exit-text"></div>
+      <div class="ov-btns">
+        <button class="btn-prim btn-prim--pink pixel-text" id="exit-yes" type="button">[ ВЫЙТИ ]</button>
+        <button class="btn-sec pixel-text" id="exit-no" type="button">[ ИГРАТЬ ДАЛЬШЕ ]</button>
       </div>
     </div>
   </div>
-
-
-  <div class="explanation-popup" id="explanation-popup">
-    <div class="explanation-inner">
-      <div class="explanation-icon" id="exp-icon"></div>
-      <div class="explanation-title pixel-text" id="exp-title"></div>
-      <div class="explanation-text" id="exp-text"></div>
-      <button class="btn-next pixel-text" id="btn-next">[ СЛЕДУЮЩИЙ ВОПРОС ]</button>
-    </div>
-  </div>
-
 </div>
 
-
+<!-- ======================= РЕЗУЛЬТАТ ======================= -->
 <div id="s-result" class="screen">
   <div class="result-box">
-    <div class="result-emoji" id="r-emoji"></div>
-    <h2 class="result-title pixel-text" id="r-title"></h2>
-    <div class="result-prize pixel-text" id="r-prize"></div>
-    <div class="result-stats">
-      <div class="res-stat">
-        <div class="stat-n pixel-text green" id="r-correct">0</div>
-        <div class="stat-l pixel-text">ВЕРНЫХ</div>
-      </div>
-      <div class="res-stat">
-        <div class="stat-n pixel-text pink" id="r-wrong">0</div>
-        <div class="stat-l pixel-text">ОШИБОК</div>
-      </div>
-      <div class="res-stat">
-        <div class="stat-n pixel-text cyan" id="r-reached">0</div>
-        <div class="stat-l pixel-text">ВОПРОС</div>
+    <div class="result-head">
+      <div class="result-icon" id="r-icon"></div>
+      <div>
+        <h2 class="result-title pixel-text" id="r-title">ИГРА ОКОНЧЕНА</h2>
+        <div class="result-sub pixel-text" id="r-sub"></div>
       </div>
     </div>
+    <div class="result-prize">
+      <span class="pixel-text" id="r-prize">0</span>
+      <small class="pixel-text">ОЧКОВ</small>
+    </div>
+    <div class="steps steps--result" id="r-steps"></div>
+    <div class="result-stats">
+      <div class="rs"><div class="n" id="r-ok">0</div><div class="l">ВЕРНЫХ</div></div>
+      <div class="rs"><div class="n" id="r-reached">1</div><div class="l">ВОПРОС</div></div>
+      <div class="rs"><div class="n" id="r-hints">0/4</div><div class="l">ПОДСКАЗОК</div></div>
+      <div class="rs"><div class="n" id="r-time">0:00</div><div class="l">ВРЕМЯ</div></div>
+    </div>
+    <div class="result-saved pixel-text" id="r-saved"></div>
     <div class="result-btns">
-      <button class="btn-prim pixel-text" id="btn-retry">[ ИГРАТЬ СНОВА ]</button>
-      <button class="btn-sec pixel-text" id="btn-menu-res">[ МЕНЮ ]</button>
+      <button class="btn-prim pixel-text" id="btn-retry" type="button">[ ИГРАТЬ СНОВА ]</button>
+      <button class="btn-sec pixel-text" id="btn-menu" type="button">[ МЕНЮ ]</button>
     </div>
   </div>
 </div>
+
+<div id="toasts"></div>
 
 <script>document.write('<script src="' + window.__assetUrl('../../js/wip-guard.js') + '"><\/script>')</script>
 <script>document.write('<script src="' + window.__assetUrl('../../js/leaderboard.js') + '"><\/script>')</script>
 <script>document.write('<script src="' + window.__assetUrl('js/game.js') + '"><\/script>')</script>
-<script>
-
-
-(function() {
-  var zone = document.querySelector('.audience-zone');
-  if (!zone) return;
-  var bgUrl = (window.__assetUrl ? window.__assetUrl('bg.jpg') : 'bg.jpg');
-  zone.style.backgroundImage = "url('" + bgUrl + "')";
-  zone.style.backgroundSize = 'cover';
-  zone.style.backgroundPosition = 'center top';
-  zone.style.backgroundRepeat = 'no-repeat';
-  zone.style.backgroundColor = '#080c14';
-
-  var img = zone.querySelector('.audience-bg-img');
-  if (img) {
-    img.src = bgUrl;
-    img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;display:block;z-index:0;background:#080c14;';
-    img.onerror = function() {
-      console.error('bg.png не найден по пути: bg.png');
-    };
-    img.onload = function() {
-      console.log('bg.png загружен успешно');
-    };
-  }
-})();
-</script>
 </body>
 </html>

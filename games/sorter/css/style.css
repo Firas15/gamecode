@@ -320,3 +320,33 @@ body.in-game .sound-btn { display: none; }
 .rv .q { font-size: 11px; color: var(--text-bright); }
 .rv .e { font-size: 9px; color: var(--text-dim); line-height: 1.9; }
 .result-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+/* ============================================================
+   ПК: меню и «Как играть» крупнее. Только шире 760px —
+   телефонная вёрстка (mobile.css) остаётся как была.
+   ============================================================ */
+@media (min-width: 761px) {
+  .back-btn { font-size: 11px; padding: 11px 18px; }
+  .sound-btn { font-size: 10px; padding: 10px 14px; }
+
+  #s-menu { gap: 34px; padding-top: 96px; }
+  .menu-head { gap: 18px; }
+  .menu-title { font-size: clamp(30px, 4.4vw, 52px); }
+  .menu-subtitle { font-size: 12px; }
+  .level-cards { max-width: 1180px; gap: 26px; }
+  .level-card { flex-basis: 300px; max-width: 360px; padding: 50px 20px; }
+  .level-card .lc-name { font-size: 27px; }
+  .menu-actions .btn-sec { font-size: 13px; padding: 18px 32px; }
+  #lb-sorter { max-width: 600px; zoom: 1.2; }
+
+  #s-howto { padding-top: 76px; }
+  .howto-box { max-width: 1000px; padding: 34px 40px; gap: 24px; }
+  .howto-title { font-size: 18px; }
+  .howto-pic { max-width: 820px; }
+  .howto-list { font-size: 13px; gap: 18px; }
+  .howto-list li { padding-left: 24px; }
+  .howto-cats { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .howto-cat { font-size: 12px; padding: 14px 16px; }
+  .howto-cat b { font-size: 12px; margin-bottom: 8px; }
+  .howto-box .btn-prim { font-size: 13px; padding: 18px 32px; }
+}

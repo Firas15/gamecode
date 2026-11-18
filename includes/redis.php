@@ -148,6 +148,8 @@ const CACHE_KEY_FAQ      = 'gamecode:faq';
 // и рамки у всех появились бы с задержкой в пять минут.
 const CACHE_KEY_LB_ALL   = 'gamecode:lb:v3:all';
 const CACHE_KEY_PIXELGAME_QUESTIONS = 'gamecode:pixelgame:questions';
+// Список уровней CodeQuest (номер + название) для меню игры
+const CACHE_KEY_PIXELGAME_LEVEL_LIST = 'gamecode:pixelgame:levels';
 
 function cache_key_lb(string $game): string {
     return 'gamecode:lb:v3:' . $game;
@@ -208,6 +210,33 @@ function cached_read_pixelgame_level(int $levelNumber): ?array {
     return $level;
 }
 
+/**
+ * Список уровней для меню игры: [{level, title}, ...] по возрастанию номера.
+ * Берётся из той же таблицы, куда пишет редактор в админке, поэтому
+ * новый уровень появляется в игре сразу после сохранения.
+ */
+function cached_read_pixelgame_level_list(): array {
+    $cached = cache_get(CACHE_KEY_PIXELGAME_LEVEL_LIST);
+    if (is_array($cached)) {
+        return $cached;
+    }
+
+    $list = [];
+    foreach (readPixelgameLevels() as $number => $data) {
+        if (!is_array($data) || empty($data['chests'])) {
+            continue;                       // уровень без сундуков сервер не запустит
+        }
+        $list[] = [
+            'level' => (int)$number,
+            'title' => (string)($data['title'] ?? ($data['name'] ?? '')),
+        ];
+    }
+    usort($list, static fn($a, $b) => $a['level'] <=> $b['level']);
+
+    cache_set(CACHE_KEY_PIXELGAME_LEVEL_LIST, $list, CACHE_TTL_PIXELGAME_CONTENT);
+    return $list;
+}
+
 function cached_read_pixelgame_monster_questions(): ?array {
     $cached = cache_get(CACHE_KEY_PIXELGAME_QUESTIONS);
     if ($cached !== null) {
@@ -230,11 +259,11 @@ function cached_read_pixelgame_monster_questions(): ?array {
  */
 function cache_invalidate_pixelgame(int $levelNumber = 0): void {
     if ($levelNumber > 0) {
-        cache_delete(cache_key_pixelgame_level($levelNumber), CACHE_KEY_PIXELGAME_QUESTIONS);
+        cache_delete(cache_key_pixelgame_level($levelNumber), CACHE_KEY_PIXELGAME_QUESTIONS, CACHE_KEY_PIXELGAME_LEVEL_LIST);
         return;
     }
     cache_delete_pattern('gamecode:pixelgame:level:*');
-    cache_delete(CACHE_KEY_PIXELGAME_QUESTIONS);
+    cache_delete(CACHE_KEY_PIXELGAME_QUESTIONS, CACHE_KEY_PIXELGAME_LEVEL_LIST);
 }
 
 // КЭШИРОВАННЫЕ ФУНКЦИИ — НОВОСТИ

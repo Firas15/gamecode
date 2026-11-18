@@ -758,7 +758,18 @@ async function initAdmin() {
 }
 
 async function loadLevels() {
-  const defaultLevels = await Promise.all([1,2,3,4].map(async (levelNumber, index) => {
+  // Какие уровни есть в базе: раньше здесь были жёстко 1–4, и добавленный
+  // в редакторе 5-й после перезагрузки страницы пропадал из списка
+  let numbers = [1, 2, 3, 4];
+  try {
+    const r = await fetch('../api/pixelgame-levels.php', { cache: 'no-store' });
+    const data = r.ok ? await r.json() : null;
+    const fromDb = (data && Array.isArray(data.levels) ? data.levels : [])
+      .map(l => l.level).filter(n => Number.isInteger(n) && n > 0);
+    if (fromDb.length) numbers = fromDb.sort((a, b) => a - b);
+  } catch (e) { /* список недоступен — встроенные 1–4 */ }
+
+  const defaultLevels = await Promise.all(numbers.map(async (levelNumber, index) => {
     const levelName = `Level ${levelNumber}`;
     const base = {
       level: levelNumber,
@@ -1492,7 +1503,9 @@ function selectLevel(idx) {
 }
 
 function addLevel() {
-  const name = prompt('Название уровня:', `Level ${levels.length+1}`);
+  // номер — следующий после самого большого (а не «сколько уровней + 1»)
+  const nextNumber = levels.reduce((m, l) => Math.max(m, Number(l.level) || 0), 0) + 1;
+  const name = prompt('Название уровня:', `Level ${nextNumber}`);
   if (!name) return;
   const w=20, h=15;
   const map = Array.from({length:h}, (_,r) =>
@@ -1503,7 +1516,7 @@ function addLevel() {
   map[1][1] = 2;
   map[h-2][w-2] = 3;
   levels.push({
-    level: levels.length + 1,
+    level: nextNumber,
     name,
     title: name,
     map,

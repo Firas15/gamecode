@@ -127,6 +127,15 @@ const Audio = (() => {
     },
     // Кнопка
     click: () => { beep(440,0.04,'square',0.08); },
+    // Экран «перезагрузки» перед уровнем (js/boot.js)
+    boot: (kind) => {
+      if (kind === 'ok')     beep(1400,0.025,'square',0.04);
+      if (kind === 'warn')   { beep(520,0.07,'square',0.07); beep(420,0.09,'square',0.07,0.08); }
+      if (kind === 'glitch') { noise(0.4,0.16); beep(140,0.3,'sawtooth',0.09); beep(95,0.25,'sawtooth',0.08,0.15); }
+      if (kind === 'err')    { beep(230,0.12,'square',0.1); beep(180,0.22,'square',0.1,0.14); }
+      if (kind === 'fix')    { beep(660,0.05,'square',0.08); beep(990,0.09,'square',0.08,0.06); noise(0.12,0.05); }
+      if (kind === 'on')     { beep(80,0.3,'sine',0.12); noise(0.14,0.05); }
+    },
     // Game over
     gameover: () => {
       beep(400,0.1,'sawtooth',0.12); beep(300,0.1,'sawtooth',0.12,0.12);
@@ -330,21 +339,62 @@ const MAP_DEFAULT = MAP.slice();
 const TILE = 48;
 const TOTAL_CHESTS = 5;
 
+// Запасной список — только если сервер со списком уровней не ответил.
+// Обычно уровни (номер и название) приходят из админки: api/pixelgame-levels.php
 const DEFAULT_LEVEL_CARDS = [
-  { level: 1, name: 'УРОВЕНЬ 1', title: 'Основы Go — вывод и пакеты' },
-  { level: 2, name: 'УРОВЕНЬ 2', title: 'Переменные и типы данных' },
-  { level: 3, name: 'УРОВЕНЬ 3', title: 'Операторы и ввод данных' },
-  { level: 4, name: 'УРОВЕНЬ 4', title: 'Условные конструкции' },
+  { level: 1, title: 'Основы Go — вывод и пакеты' },
+  { level: 2, title: 'Переменные и типы данных' },
+  { level: 3, title: 'Операторы и ввод данных' },
+  { level: 4, title: 'Условные конструкции' },
 ];
+let levelList = DEFAULT_LEVEL_CARDS.slice();
 
-function getMenuLevels() {
-  return DEFAULT_LEVEL_CARDS.map(item => ({ ...item, available: true }));
+// «Level 5: Циклы» → «Циклы»: номер и так на карточке, в названии он лишний
+function levelTheme(title, number) {
+  const t = String(title || '').trim()
+    .replace(/^(level|уровень)\s*\d+\s*[:.\-—–]?\s*/i, '')
+    .replace(/\s+-\s+/g, ' — ');
+  return t || `Уровень ${number}`;
 }
 
-function renderLevelCards() {
+async function fetchLevelList() {
+  try {
+    const r = await fetch('../../api/pixelgame-levels.php', { cache: 'no-store' });
+    const data = r.ok ? await r.json() : null;
+    const list = data && Array.isArray(data.levels)
+      ? data.levels.filter(l => Number.isInteger(l.level) && l.level > 0)
+      : [];
+    if (list.length) levelList = list.map(l => ({ level: l.level, title: levelTheme(l.title, l.level) }));
+  } catch (e) {
+    console.warn('Список уровней недоступен, показываю встроенный:', e);
+  }
+  return levelList;
+}
+
+function getLevelInfo(n) {
+  return levelList.find(l => l.level === n) || null;
+}
+
+function hasNextLevel() {
+  return levelList.some(l => l.level > state.currentLevel);
+}
+
+function nextLevelNumber() {
+  const next = levelList.filter(l => l.level > state.currentLevel).sort((a, b) => a.level - b.level)[0];
+  return next ? next.level : null;
+}
+
+// Сразу рисуем то, что уже знаем, и перерисовываем, когда придёт свежий список
+async function renderLevelCards() {
+  drawLevelCards(levelList);
+  const before = JSON.stringify(levelList);
+  await fetchLevelList();
+  if (JSON.stringify(levelList) !== before) drawLevelCards(levelList);
+}
+
+function drawLevelCards(levels) {
   const grid = document.querySelector('.level-grid');
   if (!grid) return;
-  const levels = getMenuLevels();
   grid.innerHTML = '';
   levels.forEach((lv, idx) => {
     const btn = document.createElement('button');
@@ -359,7 +409,7 @@ function renderLevelCards() {
 
     const name = document.createElement('div');
     name.className = 'level-name pixel-text';
-    name.textContent = lv.name;
+    name.textContent = `УРОВЕНЬ ${lv.level}`;
 
     const desc = document.createElement('div');
     desc.className = 'level-desc';
@@ -1743,7 +1793,7 @@ function runProgram(){
   document.getElementById('final-result').classList.remove('hidden');
   // Показываем кнопку следующего уровня только если есть следующий
   const nextBtn=document.getElementById('btn-next-level');
-  if(nextBtn) nextBtn.style.display=state.currentLevel<4?'':'none';
+  if(nextBtn) nextBtn.style.display=hasNextLevel()?'':'none';
   setTimeout(()=>document.getElementById('final-result').scrollIntoView({behavior:'smooth'}),100);
   submitPixelgameScore();
 }
@@ -1824,16 +1874,35 @@ async function startLevel(levelNumber) {
   await startGame();
 }
 
-async function startGame() {
-  if (!state.levelData || state.levelData.level !== state.currentLevel) {
-    await loadLevel(state.currentLevel);
+async function startGame(opts = {}) {
+  // Пока уровень грузится — экран «перезагружается» как старый компьютер (js/boot.js)
+  // Номер и название уровня — из админки. Название интро спрашивает в момент,
+  // когда печатает строку уровня: к этому времени уровень обычно уже загружен.
+  const levelNo = state.currentLevel;
+  const levelTitle = () => {
+    const d = state.levelData;
+    if (d && d.level === levelNo && d.title) return levelTheme(d.title, levelNo);
+    const info = getLevelInfo(levelNo);
+    return info ? info.title : '';
+  };
+  const boot = typeof Boot !== 'undefined'
+    ? Boot.start({ level: levelNo, title: levelTitle, short: !!opts.short })
+    : null;
+  try {
+    if (!state.levelData || state.levelData.level !== state.currentLevel) {
+      await loadLevel(state.currentLevel);
+    }
+    // Подписанный ран (античит, общий js/leaderboard.js) и партия на сервере
+    if (typeof pingGame !== 'function') throw new Error('Не загрузился модуль сайта');
+    await pingGame('pixelgame');
+    cqRun = JSON.parse(sessionStorage.getItem('gc_run_pixelgame') || 'null');
+    if (!cqRun || !cqRun.run_id) throw new Error('Сервер не выдал партию');
+    await cqApi('start', { level: state.currentLevel });
+  } catch (e) {
+    if (boot) boot.abort();
+    throw e;
   }
-  // Подписанный ран (античит, общий js/leaderboard.js) и партия на сервере
-  if (typeof pingGame !== 'function') throw new Error('Не загрузился модуль сайта');
-  await pingGame('pixelgame');
-  cqRun = JSON.parse(sessionStorage.getItem('gc_run_pixelgame') || 'null');
-  if (!cqRun || !cqRun.run_id) throw new Error('Сервер не выдал партию');
-  await cqApi('start', { level: state.currentLevel });
+  if (boot) await boot.finished;   // загрузка доиграна (или промотана тапом)
   state.hp=state.maxHp; state.score=0; state.inventory=[];
   state.keys={}; state.invincible=0; state.player.slow=0;
   // Сброс метрик
@@ -1847,6 +1916,7 @@ async function startGame() {
   resizeCanvas(); initMap(); buildTextures();
   updateHUD(); updateInventory();
   showScreen('game');
+  if (boot) boot.close();          // гаснет поверх уже готового уровня
   state.lastTime=performance.now();
   state.animFrame=requestAnimationFrame(gameLoop);
   setTimeout(()=>setStatus('WASD — движение  |  Исследуй лабиринт, ищи сундуки'),600);
@@ -1958,7 +2028,7 @@ document.getElementById('btn-back').addEventListener('click',()=>{ Audio.click()
 document.getElementById('btn-gameover-restart').addEventListener('click',async ()=>{
   Audio.click();
   try {
-    await startGame();
+    await startGame({ short: true });   // повтор того же уровня — короткая перезагрузка
   } catch (error) {
     handleLevelLoadError(state.currentLevel, error);
   }
@@ -1967,10 +2037,12 @@ document.getElementById('btn-restart').addEventListener('click',()=>{cancelAnima
 initMenuAnimation();});
 document.getElementById('btn-next-level').addEventListener('click',async()=>{
   Audio.click();
+  // следующий по списку из админки (номера могут идти с пропусками)
+  const next = nextLevelNumber() || state.currentLevel+1;
   try {
-    await startLevel(state.currentLevel+1);
+    await startLevel(next);
   } catch(error) {
-    handleLevelLoadError(state.currentLevel+1, error);
+    handleLevelLoadError(next, error);
   }
 });
 

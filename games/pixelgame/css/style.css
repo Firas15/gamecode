@@ -905,3 +905,107 @@ body {
     pointer-events: none;
   }
 }
+
+/* ═══ «ПЕРЕЗАГРУЗКА» ПЕРЕД УРОВНЕМ (js/boot.js) ═══ */
+.boot-ov {
+  position: fixed; inset: 0; z-index: 1200; overflow: hidden;
+  background: #020604; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none;
+}
+/* кинескоп: строки развёртки + затемнение по краям + лёгкое мерцание */
+.boot-ov::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 3;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,.28) 0 1px, transparent 1px 3px);
+  box-shadow: inset 0 0 140px rgba(0,0,0,.85);
+  animation: boot-flicker 3.7s steps(1) infinite;
+}
+@keyframes boot-flicker { 0%, 100% { opacity: 1; } 41% { opacity: .82; } 43% { opacity: 1; } 77% { opacity: .9; } }
+.boot-scr { position: absolute; inset: 0; padding: clamp(18px, 5vh, 56px) clamp(16px, 6vw, 80px); }
+.boot-lines { max-width: 980px; }
+.boot-line {
+  font-family: var(--font); font-size: 11px; line-height: 2.2; color: #39ff14;
+  text-shadow: 0 0 6px rgba(57,255,20,.55); white-space: pre-wrap; word-break: break-word;
+}
+.boot-line .bl-dots { color: rgba(57,255,20,.4); }
+.bl-head { color: var(--cyan); text-shadow: 0 0 8px rgba(0,229,255,.6); margin-bottom: 10px; }
+.bl-level { color: var(--yellow); text-shadow: 0 0 8px rgba(255,214,0,.5); margin: 8px 0 4px; }
+.bl-go { margin-top: 12px; }
+.bl-st.st-warn { color: var(--yellow); text-shadow: 0 0 8px rgba(255,214,0,.5); }
+.bl-st.st-err { color: var(--pink); text-shadow: 0 0 8px rgba(255,77,109,.7); animation: boot-blink .5s steps(1) infinite; }
+.bl-cursor { animation: boot-blink .6s steps(1) infinite; }
+@keyframes boot-blink { 50% { opacity: 0; } }
+
+/* сбитая строка: рвётся и двоится цветами */
+.bl-glitched .bl-text, .bl-glitched .bl-dots {
+  color: var(--pink); text-shadow: -2px 0 rgba(0,229,255,.8), 2px 0 rgba(255,77,109,.8);
+  display: inline-block; animation: boot-jitter .22s steps(1) infinite;
+}
+@keyframes boot-jitter {
+  0%   { transform: translateX(0); clip-path: inset(0 0 0 0); }
+  25%  { transform: translateX(-3px); clip-path: inset(0 0 45% 0); }
+  50%  { transform: translateX(4px); clip-path: inset(40% 0 0 0); }
+  75%  { transform: translateX(-1px); clip-path: inset(15% 0 30% 0); }
+}
+.boot-shake .boot-scr { animation: boot-shake .12s steps(2) infinite; }
+@keyframes boot-shake { 0% { transform: translate(2px, -1px); } 50% { transform: translate(-3px, 1px); } }
+
+.bl-fix { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 6px 0 10px; }
+.bl-btn {
+  font-family: var(--font); font-size: 10px; padding: 9px 14px; cursor: pointer;
+  background: rgba(255,77,109,.08); color: var(--pink); border: 2px solid var(--pink);
+  box-shadow: 0 0 14px rgba(255,77,109,.35); animation: boot-pulse 1s steps(2) infinite;
+}
+.bl-btn:hover { background: rgba(255,77,109,.2); }
+@keyframes boot-pulse { 50% { box-shadow: 0 0 2px rgba(255,77,109,.2); } }
+.bl-auto { font-size: 8px; color: rgba(255,77,109,.7); }
+
+.boot-hint {
+  position: absolute; right: 16px; bottom: 14px; z-index: 4; font-size: 8px; color: rgba(57,255,20,.45);
+  animation: boot-blink 1.2s steps(1) infinite;
+}
+
+/* вирус, который сбил строку */
+.boot-ghost {
+  position: absolute; z-index: 2; width: 88px; height: 80px; image-rendering: pixelated;
+  opacity: 0; transition: opacity .35s steps(4); filter: drop-shadow(0 0 10px rgba(255,77,109,.6));
+}
+.boot-ghost.on { opacity: 1; animation: boot-chomp .3s steps(1) infinite; }
+@keyframes boot-chomp { 50% { transform: translate(-3px, 2px); } }
+.boot-px { position: absolute; z-index: 2; width: 6px; height: 6px; pointer-events: none; }
+.boot-px.px-in  { animation: boot-px-in .4s steps(5) forwards; }
+.boot-px.px-out { animation: boot-px-out .55s steps(6) forwards; }
+@keyframes boot-px-in  { from { transform: translate(var(--dx), var(--dy)); opacity: 0; } 30% { opacity: 1; } to { transform: none; opacity: 0; } }
+@keyframes boot-px-out { from { transform: none; opacity: 1; } to { transform: translate(var(--dx), var(--dy)); opacity: 0; } }
+
+/* конец: изображение схлопывается в полоску и гаснет, как старый монитор */
+.boot-ov.boot-out { pointer-events: none; animation: boot-off .42s steps(7) forwards; }
+@keyframes boot-off {
+  0%   { transform: scaleY(1); opacity: 1; filter: brightness(1); }
+  55%  { transform: scaleY(.012); opacity: 1; filter: brightness(3); }
+  100% { transform: scale(0, .012); opacity: 0; }
+}
+
+@media (max-width: 600px) {
+  .boot-line { font-size: 8px; line-height: 2.3; }
+  .bl-btn { font-size: 8px; padding: 9px 10px; }
+  .boot-ghost { width: 66px; height: 60px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .boot-ov::before, .bl-glitched .bl-text, .bl-glitched .bl-dots, .boot-shake .boot-scr, .boot-ghost.on { animation: none; }
+}
+
+/* ═══ ВЫБОР УРОВНЯ: на ПК крупнее (телефон — как было) ═══ */
+@media (min-width: 761px) {
+  .levels-wrap { max-width: 1040px; padding: 64px 32px 80px; gap: 36px; }
+  .levels-title { font-size: clamp(20px, 2.6vw, 30px); margin-bottom: 16px; }
+  .levels-sub { font-size: 20px; }
+  .level-grid { gap: 24px; }
+  /* нечётное число уровней: последняя карточка — во всю ширину, без «дыры» справа */
+  .level-card:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .level-card { gap: 14px; padding: 30px 30px 28px; }
+  .level-card::before { width: 4px; }
+  .level-num { font-size: 36px; }
+  .level-name { font-size: 16px; letter-spacing: 2px; }
+  .level-desc { font-size: 14px; line-height: 1.7; }
+  .level-badge { font-size: 10px; padding: 6px 12px; }
+  #btn-levels-back { font-size: 13px; padding: 16px 30px; }
+}

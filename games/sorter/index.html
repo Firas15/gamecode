@@ -2,8 +2,8 @@
 <html lang="ru" data-game-id="sorter">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Сортировщик — Python</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>Сортировщик — Game Code</title>
   <script>
     (function () {
       const api = '../../api/version.php';
@@ -28,97 +28,103 @@
     document.write('<link rel="stylesheet" href="' + window.__assetUrl('css/style.css') + '">');
     document.write('<link rel="stylesheet" href="' + window.__assetUrl('css/mobile.css') + '">');
     document.write('<link rel="stylesheet" href="' + window.__assetUrl('../../css/leaderboard.css') + '">');
-    // Рамки аватаров из магазина: виджет топа рисует их разметку,
-    // а описаны они в shop.css — без него это был просто пустой span.
+    // Рамки аватаров из магазина: виджет топа рисует их разметку, описаны они в shop.css
     document.write('<link rel="stylesheet" href="' + window.__assetUrl('../../css/shop.css') + '">');
   </script>
 </head>
 <body>
 
 <canvas id="stars-canvas"></canvas>
+<button class="sound-btn pixel-text" id="btn-sound" type="button" title="Звук">ЗВУК: ВКЛ</button>
 
+<!-- ======================= МЕНЮ ======================= -->
+<div id="s-menu" class="screen active">
+  <a href="../../index.html" class="back-btn">&lt; НА ГЛАВНУЮ</a>
 
-<div id="s-menu" class="screen">
-
-  <a href="../../index.html" class="back-btn">◄ НА ГЛАВНУЮ</a>
-
-  <div class="logo">
-    <h1>СОРТИРОВЩИК<br/><span style="font-size:.6em;color:var(--purple)">PYTHON</span></h1>
-    <div class="sub">V2.0 — GameCode</div>
-    <div class="badge">[ ВЫБЕРИТЕ УРОВЕНЬ СЛОЖНОСТИ ]</div>
+  <div class="menu-head">
+    <h1 class="menu-title pixel-text">СОРТИ<span class="accent">РОВЩИК</span></h1>
+    <p class="menu-subtitle pixel-text">Python: разложи код по корзинам</p>
   </div>
-  <div class="lvl-cards" id="lvl-cards"></div>
-  <div class="lb-widget" id="lb-sorter"></div>
 
-  <div class="menu-tip">
-    перетащи блок в корзину до того, как он упадёт
-    <div class="tip-row">
-      <span><kbd>drag</kbd> бросить</span>
-      <span><kbd>P</kbd> пауза</span>
-      <span><kbd>ESC</kbd> меню</span>
-    </div>
+  <div class="level-cards" id="level-cards"></div>
+
+  <div class="menu-actions">
+    <button class="btn-sec pixel-text" id="btn-howto" type="button">[ КАК ИГРАТЬ ]</button>
+  </div>
+
+  <div class="lb-widget" id="lb-sorter"></div>
+</div>
+
+<!-- ======================= КАК ИГРАТЬ ======================= -->
+<div id="s-howto" class="screen">
+  <div class="howto-box">
+    <h2 class="howto-title pixel-text">// КАК ИГРАТЬ</h2>
+    <canvas class="howto-pic" id="howto-pic" width="960" height="340" aria-hidden="true"></canvas>
+    <ul class="howto-list">
+      <li><b>Сверху падает блок кода.</b> Схвати его мышкой или пальцем и брось в корзину, к которой он относится.</li>
+      <li><b>Не дай блоку упасть.</b> Упал или попал не в ту корзину — минус жизнь. Жизней 3.</li>
+      <li><b>Не держи блок слишком долго.</b> Через 3 секунды в руке он начинает сбоить, а на 5-й прилетает глюк и съедает его — это тоже ошибка. Время копится, даже если отпустить блок и схватить снова.</li>
+      <li><b>Собери цель уровня:</b> Новичок — 10 блоков, Практик — 15, Эксперт — 20. Чем выше уровень, тем быстрее падают блоки и сложнее код.</li>
+      <li><b>Очки</b> — за каждый верный блок, за ошибку штраф. После игры — разбор всех ошибок с подсказками.</li>
+      <li><kbd>P</kbd> или кнопка — пауза, <kbd>ESC</kbd> — в меню.</li>
+    </ul>
+    <div class="howto-cats" id="howto-cats"></div>
+    <button class="btn-prim pixel-text" id="btn-howto-back" type="button">[ ПОНЯТНО ]</button>
   </div>
 </div>
 
-
-<div id="s-game" class="screen out">
+<!-- ======================= ИГРА ======================= -->
+<div id="s-game" class="screen">
   <div class="hud">
-
-    
     <div class="hud-col">
-      <div class="hud-item">
-        <span class="hud-lbl">ОЧКИ</span>
-        <span class="hud-val" id="h-score">0</span>
-      </div>
-      <div class="hud-item">
-        <span class="hud-lbl">ПРОГРЕСС</span>
-        <span class="hud-val" id="h-prog">0/10</span>
-      </div>
+      <div class="hud-item"><span class="hud-lbl pixel-text">ОЧКИ</span><span class="hud-val pixel-text" id="h-score">0</span></div>
+      <div class="hud-item"><span class="hud-lbl pixel-text">ВЕРНО</span><span class="hud-val pixel-text" id="h-prog">0/10</span></div>
     </div>
-
- 
     <div class="hud-mid">
-      <div class="hud-lvname" id="h-lname">УР. 1</div>
-      <div class="prog-wrap">
-        <div class="prog-fill" id="h-bar" style="width:0"></div>
-      </div>
+      <div class="hud-lvname pixel-text" id="h-lname">НОВИЧОК</div>
+      <div class="prog-wrap"><div class="prog-fill" id="h-bar"></div></div>
     </div>
-
-
-    <div class="hud-col">
-      <div class="hud-item">
-        <span class="hud-lbl">ЖИЗНИ</span>
-        <div class="hud-hearts" id="h-hearts"></div>
-      </div>
-      <button class="btn-esc pixel-text" id="btn-esc">[ В МЕНЮ ]</button>
-      <button class="btn-pause" id="btn-pause">|| ПАУЗА</button>
+    <div class="hud-col hud-col--right">
+      <div class="hud-item"><span class="hud-lbl pixel-text">ЖИЗНИ</span><div class="hud-hearts" id="h-hearts"></div></div>
+      <button class="btn-esc pixel-text" id="btn-pause" type="button" title="Пауза (P)">||</button>
+      <button class="btn-esc pixel-text" id="btn-esc" type="button">[ МЕНЮ ]</button>
     </div>
-
   </div>
 
-  <div class="field" id="field"></div>
+  <div class="field" id="field">
+    <div class="tip pixel-text" id="tip"></div>
+    <div class="pause-ov hidden" id="pause-ov">
+      <div class="pause-box">
+        <div class="pause-title pixel-text">ПАУЗА</div>
+        <button class="btn-prim pixel-text" id="btn-resume" type="button">[ ПРОДОЛЖИТЬ ]</button>
+      </div>
+    </div>
+  </div>
   <div class="baskets" id="baskets"></div>
 </div>
 
-
-<div id="s-result" class="screen out">
-  <h2 class="res-title" id="r-title"></h2>
-  <div class="res-stats">
-    <div class="res-stat"><div class="sn" id="r-score">0</div><div class="sl">Очки</div></div>
-    <div class="res-stat"><div class="sn" id="r-ok">0</div><div class="sl">Верно</div></div>
-    <div class="res-stat"><div class="sn" id="r-err">0</div><div class="sl">Ошибки</div></div>
-    <div class="res-stat"><div class="sn" id="r-acc">0%</div><div class="sl">Точность</div></div>
-  </div>
-  <div class="err-sec" id="r-errsec" style="display:none">
-    <h3>// разбор ошибок</h3>
-    <div id="r-errlist"></div>
-  </div>
-  <div class="res-btns">
-    <button class="btn-prim" id="btn-retry">[ ЗАНОВО ]</button>
-    <button class="btn-sec"  id="btn-menu">[ В МЕНЮ ]</button>
+<!-- ======================= РЕЗУЛЬТАТ ======================= -->
+<div id="s-result" class="screen">
+  <div class="result-box">
+    <div>
+      <h2 class="result-title pixel-text" id="r-title">УРОВЕНЬ ПРОЙДЕН</h2>
+      <div class="result-sub pixel-text" id="r-sub"></div>
+    </div>
+    <div class="result-stats">
+      <div class="rs big"><div class="n" id="r-score">0</div><div class="l">ОЧКИ</div></div>
+      <div class="rs"><div class="n" id="r-ok">0</div><div class="l">ВЕРНО</div></div>
+      <div class="rs"><div class="n" id="r-err">0</div><div class="l">ОШИБКИ</div></div>
+      <div class="rs"><div class="n" id="r-acc">0%</div><div class="l">ТОЧНОСТЬ</div></div>
+    </div>
+    <div class="result-saved pixel-text" id="r-saved"></div>
+    <div class="review" id="r-review"></div>
+    <div class="result-btns">
+      <button class="btn-prim pixel-text" id="btn-retry" type="button">[ ЕЩЁ РАЗ ]</button>
+      <button class="btn-prim btn-prim--green pixel-text hidden" id="btn-nextlvl" type="button">[ СЛЕДУЮЩИЙ УРОВЕНЬ ]</button>
+      <button class="btn-sec pixel-text" id="btn-menu" type="button">[ МЕНЮ ]</button>
+    </div>
   </div>
 </div>
-
 
 <div id="toasts"></div>
 
